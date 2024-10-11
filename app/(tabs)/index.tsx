@@ -1,4 +1,5 @@
-import { Text, SafeAreaView } from "react-native";
+import { Link } from "expo-router";
+import { Text, SafeAreaView, Pressable } from "react-native";
 
 export default function Index() {
   return (
@@ -10,6 +11,11 @@ export default function Index() {
       }}
     >
       <Text>Edit app/index.tsx to edit this screen.</Text>
+      <Link href="/cafe" asChild>
+        <Pressable>
+          <Text>Open cafe view</Text>
+        </Pressable>
+      </Link>
     </SafeAreaView>
   );
 }
