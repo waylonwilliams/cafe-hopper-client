@@ -13,7 +13,7 @@ export default function CafeLayout() {
   const handleSheetChanges = useCallback((index: number) => {
     console.log("handleSheetChanges", index);
   }, []);
-  const snapPoints = useMemo(() => ["75%", "100%"], []);
+  const snapPoints = useMemo(() => ["75%", "95%"], []);
 
   return (
     <SafeAreaView
@@ -29,8 +29,8 @@ export default function CafeLayout() {
         style={{ backgroundColor: "#f0f0f0", height: "100%", width: "100%" }}
       >
         <Image
-          style={{ top: -60, width: "100%", position: "absolute" }}
-          source={require("../../assets/images/Oshima.png")}
+          style={{ top: -70, width: "100%", position: "absolute" }}
+          source={require("../../assets/images/oshimacafe.png")}
         />
 
         <Pressable onPress={() => router.back()}>
