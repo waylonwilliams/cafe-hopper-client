@@ -3,6 +3,7 @@ import { Image, Pressable, SafeAreaView, Text, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { useCallback, useMemo, useRef, useState } from "react";
+import EmojiTag from "@/components/EmojiTag";
 /**
  * When you click on a cafe card / pin on map this page will be shown
  * Ideally upgrade this to take in a cafe as a param and render it that way
@@ -60,7 +61,7 @@ export default function CafeLayout() {
               paddingHorizontal: 25,
               flex: 1,
               flexDirection: "column",
-              gap: 10,
+              gap: 15,
             }}
           >
             {/* Name of cafe header */}
@@ -139,7 +140,8 @@ export default function CafeLayout() {
               </Pressable>
             </View>
 
-            <View style={{ paddingTop: 10, gap: 5 }}>
+            {/* Opening time and address */}
+            <View style={{ paddingTop: 5, gap: 5 }}>
               <View style={{ flexDirection: "row", gap: 10 }}>
                 <Text style={{ color: "#808080" }}>8:00AM - 10:00PM</Text>
                 <Text style={{ color: "#808080", fontWeight: "700" }}>
@@ -147,6 +149,25 @@ export default function CafeLayout() {
                 </Text>
               </View>
               <Text style={{ color: "#808080" }}>{cafe.address}</Text>
+            </View>
+
+            <View
+              style={{
+                flexDirection: "row",
+                gap: 5,
+                flexWrap: "wrap",
+                paddingTop: 5,
+              }}
+            >
+              <EmojiTag name="Matcha" emoji="🍵" />
+              <EmojiTag name="Free Wifi" emoji="🛜" />
+              <EmojiTag name="Vegan" emoji="🌱" />
+              <EmojiTag name="Pet Friendly" emoji="🐶" />
+              <EmojiTag name="Outdoor" emoji="🌳" />
+              <EmojiTag name="Indoor" emoji="🏠" />
+              <EmojiTag name="Parking" emoji="🚗" />
+              <EmojiTag name="Air Conditioned" emoji="❄️" />
+              <EmojiTag name="Wheelchair Accessible" emoji="♿️" />
             </View>
           </BottomSheetView>
         </BottomSheet>
