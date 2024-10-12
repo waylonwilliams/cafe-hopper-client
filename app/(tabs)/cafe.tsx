@@ -162,8 +162,8 @@ export default function CafeLayout() {
               <EmojiTag name="Matcha" emoji="🍵" />
               <EmojiTag name="Free Wifi" emoji="🛜" />
               <EmojiTag name="Vegan" emoji="🌱" />
-              <EmojiTag name="Pet Friendly" emoji="🐶" />
               <EmojiTag name="Outdoor" emoji="🌳" />
+              <EmojiTag name="Pet Friendly" emoji="🐶" />
               <EmojiTag name="Indoor" emoji="🏠" />
               <EmojiTag name="Parking" emoji="🚗" />
               <EmojiTag name="Air Conditioned" emoji="❄️" />
