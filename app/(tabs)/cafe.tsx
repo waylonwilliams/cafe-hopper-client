@@ -10,9 +10,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 export default function CafeLayout() {
   // idk stuff for the bottom sheet
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const handleSheetChanges = useCallback((index: number) => {
-    console.log("handleSheetChanges", index);
-  }, []);
+  //   const handleSheetChanges = useCallback((index: number) => {}, []);
   const snapPoints = useMemo(() => ["75%", "95%"], []); // 95% so you can see back button
 
   const [liked, setLiked] = useState(false);
@@ -52,7 +50,7 @@ export default function CafeLayout() {
 
         <BottomSheet
           ref={bottomSheetRef}
-          onChange={handleSheetChanges}
+          //   onChange={handleSheetChanges}
           index={0}
           snapPoints={snapPoints}
         >
@@ -139,6 +137,16 @@ export default function CafeLayout() {
                   </Text>
                 </View>
               </Pressable>
+            </View>
+
+            <View style={{ paddingTop: 10, gap: 5 }}>
+              <View style={{ flexDirection: "row", gap: 10 }}>
+                <Text style={{ color: "#808080" }}>8:00AM - 10:00PM</Text>
+                <Text style={{ color: "#808080", fontWeight: "700" }}>
+                  See details
+                </Text>
+              </View>
+              <Text style={{ color: "#808080" }}>{cafe.address}</Text>
             </View>
           </BottomSheetView>
         </BottomSheet>
