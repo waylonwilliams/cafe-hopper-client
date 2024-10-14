@@ -12,6 +12,7 @@ import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { useMemo, useRef, useState } from "react";
 import EmojiTag from "@/components/EmojiTag";
 import Review from "@/components/Review";
+
 /**
  * When you click on a cafe card / pin on map this page will be shown
  * Ideally upgrade this to take in a cafe as a param and render it that way
@@ -90,7 +91,7 @@ export default function CafeLayout() {
       >
         <Image
           style={{ top: -70, width: "100%", position: "absolute" }}
-          source={require("../../assets/images/oshimacafe.png")}
+          source={require("../../../assets/images/oshimacafe.png")}
         />
 
         <Pressable onPress={() => router.back()}>

@@ -88,6 +88,7 @@ export default function Review({ review }: Props) {
           {review.images.slice(0, 2).map((image, index) => (
             <Image
               source={{ uri: image }}
+              key={index}
               style={{
                 width: "38%",
                 height: 96,

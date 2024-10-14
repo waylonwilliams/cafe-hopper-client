@@ -11,7 +11,7 @@ export default function Index() {
       }}
     >
       <Text>Edit app/index.tsx to edit this screen.</Text>
-      <Link href="/cafe" asChild>
+      <Link href="/cafe/page" asChild>
         <Pressable>
           <Text>Open cafe view</Text>
         </Pressable>
