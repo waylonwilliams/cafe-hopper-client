@@ -13,13 +13,25 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDA_Sd7lppGCT-HmTKzI1He1h_3mbluSUA”"
+        }
+      },
+      "bundleIdentifier": "com.anonymous.cafehopperfrontend"
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "config": {
+        "googleMaps": {
+          "apiKey": "AIzaSyDA_Sd7lppGCT-HmTKzI1He1h_3mbluSUA”"
+        }
+      },
+      "package": "com.anonymous.cafehopperfrontend"
     },
     "web": {
       "bundler": "metro",
