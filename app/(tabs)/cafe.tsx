@@ -29,9 +29,6 @@ export default function CafeLayout() {
     },
   };
 
-  // can use for getting width of bar
-  const maxReviewValue = Math.max(...Object.values(cafe.reviews));
-
   // to convert the string key to a number
   const keyToNumber: { [key: string]: number } = {
     one: 1,
@@ -40,6 +37,20 @@ export default function CafeLayout() {
     four: 4,
     five: 5,
   };
+
+  // can use for getting width of bar
+  const maxReviewValue = Math.max(...Object.values(cafe.reviews));
+  const totalReviews = Object.values(cafe.reviews).reduce(
+    (acc, review) => acc + review,
+    0
+  );
+  const averageReview =
+    totalReviews === 0
+      ? 0
+      : Object.entries(cafe.reviews).reduce(
+          (acc, [key, value]) => acc + keyToNumber[key] * value,
+          0
+        ) / totalReviews;
 
   return (
     <SafeAreaView
@@ -211,6 +222,7 @@ export default function CafeLayout() {
                           gap: 4,
                           alignItems: "center",
                         }}
+                        key={index}
                       >
                         <Text style={{ color: "#808080" }}>
                           {keyToNumber[review[0]]}
@@ -239,8 +251,30 @@ export default function CafeLayout() {
                     ))}
                 </View>
 
-                <View style={{ width: "35%" }}>
-                  <Text>Amount</Text>
+                <View
+                  style={{
+                    width: "35%",
+                    paddingLeft: 10,
+                    paddingTop: 5,
+                    gap: 5,
+                  }}
+                >
+                  <View
+                    style={{
+                      flexDirection: "row",
+                      alignItems: "center",
+                      gap: 5,
+                    }}
+                  >
+                    <Ionicons name="star" size={24} color="#FFB400" />
+                    <Text style={{ fontSize: 24, fontWeight: 600 }}>
+                      {averageReview.toFixed(1)}
+                    </Text>
+                  </View>
+
+                  <Text style={{ color: "#808080" }}>
+                    {totalReviews} reviews
+                  </Text>
                 </View>
               </View>
             </View>
