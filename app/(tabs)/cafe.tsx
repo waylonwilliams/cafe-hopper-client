@@ -20,6 +20,25 @@ export default function CafeLayout() {
   const cafe = {
     name: "Cafe Oshima's",
     address: "2/37 Cao Thang, Ward 5, District 3, Ho Chi Minh City, Vietnam",
+    reviews: {
+      one: 2,
+      two: 0,
+      three: 10,
+      four: 19,
+      five: 23,
+    },
+  };
+
+  // can use for getting width of bar
+  const maxReviewValue = Math.max(...Object.values(cafe.reviews));
+
+  // to convert the string key to a number
+  const keyToNumber: { [key: string]: number } = {
+    one: 1,
+    two: 2,
+    three: 3,
+    four: 4,
+    five: 5,
   };
 
   return (
@@ -57,7 +76,7 @@ export default function CafeLayout() {
         >
           <BottomSheetView
             style={{
-              padding: 20,
+              padding: 10,
               paddingHorizontal: 25,
               flex: 1,
               flexDirection: "column",
@@ -168,6 +187,62 @@ export default function CafeLayout() {
               <EmojiTag name="Parking" emoji="🚗" />
               <EmojiTag name="Air Conditioned" emoji="❄️" />
               <EmojiTag name="Wheelchair Accessible" emoji="♿️" />
+            </View>
+
+            {/* Reviews scales here */}
+            <View style={{ gap: 10 }}>
+              <Text style={{ fontSize: 24, fontWeight: 600, paddingTop: 5 }}>
+                Reviews
+              </Text>
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  justifyContent: "space-between",
+                }}
+              >
+                <View style={{ width: "60%", gap: 10, position: "relative" }}>
+                  {Object.entries(cafe.reviews)
+                    .reverse()
+                    .map((review, index) => (
+                      <View
+                        style={{
+                          flexDirection: "row",
+                          gap: 4,
+                          alignItems: "center",
+                        }}
+                      >
+                        <Text style={{ color: "#808080" }}>
+                          {keyToNumber[review[0]]}
+                        </Text>
+                        <View
+                          style={{
+                            width: "100%",
+                            backgroundColor: "#C9C9C9",
+                            borderRadius: 3,
+                            margin: 2,
+                            position: "relative",
+                            height: 7,
+                          }}
+                        >
+                          <View
+                            style={{
+                              width: `${(review[1] / maxReviewValue) * 100}%`,
+                              backgroundColor: "#FFB400",
+                              borderRadius: 3,
+                              padding: 2,
+                              height: 7,
+                            }}
+                          ></View>
+                        </View>
+                      </View>
+                    ))}
+                </View>
+
+                <View style={{ width: "35%" }}>
+                  <Text>Amount</Text>
+                </View>
+              </View>
             </View>
           </BottomSheetView>
         </BottomSheet>
