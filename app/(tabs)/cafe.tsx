@@ -1,5 +1,12 @@
 import { router } from "expo-router";
-import { Image, Pressable, SafeAreaView, Text, View } from "react-native";
+import {
+  Image,
+  Pressable,
+  SafeAreaView,
+  ScrollView,
+  Text,
+  View,
+} from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { useMemo, useRef, useState } from "react";
@@ -98,201 +105,214 @@ export default function CafeLayout() {
         >
           <BottomSheetView
             style={{
-              padding: 10,
-              paddingHorizontal: 25,
-              flex: 1,
-              flexDirection: "column",
-              gap: 15,
+              width: "100%",
+              height: "100%",
+              paddingTop: 5,
             }}
           >
-            {/* Name of cafe header */}
-            <Text style={{ fontSize: 36, fontWeight: 500 }}>{cafe.name}</Text>
-
-            {/* First bar, reviews, quick */}
-            <View
+            <ScrollView
               style={{
-                flexDirection: "row",
-                width: "100%",
-                justifyContent: "space-between",
-                alignContent: "center",
-                alignItems: "center",
+                padding: 5,
+                paddingHorizontal: 25,
+              }}
+              contentContainerStyle={{
+                gap: 10,
+                paddingBottom: 30,
               }}
             >
-              <View>
-                <View
-                  style={{
-                    borderColor: "#000000",
-                    borderRadius: 20,
-                    borderWidth: 2,
-                    padding: 7,
-                    paddingHorizontal: 9,
-                  }}
-                >
-                  <Text style={{ fontSize: 16, fontWeight: 700 }}>⭐️ 4.5</Text>
-                </View>
-                <Text style={{ color: "#808080", paddingTop: 4 }}>
-                  269 reviews
-                </Text>
-              </View>
+              {/* Name of cafe header */}
+              <Text style={{ fontSize: 36, fontWeight: 500 }}>{cafe.name}</Text>
 
-              <Pressable onPress={() => setLiked(!liked)}>
-                <View style={{ alignItems: "center", gap: 2 }}>
-                  <Ionicons
-                    name={liked ? "heart" : "heart-outline"}
-                    size={32}
-                    color="black"
-                  />
-                  <Text style={{ color: "#808080" }}>Like</Text>
-                </View>
-              </Pressable>
-
-              <Pressable onPress={() => setTogo(!togo)}>
-                <View style={{ alignItems: "center", gap: 2 }}>
-                  <Ionicons
-                    name={togo ? "bookmark" : "bookmark-outline"}
-                    size={32}
-                    color="black"
-                  />
-                  <Text style={{ color: "#808080" }}>To-go</Text>
-                </View>
-              </Pressable>
-
-              <Pressable>
-                <View
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    gap: 2,
-                    backgroundColor: "#C9C9C9",
-                    borderRadius: 999,
-                    padding: 8,
-                    paddingHorizontal: 10,
-                  }}
-                >
-                  <Ionicons
-                    name="paper-plane-outline"
-                    size={28}
-                    color="white"
-                  />
-                  <Text style={{ color: "white", fontWeight: 600 }}>
-                    Log a visit
-                  </Text>
-                </View>
-              </Pressable>
-            </View>
-
-            {/* Opening time and address */}
-            <View style={{ paddingTop: 5, gap: 5 }}>
-              <View style={{ flexDirection: "row", gap: 10 }}>
-                <Text style={{ color: "#808080" }}>8:00AM - 10:00PM</Text>
-                <Text style={{ color: "#808080", fontWeight: "700" }}>
-                  See details
-                </Text>
-              </View>
-              <Text style={{ color: "#808080" }}>{cafe.address}</Text>
-            </View>
-
-            <View
-              style={{
-                flexDirection: "row",
-                gap: 5,
-                flexWrap: "wrap",
-                paddingTop: 5,
-              }}
-            >
-              <EmojiTag name="Matcha" emoji="🍵" />
-              <EmojiTag name="Free Wifi" emoji="🛜" />
-              <EmojiTag name="Vegan" emoji="🌱" />
-              <EmojiTag name="Outdoor" emoji="🌳" />
-              <EmojiTag name="Pet Friendly" emoji="🐶" />
-              <EmojiTag name="Indoor" emoji="🏠" />
-              <EmojiTag name="Parking" emoji="🚗" />
-              <EmojiTag name="Air Conditioned" emoji="❄️" />
-              <EmojiTag name="Wheelchair Accessible" emoji="♿️" />
-            </View>
-
-            {/* Reviews scales here */}
-            <View style={{ gap: 10 }}>
-              <Text style={{ fontSize: 24, fontWeight: 600, paddingTop: 5 }}>
-                Reviews
-              </Text>
-
+              {/* First bar, reviews, quick */}
               <View
                 style={{
                   flexDirection: "row",
+                  width: "100%",
                   justifyContent: "space-between",
+                  alignContent: "center",
+                  alignItems: "center",
                 }}
               >
-                <View style={{ width: "65%", gap: 10, position: "relative" }}>
-                  {Object.entries(cafe.reviews)
-                    .reverse()
-                    .map((review, index) => (
-                      <View
-                        style={{
-                          flexDirection: "row",
-                          gap: 4,
-                          alignItems: "center",
-                        }}
-                        key={index}
-                      >
-                        <Text style={{ color: "#808080" }}>
-                          {keyToNumber[review[0]]}
-                        </Text>
-                        <View
-                          style={{
-                            width: "100%",
-                            backgroundColor: "#C9C9C9",
-                            borderRadius: 3,
-                            margin: 2,
-                            position: "relative",
-                            height: 7,
-                          }}
-                        >
-                          <View
-                            style={{
-                              width: `${(review[1] / maxReviewValue) * 100}%`,
-                              backgroundColor: "#FFB400",
-                              borderRadius: 3,
-                              padding: 2,
-                              height: 7,
-                            }}
-                          />
-                        </View>
-                      </View>
-                    ))}
+                <View>
+                  <View
+                    style={{
+                      borderColor: "#000000",
+                      borderRadius: 20,
+                      borderWidth: 2,
+                      padding: 7,
+                      paddingHorizontal: 9,
+                    }}
+                  >
+                    <Text style={{ fontSize: 16, fontWeight: 700 }}>
+                      ⭐️ 4.5
+                    </Text>
+                  </View>
+                  <Text style={{ color: "#808080", paddingTop: 4 }}>
+                    269 reviews
+                  </Text>
                 </View>
 
-                <View
-                  style={{
-                    width: "25%",
-                    paddingLeft: 10,
-                    paddingTop: 5,
-                    gap: 5,
-                  }}
-                >
+                <Pressable onPress={() => setLiked(!liked)}>
+                  <View style={{ alignItems: "center", gap: 2 }}>
+                    <Ionicons
+                      name={liked ? "heart" : "heart-outline"}
+                      size={32}
+                      color="black"
+                    />
+                    <Text style={{ color: "#808080" }}>Like</Text>
+                  </View>
+                </Pressable>
+
+                <Pressable onPress={() => setTogo(!togo)}>
+                  <View style={{ alignItems: "center", gap: 2 }}>
+                    <Ionicons
+                      name={togo ? "bookmark" : "bookmark-outline"}
+                      size={32}
+                      color="black"
+                    />
+                    <Text style={{ color: "#808080" }}>To-go</Text>
+                  </View>
+                </Pressable>
+
+                <Pressable>
                   <View
                     style={{
                       flexDirection: "row",
                       alignItems: "center",
+                      gap: 2,
+                      backgroundColor: "#C9C9C9",
+                      borderRadius: 999,
+                      padding: 8,
+                      paddingHorizontal: 10,
+                    }}
+                  >
+                    <Ionicons
+                      name="paper-plane-outline"
+                      size={28}
+                      color="white"
+                    />
+                    <Text style={{ color: "white", fontWeight: 600 }}>
+                      Log a visit
+                    </Text>
+                  </View>
+                </Pressable>
+              </View>
+
+              {/* Opening time and address */}
+              <View style={{ paddingTop: 5, gap: 5 }}>
+                <View style={{ flexDirection: "row", gap: 10 }}>
+                  <Text style={{ color: "#808080" }}>8:00AM - 10:00PM</Text>
+                  <Text style={{ color: "#808080", fontWeight: "700" }}>
+                    See details
+                  </Text>
+                </View>
+                <Text style={{ color: "#808080" }}>{cafe.address}</Text>
+              </View>
+
+              <View
+                style={{
+                  flexDirection: "row",
+                  gap: 5,
+                  flexWrap: "wrap",
+                  paddingTop: 5,
+                }}
+              >
+                <EmojiTag name="Matcha" emoji="🍵" />
+                <EmojiTag name="Free Wifi" emoji="🛜" />
+                <EmojiTag name="Vegan" emoji="🌱" />
+                <EmojiTag name="Outdoor" emoji="🌳" />
+                <EmojiTag name="Pet Friendly" emoji="🐶" />
+                <EmojiTag name="Indoor" emoji="🏠" />
+                <EmojiTag name="Parking" emoji="🚗" />
+                <EmojiTag name="Air Conditioned" emoji="❄️" />
+                <EmojiTag name="Wheelchair Accessible" emoji="♿️" />
+              </View>
+
+              {/* Reviews scales here */}
+              <View style={{ gap: 10 }}>
+                <Text style={{ fontSize: 24, fontWeight: 600, paddingTop: 5 }}>
+                  Reviews
+                </Text>
+
+                <View
+                  style={{
+                    flexDirection: "row",
+                    justifyContent: "space-between",
+                  }}
+                >
+                  <View style={{ width: "65%", gap: 10, position: "relative" }}>
+                    {Object.entries(cafe.reviews)
+                      .reverse()
+                      .map((review, index) => (
+                        <View
+                          style={{
+                            flexDirection: "row",
+                            gap: 4,
+                            alignItems: "center",
+                          }}
+                          key={index}
+                        >
+                          <Text style={{ color: "#808080" }}>
+                            {keyToNumber[review[0]]}
+                          </Text>
+                          <View
+                            style={{
+                              width: "100%",
+                              backgroundColor: "#C9C9C9",
+                              borderRadius: 3,
+                              margin: 2,
+                              position: "relative",
+                              height: 7,
+                            }}
+                          >
+                            <View
+                              style={{
+                                width: `${(review[1] / maxReviewValue) * 100}%`,
+                                backgroundColor: "#FFB400",
+                                borderRadius: 3,
+                                padding: 2,
+                                height: 7,
+                              }}
+                            />
+                          </View>
+                        </View>
+                      ))}
+                  </View>
+
+                  <View
+                    style={{
+                      width: "25%",
+                      paddingLeft: 10,
+                      paddingTop: 5,
                       gap: 5,
                     }}
                   >
-                    <Ionicons name="star" size={24} color="#FFB400" />
-                    <Text style={{ fontSize: 24, fontWeight: 600 }}>
-                      {averageReview.toFixed(1)}
+                    <View
+                      style={{
+                        flexDirection: "row",
+                        alignItems: "center",
+                        gap: 5,
+                      }}
+                    >
+                      <Ionicons name="star" size={24} color="#FFB400" />
+                      <Text style={{ fontSize: 24, fontWeight: 600 }}>
+                        {averageReview.toFixed(1)}
+                      </Text>
+                    </View>
+
+                    <Text style={{ color: "#808080" }}>
+                      {totalReviews} reviews
                     </Text>
                   </View>
-
-                  <Text style={{ color: "#808080" }}>
-                    {totalReviews} reviews
-                  </Text>
                 </View>
               </View>
-            </View>
 
-            {/* Reviews */}
-            {/* Should map them */}
-            <Review review={review} />
+              {/* Reviews */}
+              {/* Should map them */}
+              <Review review={review} />
+              <Review review={review} />
+              <Review review={review} />
+            </ScrollView>
           </BottomSheetView>
         </BottomSheet>
       </View>
