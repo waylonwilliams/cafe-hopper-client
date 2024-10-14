@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Image, Pressable, Text, View } from "react-native";
 import EmojiTag from "./EmojiTag";
@@ -18,6 +18,19 @@ interface Props {
 }
 
 export default function Review({ review }: Props) {
+  const [liked, setLiked] = useState(false);
+  const [numLikes, setNumLikes] = useState(review.numLikes);
+
+  async function handleLike() {
+    if (liked) {
+      setNumLikes(numLikes - 1);
+    } else {
+      setNumLikes(numLikes + 1);
+    }
+
+    setLiked(!liked);
+  }
+
   const date = new Date(review.datePosted).toLocaleDateString("en-US", {
     month: "long",
     day: "numeric",
@@ -31,6 +44,7 @@ export default function Review({ review }: Props) {
         borderWidth: 1,
         borderRadius: 10,
         padding: 15,
+        paddingBottom: 20,
         flexDirection: "row",
         gap: 15,
         position: "relative",
@@ -111,6 +125,24 @@ export default function Review({ review }: Props) {
           {review.tags.map((tag, index) => (
             <EmojiTag key={index} tag={tag} />
           ))}
+        </View>
+
+        <View style={{ flexDirection: "row", gap: 10 }}>
+          <Pressable
+            style={{ flexDirection: "row", alignItems: "center", gap: 4 }}
+            onPress={handleLike}
+          >
+            <Ionicons
+              name="heart"
+              size={16}
+              color={liked ? "red" : "#808080"}
+            />
+            <Text style={{ color: liked ? "red" : "#808080" }}>
+              Like review
+            </Text>
+          </Pressable>
+
+          <Text>{numLikes} likes</Text>
         </View>
       </View>
     </View>
