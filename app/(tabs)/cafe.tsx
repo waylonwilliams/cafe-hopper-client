@@ -2,8 +2,9 @@ import { router } from "expo-router";
 import { Image, Pressable, SafeAreaView, Text, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
 import EmojiTag from "@/components/EmojiTag";
+import Review from "@/components/Review";
 /**
  * When you click on a cafe card / pin on map this page will be shown
  * Ideally upgrade this to take in a cafe as a param and render it that way
@@ -27,6 +28,16 @@ export default function CafeLayout() {
       four: 19,
       five: 23,
     },
+  };
+
+  const review = {
+    name: "Jane Doe",
+    description:
+      "This cafe has quickly become my go-to for a peaceful break. The ambiance is so calm and relaxing, perfect for unwinding or getting some work done. The staff really knows their stuff when it comes to coffee, and their recommendations never disappoint. Plus, their music selection is always on point—just the right vibe without being too loud. It’s a hidden gem!",
+    tags: ["🌱 Vegan", "🍵 Matcha", "🛜 Free Wifi", "🌳 Outdoor"],
+    numLikes: 169,
+    datePosted: "2021-09-01T12:00:00Z",
+    score: 5,
   };
 
   // to convert the string key to a number
@@ -212,7 +223,7 @@ export default function CafeLayout() {
                   justifyContent: "space-between",
                 }}
               >
-                <View style={{ width: "60%", gap: 10, position: "relative" }}>
+                <View style={{ width: "65%", gap: 10, position: "relative" }}>
                   {Object.entries(cafe.reviews)
                     .reverse()
                     .map((review, index) => (
@@ -245,7 +256,7 @@ export default function CafeLayout() {
                               padding: 2,
                               height: 7,
                             }}
-                          ></View>
+                          />
                         </View>
                       </View>
                     ))}
@@ -253,7 +264,7 @@ export default function CafeLayout() {
 
                 <View
                   style={{
-                    width: "35%",
+                    width: "25%",
                     paddingLeft: 10,
                     paddingTop: 5,
                     gap: 5,
@@ -278,6 +289,10 @@ export default function CafeLayout() {
                 </View>
               </View>
             </View>
+
+            {/* Reviews */}
+            {/* Should map them */}
+            <Review review={review} />
           </BottomSheetView>
         </BottomSheet>
       </View>
