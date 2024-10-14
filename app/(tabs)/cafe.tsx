@@ -45,6 +45,11 @@ export default function CafeLayout() {
     numLikes: 169,
     datePosted: "2021-09-01T12:00:00Z",
     score: 5,
+    images: [
+      "https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12",
+      "https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12",
+      "https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12",
+    ],
   };
 
   // to convert the string key to a number
@@ -217,15 +222,15 @@ export default function CafeLayout() {
                   paddingTop: 5,
                 }}
               >
-                <EmojiTag name="Matcha" emoji="🍵" />
-                <EmojiTag name="Free Wifi" emoji="🛜" />
-                <EmojiTag name="Vegan" emoji="🌱" />
-                <EmojiTag name="Outdoor" emoji="🌳" />
-                <EmojiTag name="Pet Friendly" emoji="🐶" />
-                <EmojiTag name="Indoor" emoji="🏠" />
-                <EmojiTag name="Parking" emoji="🚗" />
-                <EmojiTag name="Air Conditioned" emoji="❄️" />
-                <EmojiTag name="Wheelchair Accessible" emoji="♿️" />
+                <EmojiTag tag="🍵 Matcha" />
+                <EmojiTag tag="🛜 Free Wifi" />
+                <EmojiTag tag="🌱 Vegan" />
+                <EmojiTag tag="🌳 Outdoor" />
+                <EmojiTag tag="🐶 Pet Friendly" />
+                <EmojiTag tag="🏠 Indoor" />
+                <EmojiTag tag="🚗 Parking" />
+                <EmojiTag tag="❄️ Air Conditioned" />
+                <EmojiTag tag="♿️ Wheelchair Accessible" />
               </View>
 
               {/* Reviews scales here */}
@@ -308,6 +313,9 @@ export default function CafeLayout() {
               </View>
 
               {/* Reviews */}
+              <Text style={{ paddingTop: 10, fontSize: 18, fontWeight: 600 }}>
+                Popular reviews
+              </Text>
               {/* Should map them */}
               <Review review={review} />
               <Review review={review} />

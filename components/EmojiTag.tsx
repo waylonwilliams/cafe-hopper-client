@@ -2,14 +2,13 @@ import React from "react";
 import { Text, View } from "react-native";
 
 interface Props {
-  name: string;
-  emoji: string;
+  tag: string;
 }
 
-export default function EmojiTag({ name, emoji }: Props) {
+export default function EmojiTag({ tag }: Props) {
   return (
     <View style={{ borderWidth: 1, borderRadius: 999 }}>
-      <Text style={{ padding: 6, fontWeight: 600 }}>{emoji + name}</Text>
+      <Text style={{ padding: 6, fontWeight: 600 }}>{tag}</Text>
     </View>
   );
 }
