@@ -12,7 +12,7 @@ export default function EmojiTag({ tag, filled }: Props) {
       style={{
         borderWidth: 1,
         borderRadius: 999,
-        backgroundColor: filled ? "#808080" : "white",
+        backgroundColor: filled ? "#CCCCCC" : "white",
       }}
     >
       <Text style={{ padding: 6, fontWeight: 600 }}>{tag}</Text>

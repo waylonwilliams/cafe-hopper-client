@@ -1,9 +1,17 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import React, { useEffect } from "react";
 import { useState } from "react";
-import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import {
+  Image,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { cafeTags } from "./CafeTypes";
 import EmojiTag from "../EmojiTag";
+import * as ImagePicker from "expo-image-picker";
 
 interface Props {
   setLoggingVisit: (arg: boolean) => void;
@@ -13,6 +21,7 @@ export default function Log({ setLoggingVisit }: Props) {
   const [rating, setRating] = useState(1);
   const [publicPost, setPublicPost] = useState(true);
   const [emojiTags, setEmojiTags] = useState<string[]>([]);
+  const [images, setImages] = useState<ImagePicker.ImagePickerAsset[]>([]);
 
   function handleTagClick(tag: string) {
     if (emojiTags.includes(tag)) {
@@ -20,6 +29,23 @@ export default function Log({ setLoggingVisit }: Props) {
     } else {
       setEmojiTags([...emojiTags, tag]);
     }
+  }
+
+  async function selectImages() {
+    // https://docs.expo.dev/versions/latest/sdk/imagepicker/#imagepickeroptions
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images, // images only
+      quality: 1, // not compressed
+      allowsMultipleSelection: true,
+      exif: false, // removes some data we don't need
+      orderedSelection: true,
+      // selectionLimit: 5, // add maximum number of images per review?
+    });
+
+    if (result.canceled) {
+      return;
+    }
+    setImages(result.assets);
   }
 
   return (
@@ -77,10 +103,30 @@ export default function Log({ setLoggingVisit }: Props) {
           justifyContent: "center",
           alignItems: "center",
         }}
+        onPress={selectImages}
       >
         <Ionicons name="image-outline" size={24} color="white" />
         <Text style={{ color: "white", fontWeight: 700 }}>Add photos</Text>
       </Pressable>
+
+      {images.length > 0 && (
+        <View
+          style={{
+            flexDirection: "row",
+            gap: 4,
+            justifyContent: "flex-start",
+            width: "100%",
+          }}
+        >
+          {images.map((image, index) => (
+            <Image
+              key={index}
+              source={{ uri: image.uri }}
+              style={{ width: 100, height: 100, borderRadius: 5 }}
+            />
+          ))}
+        </View>
+      )}
 
       {/* Went with someone should go here */}
 
