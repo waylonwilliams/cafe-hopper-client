@@ -45,7 +45,15 @@ export default function Log({ setLoggingVisit }: Props) {
     if (result.canceled) {
       return;
     }
-    setImages(result.assets);
+
+    const newImages = [...images];
+    for (const image of result.assets) {
+      if (!newImages.includes(image)) {
+        newImages.push(image);
+      }
+    }
+    console.log(newImages);
+    setImages(newImages);
   }
 
   return (
