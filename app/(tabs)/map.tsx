@@ -9,7 +9,6 @@ import {
 import MapView, { PROVIDER_GOOGLE, Marker, Region } from "react-native-maps";
 import React, { useEffect, useState, useRef } from "react";
 import * as Location from "expo-location";
-import { useNavigation } from "@react-navigation/native";
 import { MaterialIcons } from "@expo/vector-icons";
 
 export default function Map() {
@@ -61,13 +60,11 @@ export default function Map() {
 				style={styles.map}
 				initialRegion={mapRegion}
 				region={mapRegion}
-				// zoomEnabled={true}
+				showsUserLocation={true} // Show the default blue dot for user location
 				followsUserLocation={true}
 				showsMyLocationButton={true}
 				mapType="standard"
-			>
-				<Marker coordinate={mapRegion} title="i'm here" />
-			</MapView>
+			/>
 		</View>
 	);
 }
