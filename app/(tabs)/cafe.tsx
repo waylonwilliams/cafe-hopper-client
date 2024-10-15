@@ -1,10 +1,14 @@
 import { router } from "expo-router";
 import { Image, Pressable, SafeAreaView, Text, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
+import BottomSheet, {
+  BottomSheetHandleProps,
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
 import { useMemo, useRef, useState } from "react";
 import Cafe from "../../components/CafePage/Cafe";
 import Log from "../../components/CafePage/Log";
+import React from "react";
 
 /**
  * When you click on a cafe card / pin on map this page will be shown
@@ -17,6 +21,24 @@ export default function Index() {
   const bottomSheetRef = useRef<BottomSheet>(null);
   //   const handleSheetChanges = useCallback((index: number) => {}, []);
   const snapPoints = useMemo(() => ["75%", "95%"], []); // 95% so you can see back button
+  // differnt top handle components for if you are viewing the cafe or if you are logging your visit
+  const HandleComponent: React.FC<BottomSheetHandleProps> = (props) => {
+    return loggingVisit ? (
+      <></>
+    ) : (
+      <View style={{ width: "100%", alignItems: "center", padding: 10 }}>
+        <View
+          style={{
+            backgroundColor: "#808080",
+            width: 100,
+            height: 5,
+            borderRadius: 999,
+            opacity: 0.5,
+          }}
+        />
+      </View>
+    );
+  };
 
   function logVisit() {
     setLoggingVisit(true);
@@ -82,6 +104,7 @@ export default function Index() {
           //   onChange={handleSheetChanges}
           index={0}
           snapPoints={snapPoints}
+          handleComponent={HandleComponent}
         >
           <BottomSheetView
             style={{
