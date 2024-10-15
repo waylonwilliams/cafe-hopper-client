@@ -2,6 +2,8 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import React from "react";
 import { useState } from "react";
 import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import { cafeTags } from "./CafeTypes";
+import EmojiTag from "../EmojiTag";
 
 interface Props {
   setLoggingVisit: (arg: boolean) => void;
@@ -9,12 +11,13 @@ interface Props {
 
 export default function Log({ setLoggingVisit }: Props) {
   const [rating, setRating] = useState(1);
+  const [publicPost, setPublicPost] = useState(true);
 
   return (
     <ScrollView
       contentContainerStyle={{
         alignItems: "center",
-        paddingTop: 25,
+        paddingVertical: 25,
         gap: 15,
         paddingHorizontal: 20,
       }}
@@ -69,6 +72,65 @@ export default function Log({ setLoggingVisit }: Props) {
         <Ionicons name="image-outline" size={24} color="white" />
         <Text style={{ color: "white", fontWeight: 700 }}>Add photos</Text>
       </Pressable>
+
+      <View style={{ flexDirection: "row", gap: 5, flexWrap: "wrap" }}>
+        {cafeTags.map((tag, index) => (
+          <EmojiTag key={index} tag={tag} />
+        ))}
+      </View>
+
+      <View
+        style={{
+          width: "100%",
+          flexDirection: "row",
+          gap: 10,
+          alignItems: "center",
+        }}
+      >
+        <Pressable
+          style={{
+            flexDirection: "row",
+            gap: 6,
+            borderRadius: 999,
+            backgroundColor: "#CCCCCC",
+            padding: 10,
+            justifyContent: "center",
+            alignItems: "center",
+            flexGrow: 1,
+          }}
+        >
+          <Ionicons name="paper-plane-outline" size={24} color="white" />
+          <Text style={{ color: "white", fontWeight: 700 }}>Post</Text>
+        </Pressable>
+
+        <Pressable
+          style={{ alignItems: "center", gap: 3 }}
+          onPress={() => setPublicPost(true)}
+        >
+          <Ionicons
+            name="globe-outline"
+            size={20}
+            color={publicPost ? "black" : "#808080"}
+          />
+          <Text style={{ color: publicPost ? "black" : "#808080" }}>
+            Public
+          </Text>
+        </Pressable>
+
+        <Pressable
+          style={{ alignItems: "center", gap: 3 }}
+          onPress={() => setPublicPost(false)}
+        >
+          <Ionicons
+            name="lock-closed-outline"
+            size={20}
+            color={!publicPost ? "black" : "#808080"}
+          />
+          <Text style={{ color: !publicPost ? "black" : "#808080" }}>
+            Private
+          </Text>
+        </Pressable>
+      </View>
     </ScrollView>
   );
 }

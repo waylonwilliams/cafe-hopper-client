@@ -45,6 +45,11 @@ export default function Index() {
     bottomSheetRef.current?.snapToIndex(1);
   }
 
+  function goBack() {
+    setLoggingVisit(false);
+    router.back();
+  }
+
   const cafe = {
     name: "Cafe Oshima's",
     address: "2/37 Cao Thang, Ward 5, District 3, Ho Chi Minh City, Vietnam",
@@ -90,7 +95,7 @@ export default function Index() {
           source={require("../../assets/images/oshimacafe.png")}
         />
 
-        <Pressable onPress={() => router.back()}>
+        <Pressable onPress={goBack}>
           <Ionicons
             name="chevron-back"
             size={24}
