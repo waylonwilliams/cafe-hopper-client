@@ -17,7 +17,7 @@ import Review from "@/components/Review";
  * When you click on a cafe card / pin on map this page will be shown
  * Ideally upgrade this to take in a cafe as a param and render it that way
  */
-export default function CafeLayout() {
+export default function CafePage() {
   // idk stuff for the bottom sheet
   const bottomSheetRef = useRef<BottomSheet>(null);
   //   const handleSheetChanges = useCallback((index: number) => {}, []);
