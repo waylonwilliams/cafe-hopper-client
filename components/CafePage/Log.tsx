@@ -1,6 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import React from "react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
 
 interface Props {
@@ -31,7 +31,7 @@ export default function Log({ setLoggingVisit }: Props) {
       {/* Star rating */}
       <View style={{ flexDirection: "row", gap: 5 }}>
         {[1, 2, 3, 4, 5].map((num) => (
-          <Pressable onPress={() => setRating(num)}>
+          <Pressable onPress={() => setRating(num)} key={num}>
             <Ionicons
               name="star"
               size={30}
@@ -53,6 +53,22 @@ export default function Log({ setLoggingVisit }: Props) {
         placeholder="Describe your visit..."
         multiline
       />
+
+      <Pressable
+        style={{
+          flexDirection: "row",
+          gap: 6,
+          borderRadius: 999,
+          backgroundColor: "#CCCCCC",
+          padding: 10,
+          width: "100%",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Ionicons name="image-outline" size={24} color="white" />
+        <Text style={{ color: "white", fontWeight: 700 }}>Add photos</Text>
+      </Pressable>
     </ScrollView>
   );
 }
