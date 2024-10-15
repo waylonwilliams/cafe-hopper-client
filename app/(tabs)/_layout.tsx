@@ -56,7 +56,7 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
-        name="cafe/page"
+        name="cafe"
         options={{
           href: null,
           title: "Cafe",

@@ -3,13 +3,14 @@ import { Image, Pressable, SafeAreaView, Text, View } from "react-native";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
 import { useMemo, useRef, useState } from "react";
-import Cafe from "./Cafe";
+import Cafe from "../../components/CafePage/Cafe";
+import Log from "../../components/CafePage/Log";
 
 /**
  * When you click on a cafe card / pin on map this page will be shown
  * Ideally upgrade this to take in a cafe as a param and render it that way
  */
-export default function CafePage() {
+export default function Index() {
   const [loggingVisit, setLoggingVisit] = useState(false);
 
   // idk stuff for the bottom sheet
@@ -59,7 +60,7 @@ export default function CafePage() {
       >
         <Image
           style={{ top: -70, width: "100%", position: "absolute" }}
-          source={require("../../../assets/images/oshimacafe.png")}
+          source={require("../../assets/images/oshimacafe.png")}
         />
 
         <Pressable onPress={() => router.back()}>
@@ -85,7 +86,7 @@ export default function CafePage() {
             }}
           >
             {loggingVisit ? (
-              <Text>Hello</Text>
+              <Log setLoggingVisit={setLoggingVisit} />
             ) : (
               <Cafe
                 cafe={cafe}
