@@ -1,4 +1,5 @@
 import {
+	Alert,
 	Text,
 	View,
 	SafeAreaView,
@@ -6,10 +7,18 @@ import {
 	Dimensions,
 	TouchableOpacity,
 } from "react-native";
-import MapView, { PROVIDER_GOOGLE, Marker, Region } from "react-native-maps";
+import MapView, {
+	Callout,
+	PROVIDER_GOOGLE,
+	Marker,
+	Region,
+} from "react-native-maps";
 import React, { useEffect, useState, useRef } from "react";
 import * as Location from "expo-location";
 import { MaterialIcons } from "@expo/vector-icons";
+import { markers } from "../../assets/markers";
+import { MarkerType } from "../../components/CustomMarker";
+import CustomMarker from "../../components/CustomMarker";
 
 export default function Map() {
 	const [mapRegion, setMapRegion] = useState({
@@ -44,6 +53,10 @@ export default function Map() {
 		}
 	};
 
+	const calloutPressed = (ev: any) => {
+		console.log(ev);
+	};
+
 	useEffect(() => {
 		userLocation();
 	}, []);
@@ -64,7 +77,23 @@ export default function Map() {
 				followsUserLocation={true}
 				showsMyLocationButton={true}
 				mapType="standard"
-			/>
+			>
+				{markers.map((marker, index) => {
+					const validMarker: MarkerType = {
+						...marker,
+						category: marker.category as
+							| "liked"
+							| "saved"
+							| "default"
+							| undefined,
+					};
+					return (
+						<Marker key={index} coordinate={marker}>
+							<CustomMarker marker={validMarker} />
+						</Marker>
+					);
+				})}
+			</MapView>
 		</View>
 	);
 }
@@ -84,5 +113,12 @@ const styles = StyleSheet.create({
 		borderRadius: 50,
 		justifyContent: "center",
 		alignItems: "center",
+	},
+	customMarker: {
+		alignItems: "center",
+	},
+	markerText: {
+		color: "black",
+		fontWeight: "bold",
 	},
 });
