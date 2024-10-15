@@ -3,11 +3,18 @@ import { Text, View } from "react-native";
 
 interface Props {
   tag: string;
+  filled?: true;
 }
 
-export default function EmojiTag({ tag }: Props) {
+export default function EmojiTag({ tag, filled }: Props) {
   return (
-    <View style={{ borderWidth: 1, borderRadius: 999 }}>
+    <View
+      style={{
+        borderWidth: 1,
+        borderRadius: 999,
+        backgroundColor: filled ? "#808080" : "white",
+      }}
+    >
       <Text style={{ padding: 6, fontWeight: 600 }}>{tag}</Text>
     </View>
   );

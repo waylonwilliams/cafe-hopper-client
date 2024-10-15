@@ -1,5 +1,5 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
 import { cafeTags } from "./CafeTypes";
@@ -12,6 +12,15 @@ interface Props {
 export default function Log({ setLoggingVisit }: Props) {
   const [rating, setRating] = useState(1);
   const [publicPost, setPublicPost] = useState(true);
+  const [emojiTags, setEmojiTags] = useState<string[]>([]);
+
+  function handleTagClick(tag: string) {
+    if (emojiTags.includes(tag)) {
+      setEmojiTags(emojiTags.filter((t) => t !== tag));
+    } else {
+      setEmojiTags([...emojiTags, tag]);
+    }
+  }
 
   return (
     <ScrollView
@@ -73,9 +82,17 @@ export default function Log({ setLoggingVisit }: Props) {
         <Text style={{ color: "white", fontWeight: 700 }}>Add photos</Text>
       </Pressable>
 
+      {/* Went with someone should go here */}
+
       <View style={{ flexDirection: "row", gap: 5, flexWrap: "wrap" }}>
         {cafeTags.map((tag, index) => (
-          <EmojiTag key={index} tag={tag} />
+          <Pressable onPress={() => handleTagClick(tag)} key={index}>
+            <EmojiTag
+              key={index}
+              tag={tag}
+              filled={emojiTags.includes(tag) ? true : undefined}
+            />
+          </Pressable>
         ))}
       </View>
 
