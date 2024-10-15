@@ -18,6 +18,11 @@ export default function Index() {
   //   const handleSheetChanges = useCallback((index: number) => {}, []);
   const snapPoints = useMemo(() => ["75%", "95%"], []); // 95% so you can see back button
 
+  function logVisit() {
+    setLoggingVisit(true);
+    bottomSheetRef.current?.snapToIndex(1);
+  }
+
   const cafe = {
     name: "Cafe Oshima's",
     address: "2/37 Cao Thang, Ward 5, District 3, Ho Chi Minh City, Vietnam",
@@ -91,7 +96,7 @@ export default function Index() {
               <Cafe
                 cafe={cafe}
                 reviews={[review, review, review]}
-                setLoggingVisit={setLoggingVisit}
+                logVisit={logVisit}
               />
             )}
           </BottomSheetView>

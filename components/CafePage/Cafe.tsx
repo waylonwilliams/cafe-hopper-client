@@ -8,10 +8,10 @@ import { CafeType, ReviewType } from "./CafeTypes";
 interface Props {
   cafe: CafeType;
   reviews: ReviewType[];
-  setLoggingVisit: (arg: boolean) => void;
+  logVisit: () => void;
 }
 
-export default function Cafe({ cafe, reviews, setLoggingVisit }: Props) {
+export default function Cafe({ cafe, reviews, logVisit }: Props) {
   const [liked, setLiked] = useState(false);
   const [togo, setTogo] = useState(false);
 
@@ -99,7 +99,7 @@ export default function Cafe({ cafe, reviews, setLoggingVisit }: Props) {
           </View>
         </Pressable>
 
-        <Pressable onPress={() => setLoggingVisit(true)}>
+        <Pressable onPress={logVisit}>
           <View
             style={{
               flexDirection: "row",
