@@ -110,13 +110,13 @@ export default function Log({ setLoggingVisit }: Props) {
       </Pressable>
 
       {images.length > 0 && (
-        <View
-          style={{
-            flexDirection: "row",
-            gap: 4,
-            justifyContent: "flex-start",
-            width: "100%",
+        <ScrollView
+          contentContainerStyle={{
+            flexGrow: 1,
+            gap: 10,
           }}
+          horizontal
+          showsHorizontalScrollIndicator={false}
         >
           {images.map((image, index) => (
             <Image
@@ -125,7 +125,7 @@ export default function Log({ setLoggingVisit }: Props) {
               style={{ width: 100, height: 100, borderRadius: 5 }}
             />
           ))}
-        </View>
+        </ScrollView>
       )}
 
       {/* Went with someone should go here */}
