@@ -34,17 +34,23 @@ const CustomMarker: React.FC<{ marker: MarkerType }> = ({ marker }) => {
 
 	return (
 		<View style={styles.wrapper}>
-			<View style={[styles.tooltipContainer]}>
-				{/* Icon with circular background and Tooltip Text */}
-				<View style={styles.iconAndText}>
-					<View style={[styles.iconBackground, iconBackgroundStyle]}>
-						{IconComponent}
+			<View style={styles.markerContainer}>
+				{/* Tooltip container with arrow */}
+				<View style={styles.tooltipWrapper}>
+					<View style={[styles.tooltipContainer]}>
+						{/* Icon with circular background and Tooltip Text */}
+						<View style={styles.iconAndText}>
+							<View style={[styles.iconBackground, iconBackgroundStyle]}>
+								{IconComponent}
+							</View>
+							<Text style={styles.tooltipText}>{marker.rating}</Text>
+						</View>
 					</View>
-					<Text style={styles.tooltipText}>{marker.rating}</Text>
+					<View style={styles.tooltipArrow} />
 				</View>
+				{/* Display marker name to the right of the tooltip */}
+				<Text style={styles.markerName}>{marker.name}</Text>
 			</View>
-			<View style={styles.tooltipArrow} />
-			<Text>{marker.name} </Text>
 		</View>
 	);
 };
@@ -54,7 +60,15 @@ const styles = StyleSheet.create({
 	wrapper: {
 		position: "absolute",
 		bottom: 0,
+	},
+	// Container that arranges tooltip and marker name in a row
+	markerContainer: {
+		flexDirection: "row", // Align tooltip and name horizontally
 		alignItems: "center",
+	},
+	// Wrapper for tooltip and arrow together
+	tooltipWrapper: {
+		alignItems: "center", // Ensure arrow stays under tooltip
 	},
 	// Tooltip container with white background and black border
 	tooltipContainer: {
@@ -71,7 +85,7 @@ const styles = StyleSheet.create({
 	tooltipText: {
 		color: "black", // Black text to contrast with white background
 		fontSize: 16,
-		fontWeight: "semibold",
+		fontWeight: "bold",
 		marginLeft: 5, // Space between icon and text
 	},
 	tooltipArrow: {
@@ -82,7 +96,7 @@ const styles = StyleSheet.create({
 		borderBottomWidth: 2,
 		borderColor: "#9AA0A6", // Black border for the arrow
 		transform: [{ rotate: "-45deg" }], // Arrow shape
-		zIndex: 2, // Ensure arrow is below the container
+		zIndex: 1, // Ensure arrow is below the container
 		marginTop: -8, // Adjust to bring the arrow closer to the container
 	},
 	iconAndText: {
@@ -106,6 +120,13 @@ const styles = StyleSheet.create({
 	},
 	defaultIconBackground: {
 		backgroundColor: "black",
+	},
+	// Style for the marker name text
+	markerName: {
+		marginLeft: 7, // Add space between the tooltip and name
+		fontSize: 16,
+		fontWeight: "semibold",
+		color: "black",
 	},
 });
 
