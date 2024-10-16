@@ -22,4 +22,18 @@ export const markers = [
 		longitude: 139.6694646,
 		category: "default",
 	},
+	{
+		name: "Cat and Cloud Coffee",
+		rating: "4.2",
+		latitude: 35.6620258,
+		longitude: 139.667502,
+		category: "default",
+	},
+	{
+		name: "Shrine Cafe",
+		rating: "3.9",
+		latitude: 35.6630204,
+		longitude: 139.666122,
+		category: "default",
+	},
 ];
