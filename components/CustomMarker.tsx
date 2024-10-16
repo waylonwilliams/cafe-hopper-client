@@ -125,9 +125,9 @@ const styles = StyleSheet.create({
 	// Style for the marker name text
 	markerName: {
 		marginLeft: 7, // Add space between the tooltip and name
-		fontSize: 16,
-		fontWeight: "semibold",
-		color: "black",
+		fontSize: 14,
+		fontWeight: "bold",
+		color: "#7b7b7b",
 	},
 });
 
