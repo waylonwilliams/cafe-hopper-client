@@ -18,7 +18,7 @@ interface Props {
 }
 
 export default function Log({ setLoggingVisit }: Props) {
-  const [rating, setRating] = useState(1);
+  const [rating, setRating] = useState(4);
   const [publicPost, setPublicPost] = useState(true);
   const [emojiTags, setEmojiTags] = useState<string[]>([]);
   const [images, setImages] = useState<ImagePicker.ImagePickerAsset[]>([]);
@@ -52,7 +52,6 @@ export default function Log({ setLoggingVisit }: Props) {
         newImages.push(image);
       }
     }
-    console.log(newImages);
     setImages(newImages);
   }
 
@@ -137,6 +136,10 @@ export default function Log({ setLoggingVisit }: Props) {
       )}
 
       {/* Went with someone should go here */}
+
+      <View style={{ width: "100%" }}>
+        <Text style={{ fontSize: 20, fontWeight: 700 }}>Tags</Text>
+      </View>
 
       <View style={{ flexDirection: "row", gap: 5, flexWrap: "wrap" }}>
         {cafeTags.map((tag, index) => (
