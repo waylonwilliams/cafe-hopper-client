@@ -14,6 +14,17 @@ interface Props {
 export default function Cafe({ cafe, reviews, logVisit }: Props) {
   const [liked, setLiked] = useState(false);
   const [togo, setTogo] = useState(false);
+  const [showHours, setShowHours] = useState(false);
+
+  const days = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+  ];
 
   // to convert the string key to a number
   const keyToNumber: { [key: string]: number } = {
@@ -119,12 +130,28 @@ export default function Cafe({ cafe, reviews, logVisit }: Props) {
 
       {/* Opening time and address */}
       <View style={{ paddingTop: 5, gap: 5 }}>
+        {showHours && (
+          <View style={{ gap: 4 }}>
+            {days.map((day, index) => (
+              <View style={{ width: "100%", flexDirection: "row" }} key={index}>
+                <Text style={{ width: "30%", color: "#808080" }}>{day}</Text>
+                <Text style={{ color: "#808080" }}>8:00AM - 10:00PM</Text>
+              </View>
+            ))}
+          </View>
+        )}
+
         <View style={{ flexDirection: "row", gap: 10 }}>
-          <Text style={{ color: "#808080" }}>8:00AM - 10:00PM</Text>
-          <Text style={{ color: "#808080", fontWeight: "700" }}>
-            See details
-          </Text>
+          {!showHours && (
+            <Text style={{ color: "#808080" }}>8:00AM - 10:00PM</Text>
+          )}
+          <Pressable onPress={() => setShowHours(!showHours)}>
+            <Text style={{ color: "#808080", fontWeight: "700" }}>
+              {showHours ? "Hide" : "See details"}
+            </Text>
+          </Pressable>
         </View>
+
         <Text style={{ color: "#808080" }}>{cafe.address}</Text>
       </View>
 
