@@ -48,7 +48,7 @@ export default function Log({ setLoggingVisit }: Props) {
 
     const newImages = [...images];
     for (const image of result.assets) {
-      if (!newImages.includes(image)) {
+      if (!newImages.some((img) => img.assetId === image.assetId)) {
         newImages.push(image);
       }
     }
