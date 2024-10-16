@@ -74,26 +74,27 @@ const styles = StyleSheet.create({
 	tooltipContainer: {
 		backgroundColor: "white",
 		borderColor: "#9AA0A6", // Black border
-		borderWidth: 2,
+		borderWidth: 1,
 		paddingVertical: 2,
 		paddingHorizontal: 6,
 		paddingRight: 9,
 		borderRadius: 20,
-		zIndex: 1, // Ensure container is above the arrow
+		zIndex: 0, // Ensure container is above the arrow
 		alignItems: "center",
 	},
 	tooltipText: {
 		color: "black", // Black text to contrast with white background
 		fontSize: 16,
 		fontWeight: "bold",
+		zIndex: 2,
 		marginLeft: 5, // Space between icon and text
 	},
 	tooltipArrow: {
 		width: 16,
 		height: 16,
 		backgroundColor: "white", // White background for the arrow
-		borderLeftWidth: 2,
-		borderBottomWidth: 2,
+		borderLeftWidth: 1,
+		borderBottomWidth: 1,
 		borderColor: "#9AA0A6", // Black border for the arrow
 		transform: [{ rotate: "-45deg" }], // Arrow shape
 		zIndex: 1, // Ensure arrow is below the container
