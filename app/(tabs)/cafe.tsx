@@ -6,15 +6,19 @@ import BottomSheet, {
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
 import { useMemo, useRef, useState } from "react";
-import Cafe from "../../components/CafePage/Cafe";
-import Log from "../../components/CafePage/Log";
+import Cafe from "@/components/CafePage/Cafe";
+import Log from "@/components/CafePage/Log";
 import React from "react";
+import { useLocalSearchParams } from "expo-router";
+import { CafeType } from "@/components/CafePage/CafeTypes";
 
 /**
  * When you click on a cafe card / pin on map this page will be shown
  * Ideally upgrade this to take in a cafe as a param and render it that way
  */
 export default function Index() {
+  const cafeObj = useLocalSearchParams() as CafeType;
+
   const [loggingVisit, setLoggingVisit] = useState(false);
 
   // idk stuff for the bottom sheet
@@ -49,18 +53,6 @@ export default function Index() {
     setLoggingVisit(false);
     router.back();
   }
-
-  const cafe = {
-    name: "Cafe Oshima's",
-    address: "2/37 Cao Thang, Ward 5, District 3, Ho Chi Minh City, Vietnam",
-    reviews: {
-      one: 2,
-      two: 0,
-      three: 10,
-      four: 19,
-      five: 23,
-    },
-  };
 
   const review = {
     name: "Jane Doe",
@@ -122,7 +114,7 @@ export default function Index() {
               <Log setLoggingVisit={setLoggingVisit} />
             ) : (
               <Cafe
-                cafe={cafe}
+                cafe={cafeObj}
                 reviews={[review, review, review]}
                 logVisit={logVisit}
               />

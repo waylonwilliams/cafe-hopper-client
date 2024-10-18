@@ -26,28 +26,19 @@ export default function Cafe({ cafe, reviews, logVisit }: Props) {
     "Sunday",
   ];
 
-  // to convert the string key to a number
-  const keyToNumber: { [key: string]: number } = {
-    one: 1,
-    two: 2,
-    three: 3,
-    four: 4,
-    five: 5,
-  };
-
-  // can use for getting width of bar
-  const maxReviewValue = Math.max(...Object.values(cafe.reviews));
-  const totalReviews = Object.values(cafe.reviews).reduce(
-    (acc, review) => acc + review,
-    0
-  );
-  const averageReview =
-    totalReviews === 0
-      ? 0
-      : Object.entries(cafe.reviews).reduce(
-          (acc, [key, value]) => acc + keyToNumber[key] * value,
-          0
-        ) / totalReviews;
+  // How you could calculate width of bar and such
+  // const maxReviewValue = Math.max(...Object.values(cafe.reviews));
+  // const totalReviews = Object.values(cafe.reviews).reduce(
+  //   (acc, review) => acc + review,
+  //   0
+  // );
+  // const averageReview =
+  //   totalReviews === 0
+  //     ? 0
+  //     : Object.entries(cafe.reviews).reduce(
+  //         (acc, [key, value]) => acc + keyToNumber[key] * value,
+  //         0
+  //       ) / totalReviews;
 
   return (
     <ScrollView
@@ -187,42 +178,38 @@ export default function Cafe({ cafe, reviews, logVisit }: Props) {
           }}
         >
           <View style={{ width: "65%", gap: 10, position: "relative" }}>
-            {Object.entries(cafe.reviews)
-              .reverse()
-              .map((review, index) => (
+            {[5, 4, 3, 2, 1].map((review, index) => (
+              <View
+                style={{
+                  flexDirection: "row",
+                  gap: 4,
+                  alignItems: "center",
+                }}
+                key={index}
+              >
+                <Text style={{ color: "#808080" }}>{review}</Text>
                 <View
                   style={{
-                    flexDirection: "row",
-                    gap: 4,
-                    alignItems: "center",
+                    width: "100%",
+                    backgroundColor: "#C9C9C9",
+                    borderRadius: 3,
+                    margin: 2,
+                    position: "relative",
+                    height: 7,
                   }}
-                  key={index}
                 >
-                  <Text style={{ color: "#808080" }}>
-                    {keyToNumber[review[0]]}
-                  </Text>
                   <View
                     style={{
-                      width: "100%",
-                      backgroundColor: "#C9C9C9",
+                      width: `${"80"}%`,
+                      backgroundColor: "#FFB400",
                       borderRadius: 3,
-                      margin: 2,
-                      position: "relative",
+                      padding: 2,
                       height: 7,
                     }}
-                  >
-                    <View
-                      style={{
-                        width: `${(review[1] / maxReviewValue) * 100}%`,
-                        backgroundColor: "#FFB400",
-                        borderRadius: 3,
-                        padding: 2,
-                        height: 7,
-                      }}
-                    />
-                  </View>
+                  />
                 </View>
-              ))}
+              </View>
+            ))}
           </View>
 
           <View
@@ -242,11 +229,11 @@ export default function Cafe({ cafe, reviews, logVisit }: Props) {
             >
               <Ionicons name="star" size={24} color="#FFB400" />
               <Text style={{ fontSize: 24, fontWeight: 600 }}>
-                {averageReview.toFixed(1)}
+                {(4.358).toFixed(1)}
               </Text>
             </View>
 
-            <Text style={{ color: "#808080" }}>{totalReviews} reviews</Text>
+            <Text style={{ color: "#808080" }}>{51} reviews</Text>
           </View>
         </View>
       </View>

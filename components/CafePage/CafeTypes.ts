@@ -1,13 +1,9 @@
 export type CafeType = {
+  id: string;
   name: string;
   address: string;
-  reviews: {
-    one: number;
-    two: number;
-    three: number;
-    four: number;
-    five: number;
-  };
+  hours: string;
+  topTags: string[]; // hopefully we can store as "<emoji> <tag>" all in one string
 };
 
 export type ReviewType = {
