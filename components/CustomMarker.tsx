@@ -58,7 +58,7 @@ const CustomMarker: React.FC<{ marker: MarkerType }> = ({ marker }) => {
 // Styles for different marker categories and tooltip
 const styles = StyleSheet.create({
 	wrapper: {
-		position: "absolute",
+		position: "relative",
 		bottom: 0,
 	},
 	// Container that arranges tooltip and marker name in a row
@@ -86,7 +86,7 @@ const styles = StyleSheet.create({
 		color: "black", // Black text to contrast with white background
 		fontSize: 16,
 		fontWeight: "bold",
-		zIndex: 2,
+		// zIndex: 2,
 		marginLeft: 5, // Space between icon and text
 	},
 	tooltipArrow: {

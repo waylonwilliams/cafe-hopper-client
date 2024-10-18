@@ -53,8 +53,8 @@ export default function Map() {
 		}
 	};
 
-	const calloutPressed = (ev: any) => {
-		console.log(ev);
+	const handleMarkerPress = (marker: MarkerType) => {
+		console.log(`You pressed the marker: ${marker.category}`);
 	};
 
 	useEffect(() => {
@@ -88,7 +88,11 @@ export default function Map() {
 							| undefined,
 					};
 					return (
-						<Marker key={index} coordinate={marker}>
+						<Marker
+							key={index}
+							coordinate={marker}
+							onPress={() => console.log("PRess")}
+						>
 							<CustomMarker marker={validMarker} />
 						</Marker>
 					);
@@ -116,9 +120,5 @@ const styles = StyleSheet.create({
 	},
 	customMarker: {
 		alignItems: "center",
-	},
-	markerText: {
-		color: "black",
-		fontWeight: "bold",
 	},
 });
