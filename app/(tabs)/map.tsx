@@ -19,6 +19,7 @@ import { MaterialIcons } from "@expo/vector-icons";
 import { markers } from "../../assets/markers";
 import { MarkerType } from "../../components/CustomMarker";
 import CustomMarker from "../../components/CustomMarker";
+import { Link, useRouter } from "expo-router";
 
 export default function Map() {
 	const [mapRegion, setMapRegion] = useState({
@@ -29,6 +30,7 @@ export default function Map() {
 	});
 
 	const mapRef = useRef<MapView>(null); // Reference to the MapView
+	const router = useRouter(); // Get the router instance from expo-router
 
 	const userLocation = async () => {
 		let { status } = await Location.requestForegroundPermissionsAsync();
@@ -54,7 +56,33 @@ export default function Map() {
 	};
 
 	const handleMarkerPress = (marker: MarkerType) => {
-		console.log(`You pressed the marker: ${marker.category}`);
+		// Navigate to cafe view and pass marker data as parameters
+		console.log(`Navigating to cafe view for: ${marker.name}`);
+		router.push({
+			pathname: "/cafe",
+			params: {
+				id: 1,
+				name: "Cafe Oshima's",
+				address:
+					"2/37 Cao Thang, Ward 5, District 3, Ho Chi Minh City, Vietnam",
+				topTags: [
+					"🍵 Matcha",
+					"🛜 Free Wifi",
+					"🌱 Vegan",
+					"🌳 Outdoor",
+					"🐶 Pet Friendly",
+					"🏠 Indoor",
+					"🚗 Parking",
+				],
+				hours: `8:00AM - 10:00PM Monday
+                    8:00AM - 10:00PM Tuesday
+                    8:00AM - 10:00PM Wednesday
+                    8:00AM - 10:00PM Thursday
+                    8:00AM - 10:00PM Friday
+                    8:00AM - 10:00PM Saturday
+                    8:00AM - 10:00PM Sunday`,
+			},
+		});
 	};
 
 	useEffect(() => {
@@ -91,7 +119,8 @@ export default function Map() {
 						<Marker
 							key={index}
 							coordinate={marker}
-							onPress={() => console.log("PRess")}
+							onPress={() => handleMarkerPress(validMarker)}
+							// onPress={() => console.log("presseed")}
 						>
 							<CustomMarker marker={validMarker} />
 						</Marker>
