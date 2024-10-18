@@ -13,6 +13,43 @@ import { useLocalSearchParams } from "expo-router";
 import { CafeType } from "@/components/CafePage/CafeTypes";
 
 /**
+ * An example of how you can open this page
+ * <Link
+        // will pass the fetched cafe data like this to prevent multiple fetches
+        href={{
+          pathname: "/cafe",
+          params: {
+            id: 1,
+            name: "Cafe Oshima's",
+            address:
+              "2/37 Cao Thang, Ward 5, District 3, Ho Chi Minh City, Vietnam",
+            topTags: [
+              "🍵 Matcha",
+              "🛜 Free Wifi",
+              "🌱 Vegan",
+              "🌳 Outdoor",
+              "🐶 Pet Friendly",
+              "🏠 Indoor",
+              "🚗 Parking",
+            ],
+            hours: `8:00AM - 10:00PM Monday
+                    8:00AM - 10:00PM Tuesday
+                    8:00AM - 10:00PM Wednesday
+                    8:00AM - 10:00PM Thursday
+                    8:00AM - 10:00PM Friday
+                    8:00AM - 10:00PM Saturday
+                    8:00AM - 10:00PM Sunday`,
+          },
+        }}
+        asChild
+      >
+        <Pressable>
+          <Text>Open cafe view</Text>
+        </Pressable>
+      </Link>
+ */
+
+/**
  * When you click on a cafe card / pin on map this page will be shown
  * Ideally upgrade this to take in a cafe as a param and render it that way
  */
