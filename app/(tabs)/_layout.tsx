@@ -55,6 +55,13 @@ export default function TabLayout() {
           ),
         }}
       />
+      <Tabs.Screen
+        name="cafe"
+        options={{
+          href: null,
+          title: "Cafe",
+        }}
+      />
     </Tabs>
   );
 }

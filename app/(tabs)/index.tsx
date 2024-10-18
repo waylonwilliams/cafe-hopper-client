@@ -1,4 +1,4 @@
-import { Text, SafeAreaView } from "react-native";
+import { Text, SafeAreaView, Pressable } from "react-native";
 
 export default function Index() {
   return (
