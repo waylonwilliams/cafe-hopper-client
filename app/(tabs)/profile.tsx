@@ -1,5 +1,5 @@
-import { Text, SafeAreaView } from "react-native";
-
+import { Link } from "expo-router";
+import { Text, SafeAreaView, Pressable } from "react-native"
 export default function Index() {
   return (
     <SafeAreaView
@@ -10,6 +10,13 @@ export default function Index() {
       }}
     >
       <Text>Profile page</Text>
+      {/* <Link href="../sign_up" asChild> */}
+      {/* <Link href="../login" asChild> */}
+      <Link href="../start" asChild>
+        <Pressable>
+          <Text>Open start page</Text>
+        </Pressable>
+      </Link>
     </SafeAreaView>
   );
 }
