@@ -5,6 +5,8 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import CardComponent from '@/components/Card';
+import Review from "@/components/Review";
+
 
 export default function Home(){
   {/* Dummy Cafes */}
@@ -13,18 +15,37 @@ export default function Home(){
       name: '11th Hour Coffee',
       localImage: require('../../assets/images/11th-hour.png'),
       rating: 4.6,
+      tags: ['🛜', '🪴', '🥐'],
     },
     {
       name: 'The Abbey', 
       localImage: require('../../assets/images/abbey.png'),
       rating: 4.7,
+      tags: ['📚', '☕', '🛜'],
     },
     {
       name: 'Verve',
       localImage: require('../../assets/images/verve.png'),
       rating: 4.4,
+      tags: ['🪴', '☕', '📚'],
     }
   ];
+
+  {/* Dummy Review */}
+  const review = {
+    name: "Jane Doe",
+    description:
+      "This cafe has quickly become my go-to for a peaceful break. The ambiance is so calm and relaxing, perfect for unwinding or getting some work done.",
+    tags: ["🌱 Vegan", "🍵 Matcha", "🛜 Free Wifi", "🌳 Outdoor"],
+    numLikes: 169,
+    datePosted: "2021-09-01T12:00:00Z",
+    score: 5,
+    images: [
+      "https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12",
+      "https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12",
+      "https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12",
+    ],
+  };
 
   return (
     <SafeAreaView>
@@ -35,7 +56,7 @@ export default function Home(){
 
           {/* Header */}
           <Text style = {styles.heading}>Where's your next</Text>
-          <Text style = {styles.heading}>cafe adventure?</Text>
+          <Text style = {styles.h2}>cafe adventure?</Text>
 
           {/* Search Bar */}
           <View style = {styles.searchWrapper}>
@@ -75,8 +96,10 @@ export default function Home(){
             {/* Turn into button later */}
             <Text style ={{color: '#8a8888'}}>Browse all</Text> 
           </View>
-          {/* PLACEHOLDER */}
-          <View style={styles.placeholder}></View>
+          {/* MAP REVIEWS HERE */}
+          <View style={styles.placeholder}>
+            <Review review={review}></Review>
+          </View>
 
           <Text style={styles.section}>New from friends</Text>
           {/* Feed */}
@@ -106,6 +129,11 @@ const styles = StyleSheet.create({
 
   heading:{
     fontFamily: 'SF-Pro-Display-Semibold',
+    fontSize: 24,
+  },
+
+  h2:{
+    color: '#8a8888',
     fontSize: 24,
   },
 
@@ -163,11 +191,6 @@ const styles = StyleSheet.create({
   placeholder:{
     marginTop: 15,
     marginBottom: 20,
-    width: 350,
-    height: 200,
-    borderWidth: 1,
-    borderColor: 'black',
-    borderRadius: 30,
+  },
 
-  }
 });
