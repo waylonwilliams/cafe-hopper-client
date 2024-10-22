@@ -1,8 +1,16 @@
-import AsyncStorage from '@react-native-async-storage/async-storage'
-import { createClient } from '@supabase/supabase-js'
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { createClient } from "@supabase/supabase-js";
 
-const supabaseUrl = 'https://phfbtsfiziufheixrpup.supabase.co'
-const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBoZmJ0c2Zpeml1ZmhlaXhycHVwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Mjk0NTk3MTMsImV4cCI6MjA0NTAzNTcxM30.bHPn5mOD4oBap_QcqceURhA5Bh4qfYPb8D_cLfAwTAA'
+const supabaseUrl = process.env.EXPO_PUBLIC_SUPABASE_URL;
+const supabaseAnonKey = process.env.EXPO_PUBLIC_SUPABASE_KEY;
+
+// idk what to do for production but this is good for dev
+if (!supabaseUrl) {
+  throw new Error("Missing env.EXPO_PUBLIC_SUPABASE_URL");
+}
+if (!supabaseAnonKey) {
+  throw new Error("Missing env.EXPO_PUBLIC_SUPABASE_KEY");
+}
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
@@ -11,4 +19,4 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
     persistSession: true,
     detectSessionInUrl: false,
   },
-})
+});
