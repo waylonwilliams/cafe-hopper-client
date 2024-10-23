@@ -1,10 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import EmojiTag from '@/components/EmojiTag';
 import Review from '@/components/Review';
-import { CafeType, NewReviewType, ReviewType } from './CafeTypes';
-import { supabase } from '@/lib/supabase';
+import { CafeType, NewReviewType } from './CafeTypes';
 
 interface Props {
   cafe: CafeType;

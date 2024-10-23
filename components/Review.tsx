@@ -4,16 +4,6 @@ import { Image, Pressable, Text, View } from 'react-native';
 import EmojiTag from './EmojiTag';
 import { NewReviewType } from './CafePage/CafeTypes';
 
-type Review = {
-  name: string;
-  description: string;
-  tags: string[]; // hopefully we can store as "<emoji> <tag>" all in one string
-  numLikes: number;
-  datePosted: string; // supabase timestamp string
-  score: number;
-  images: string[]; // urls
-};
-
 interface Props {
   review: NewReviewType;
 }

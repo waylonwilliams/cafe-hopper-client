@@ -7,7 +7,7 @@ import Cafe from '@/components/CafePage/Cafe';
 import Log from '@/components/CafePage/Log';
 import React from 'react';
 import { useLocalSearchParams } from 'expo-router';
-import { CafeType, NewReviewType, ReviewType } from '@/components/CafePage/CafeTypes';
+import { CafeType, NewReviewType } from '@/components/CafePage/CafeTypes';
 import { supabase } from '@/lib/supabase';
 
 /**
