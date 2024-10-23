@@ -1,17 +1,12 @@
 import React from 'react';
-import { StyleSheet, Text, View, Button, Image, TouchableOpacity, Link } from 'react-native';
-import { useNavigation } from 'expo-router';
+import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 
 export default function GetStartedPage() {
   const handleGetStarted = () => {
     // Navigate to the next screen in your app
-    // Example: navigation.navigate('HomeScreen'); 
-    console.log('get started pressed')
-    
+    // Example: navigation.navigate('HomeScreen');
+    console.log('get started pressed');
   };
- 
-
-  
 
   return (
     <View style={styles.container}>
@@ -36,10 +31,9 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 40,
     fontWeight: 'bold',
-    marginTop: 22 ,
+    marginTop: 22,
     marginHorizontal: 43.5,
     marginBottom: 22,
-    
   },
   image: {
     width: 254,
@@ -48,11 +42,11 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     // marginTop: 41,
     // marginBottom: 40,
-    
+
     resizeMode: 'contain',
   },
   start: {
-    borderWidth: 1,    
+    borderWidth: 1,
     borderRadius: 32.05, // Half of height for pill shape
     paddingVertical: 10, // Vertical padding
     paddingHorizontal: 20, // Horizontal padding
@@ -60,8 +54,6 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     marginVertical: 20,
-
-    
   },
   buttonText: {
     color: 'black', // Text color
@@ -69,8 +61,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold', // Text weight
     paddingRight: 10,
   },
-  arrow: {
-    
-  }
-  
+  arrow: {},
 });

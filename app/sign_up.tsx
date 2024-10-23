@@ -1,29 +1,12 @@
-import { Alert, AppState } from "react-native";
-import { supabase } from "@/lib/supabase";
-import { Button, Input } from "@rneui/themed";
-import { Link } from "expo-router";
-import React, { useState } from "react";
-import {
-  StyleSheet,
-  Text,
-  View,
-  TextInput,
-  TouchableOpacity,
-  Image,
-  Pressable,
-} from "react-native";
-import { router } from "expo-router";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import Icon from "react-native-vector-icons/FontAwesome";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { Alert, AppState } from 'react-native';
+import { supabase } from '@/lib/supabase';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
-function goBack() {
-  // setLoggingVisit(false);
-  router.back();
-}
-
-AppState.addEventListener("change", (state) => {
-  if (state === "active") {
+AppState.addEventListener('change', (state) => {
+  if (state === 'active') {
     supabase.auth.startAutoRefresh();
   } else {
     supabase.auth.stopAutoRefresh();
@@ -31,18 +14,18 @@ AppState.addEventListener("change", (state) => {
 });
 
 const SignUpScreen = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confPassword, setConfPassword] = useState("");
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confPassword, setConfPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function signUpWithEmail() {
-    console.log("Email:", email);
-    console.log("Password:", password);
-    console.log("ConfPwd: ", confPassword);
-    if (password == confPassword) {
-      console.log("pwds match");
+    console.log('Email:', email);
+    console.log('Password:', password);
+    console.log('ConfPwd: ', confPassword);
+    if (password === confPassword) {
+      console.log('pwds match');
       if (password) setLoading(true);
       const {
         data: { session },
@@ -53,22 +36,21 @@ const SignUpScreen = () => {
       });
 
       if (error) console.log(error);
-      if (!session)
-        Alert.alert("Please check your inbox for email verification!");
+      if (!session) Alert.alert('Please check your inbox for email verification!');
       setLoading(false);
     } else {
-      Alert.alert("Passwords do not match!");
+      Alert.alert('Passwords do not match!');
     }
   }
 
-  const handleLogin = () => {
-    // Perform login logic here, e.g., API call
-    console.log("Email:", email);
-    console.log("Password:", password);
-  };
+  // const handleLogin = () => {
+  //   // Perform login logic here, e.g., API call
+  //   console.log('Email:', email);
+  //   console.log('Password:', password);
+  // };
 
   const goToLogin = () => {
-    console.log("go to login");
+    console.log('go to login');
   };
 
   const toggleShowPassword = () => {
@@ -101,10 +83,10 @@ const SignUpScreen = () => {
           onChangeText={setPassword}
         />
         <MaterialCommunityIcons
-          name={showPassword ? "eye-off" : "eye"}
+          name={showPassword ? 'eye-off' : 'eye'}
           size={20}
           color="#aaa"
-          style={styles.icon}
+          // style={styles.icon}
           onPress={toggleShowPassword}
         />
       </View>
@@ -119,37 +101,33 @@ const SignUpScreen = () => {
           onChangeText={setConfPassword}
         />
         <MaterialCommunityIcons
-          name={showPassword ? "eye-off" : "eye"}
+          name={showPassword ? 'eye-off' : 'eye'}
           size={20}
           color="#aaa"
-          style={styles.icon}
+          // style={styles.icon}
           onPress={toggleShowPassword}
         />
       </View>
 
       <View style={styles.altLogin}>
         <Text>or sign in with</Text>
-        <Image
-          style={styles.google}
-          source={require("@/assets/images/Google.png")}
-        ></Image>
+        <Image style={styles.google} source={require('@/assets/images/Google.png')}></Image>
       </View>
 
       <View style={styles.signupButton}>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={signUpWithEmail}
-          disabled={loading}
-        >
+        <TouchableOpacity style={styles.button} onPress={signUpWithEmail} disabled={loading}>
           <Text style={styles.buttonText}>Start exploring</Text>
           <Image
-            style={styles.arrow}
-            source={require("@/assets/images/arrow.png")}
-          ></Image>
+            // style={styles.arrow}
+            source={require('@/assets/images/arrow.png')}></Image>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={goToLogin}>
-          <Text style={styles.alt}>Already have an account? Login</Text>
+          <Text
+          // style={styles.alt}
+          >
+            Already have an account? Login
+          </Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -159,7 +137,7 @@ const SignUpScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: 'center',
     // alignItems: 'center',
     padding: 20,
   },
@@ -168,19 +146,19 @@ const styles = StyleSheet.create({
     marginTop: 150,
     marginBottom: 20,
     marginHorizontal: 10,
-    alignItems: "center",
+    alignItems: 'center',
   },
   title: {
     fontSize: 36,
-    fontWeight: "bold",
+    fontWeight: 'bold',
     // marginBottom: 40,
     // width: '90%',
   },
   inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     borderWidth: 1,
-    borderColor: "gray",
+    borderColor: 'gray',
     borderRadius: 20,
     paddingHorizontal: 10,
     marginVertical: 5,
@@ -193,7 +171,7 @@ const styles = StyleSheet.create({
 
   input: {
     flex: 1,
-    width: "100%",
+    width: '100%',
     height: 55,
     paddingLeft: 10,
     borderRadius: 20,
@@ -201,10 +179,10 @@ const styles = StyleSheet.create({
 
   altLogin: {
     marginTop: 20,
-    alignItems: "center",
+    alignItems: 'center',
   },
   signupButton: {
-    alignItems: "center",
+    alignItems: 'center',
   },
   button: {
     borderWidth: 1,
@@ -212,23 +190,19 @@ const styles = StyleSheet.create({
     paddingVertical: 10, // Vertical padding
     paddingHorizontal: 20, // Horizontal padding
     elevation: 5, // Shadow for Android
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginTop: 70,
     marginBottom: 20,
   },
   buttonText: {
-    color: "black", // Text color
+    color: 'black', // Text color
     fontSize: 16, // Text size
-    fontWeight: "bold", // Text weight
+    fontWeight: 'bold', // Text weight
     paddingRight: 10,
   },
-  alt: {
-    // marginTop:20,
-  },
-  alt2: {},
   alt_opt: {
-    flexDirection: "row",
+    flexDirection: 'row',
   },
   google: {
     marginTop: 10,

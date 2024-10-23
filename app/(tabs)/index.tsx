@@ -1,21 +1,16 @@
-import React from "react";
-import { Link } from "expo-router";
+import React from 'react';
 import {
   View,
   Text,
-  TextInput,
   StyleSheet,
   SafeAreaView,
   TouchableOpacity,
   FlatList,
   ScrollView,
-} from "react-native";
-import Icon from "react-native-vector-icons/MaterialIcons";
-import { NavigationContainer } from "@react-navigation/native";
-import { createNativeStackNavigator } from "@react-navigation/native-stack";
-
-import CardComponent from "@/components/Card";
-import Review from "@/components/Review";
+} from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
+import CardComponent from '@/components/Card';
+import Review from '@/components/Review';
 
 export default function Home() {
   {
@@ -23,22 +18,22 @@ export default function Home() {
   }
   const cafes = [
     {
-      name: "11th Hour Coffee",
-      localImage: require("../../assets/images/11th-hour.png"),
+      name: '11th Hour Coffee',
+      localImage: require('../../assets/images/11th-hour.png'),
       rating: 4.6,
-      tags: ["🛜", "🪴", "🥐"],
+      tags: ['🛜', '🪴', '🥐'],
     },
     {
-      name: "The Abbey",
-      localImage: require("../../assets/images/abbey.png"),
+      name: 'The Abbey',
+      localImage: require('../../assets/images/abbey.png'),
       rating: 4.7,
-      tags: ["📚", "☕", "🛜"],
+      tags: ['📚', '☕', '🛜'],
     },
     {
-      name: "Verve",
-      localImage: require("../../assets/images/verve.png"),
+      name: 'Verve',
+      localImage: require('../../assets/images/verve.png'),
       rating: 4.4,
-      tags: ["🪴", "☕", "📚"],
+      tags: ['🪴', '☕', '📚'],
     },
   ];
 
@@ -46,17 +41,17 @@ export default function Home() {
     /* Dummy Review */
   }
   const review = {
-    name: "Jane Doe",
+    name: 'Jane Doe',
     description:
-      "This cafe has quickly become my go-to for a peaceful break. The ambiance is so calm and relaxing, perfect for unwinding or getting some work done.",
-    tags: ["🌱 Vegan", "🍵 Matcha", "🛜 Free Wifi", "🌳 Outdoor"],
+      'This cafe has quickly become my go-to for a peaceful break. The ambiance is so calm and relaxing, perfect for unwinding or getting some work done.',
+    tags: ['🌱 Vegan', '🍵 Matcha', '🛜 Free Wifi', '🌳 Outdoor'],
     numLikes: 169,
-    datePosted: "2021-09-01T12:00:00Z",
+    datePosted: '2021-09-01T12:00:00Z',
     score: 5,
     images: [
-      "https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12",
-      "https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12",
-      "https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12",
+      'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12',
+      'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12',
+      'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12',
     ],
   };
 
@@ -84,11 +79,11 @@ export default function Home() {
           <View style={styles.popInfo}>
             <TouchableOpacity activeOpacity={0.6} style={styles.locButton}>
               <Icon name="location-pin" size={15} color="#8a8888"></Icon>
-              <Text style={{ color: "#8a8888" }}>Santa Cruz, CA</Text>
+              <Text style={{ color: '#8a8888' }}>Santa Cruz, CA</Text>
             </TouchableOpacity>
 
             {/* Turn into button later */}
-            <Text style={{ color: "#8a8888" }}>Browse all</Text>
+            <Text style={{ color: '#8a8888' }}>Browse all</Text>
           </View>
 
           {/* Cafe Carousel */}
@@ -107,7 +102,7 @@ export default function Home() {
             <Text style={styles.section}>Popular Reviews this Week</Text>
 
             {/* Turn into button later */}
-            <Text style={{ color: "#8a8888" }}>Browse all</Text>
+            <Text style={{ color: '#8a8888' }}>Browse all</Text>
           </View>
           {/* MAP REVIEWS HERE */}
           <View style={styles.placeholder}>
@@ -131,61 +126,61 @@ const styles = StyleSheet.create({
   },
 
   greeting: {
-    fontFamily: "SF-Pro-Display-Regular",
+    fontFamily: 'SF-Pro-Display-Regular',
     fontSize: 14,
     marginBottom: 5,
   },
 
   heading: {
-    fontFamily: "SF-Pro-Display-Semibold",
+    fontFamily: 'SF-Pro-Display-Semibold',
     fontSize: 24,
   },
 
   h2: {
-    color: "#8a8888",
+    color: '#8a8888',
     fontSize: 24,
   },
 
   searchWrapper: {
     marginTop: 15,
     marginBottom: 25,
-    flexDirection: "row",
+    flexDirection: 'row',
     paddingHorizontal: 10,
     paddingVertical: 8,
-    alignItems: "center",
+    alignItems: 'center',
     borderWidth: 1,
-    borderColor: "black",
+    borderColor: 'black',
     borderRadius: 30,
   },
 
   search: {
     flex: 1,
-    color: "#8a8888",
+    color: '#8a8888',
     marginTop: 2,
     marginLeft: 5,
   },
 
   section: {
-    fontFamily: "SF-Pro-Display-Semibold",
+    fontFamily: 'SF-Pro-Display-Semibold',
     fontSize: 20,
   },
 
   popInfo: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     paddingVertical: 10,
     fontSize: 16,
-    color: "#8a8888",
+    color: '#8a8888',
   },
 
   locButton: {
-    flexDirection: "row",
+    flexDirection: 'row',
     borderWidth: 1,
-    borderColor: "#e6e6e6",
+    borderColor: '#e6e6e6',
     borderRadius: 30,
     paddingVertical: 5,
     paddingHorizontal: 20,
-    backgroundColor: "#e6e6e6",
+    backgroundColor: '#e6e6e6',
   },
 
   carousel: {
@@ -193,8 +188,8 @@ const styles = StyleSheet.create({
   },
 
   reviewContainer: {
-    flexDirection: "row",
-    justifyContent: "space-between",
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
 
   placeholder: {

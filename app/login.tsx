@@ -1,68 +1,55 @@
-import { Alert, AppState } from 'react-native'
-import { supabase } from '@/lib/supabase'
-import { Button, Input } from '@rneui/themed'
-import { Link } from 'expo-router';
+import { Alert, AppState } from 'react-native';
+import { supabase } from '@/lib/supabase';
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image, Pressable } from 'react-native';
-import {router} from "expo-router";
-import Ionicons from "@expo/vector-icons/Ionicons";
+import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import {MaterialCommunityIcons} from '@expo/vector-icons';
-
-function goBack() {
-  // setLoggingVisit(false);
-  router.back();
-}
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 
 AppState.addEventListener('change', (state) => {
   if (state === 'active') {
-    supabase.auth.startAutoRefresh()
+    supabase.auth.startAutoRefresh();
   } else {
-    supabase.auth.stopAutoRefresh()
+    supabase.auth.stopAutoRefresh();
   }
-})
+});
 
-
-  
 const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false)
+  const [loading, setLoading] = useState(false);
 
   async function signInWithEmail() {
     console.log('Email:', email);
     console.log('Password:', password);
-    setLoading(true)
+    setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({
       email: email,
       password: password,
-    })
+    });
 
-    if (error) Alert.alert(error.message)
-    setLoading(false)
+    if (error) Alert.alert(error.message);
+    setLoading(false);
   }
 
-  const handleLogin = () => {
-    // Perform login logic here, e.g., API call
-    console.log('Email:', email);
-    console.log('Password:', password);
-  };
+  // const handleLogin = () => {
+  //   // Perform login logic here, e.g., API call
+  //   console.log('Email:', email);
+  //   console.log('Password:', password);
+  // };
 
   const goToSignup = () => {
     console.log('go to sign up');
-  }
+  };
 
-    
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
-    
-  }
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.titleContainer}>
-      <Text style={styles.title}>Welcome Back!</Text>
+        <Text style={styles.title}>Welcome Back!</Text>
       </View>
       <View style={styles.inputContainer}>
         <Icon name="user" size={20} color="black" />
@@ -77,42 +64,44 @@ const LoginScreen = () => {
       <View style={styles.inputContainer}>
         <Icon name="lock" size={20} color="black" />
         <TextInput
-        style={styles.input}
-        placeholder="Password"
-        placeholderTextColor='black'
-
-        secureTextEntry={!showPassword}
-        value={password}
-        onChangeText={setPassword}
-       /> 
-      <MaterialCommunityIcons
+          style={styles.input}
+          placeholder="Password"
+          placeholderTextColor="black"
+          secureTextEntry={!showPassword}
+          value={password}
+          onChangeText={setPassword}
+        />
+        <MaterialCommunityIcons
           name={showPassword ? 'eye-off' : 'eye'}
           size={20}
           color="#aaa"
-          style={styles.icon}
+          // style={styles.icon}
           onPress={toggleShowPassword}
-          />
+        />
       </View>
-      
 
-      <View style={styles.altLogin}> 
+      <View style={styles.altLogin}>
         <Text>or sign in with</Text>
         <Image style={styles.google} source={require('@/assets/images/Google.png')}></Image>
       </View>
-      
+
       <View style={styles.signupButton}>
         <TouchableOpacity style={styles.button} onPress={signInWithEmail} disabled={loading}>
-        <Text style={styles.buttonText}>Continue exploring</Text>
-        <Image style={styles.arrow} source={require('@/assets/images/arrow.png')}></Image>
+          <Text style={styles.buttonText}>Continue exploring</Text>
+          <Image
+            // style={styles.arrow}
+            source={require('@/assets/images/arrow.png')}></Image>
+        </TouchableOpacity>
 
-      </TouchableOpacity>
-
-      <TouchableOpacity onPress={goToSignup}>
-      <Text style={styles.alt}>Already have an account? Sign Up</Text>
-      </TouchableOpacity>
+        <TouchableOpacity onPress={goToSignup}>
+          <Text
+          // style={styles.alt}
+          >
+            Already have an account? Sign Up
+          </Text>
+        </TouchableOpacity>
       </View>
-
-      </View>
+    </View>
   );
 };
 
@@ -129,7 +118,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     marginHorizontal: 10,
     alignItems: 'center',
-  }, 
+  },
   title: {
     fontSize: 36,
     fontWeight: 'bold',
@@ -146,21 +135,20 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     marginHorizontal: 10,
   },
-  back:{
+  back: {
     width: 30,
     height: 30,
-
   },
-  
+
   input: {
-    flex:1,
+    flex: 1,
     width: '100%',
     height: 55,
     paddingLeft: 10,
     borderRadius: 20,
   },
 
-  altLogin:{
+  altLogin: {
     marginTop: 20,
     alignItems: 'center',
   },
@@ -168,14 +156,14 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   button: {
-    borderWidth: 1,    
+    borderWidth: 1,
     borderRadius: 32.05, // Half of height for pill shape
     paddingVertical: 10, // Vertical padding
     paddingHorizontal: 20, // Horizontal padding
     elevation: 5, // Shadow for Android
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop:136.9,
+    marginTop: 136.9,
     marginBottom: 20,
   },
   buttonText: {
@@ -184,21 +172,12 @@ const styles = StyleSheet.create({
     fontWeight: 'bold', // Text weight
     paddingRight: 10,
   },
-  alt: {
-    // marginTop:20,
-
-  },
-  alt2: {
-    
-  },
   alt_opt: {
     flexDirection: 'row',
   },
   google: {
-    marginTop:10,
-  }
-  
+    marginTop: 10,
+  },
 });
 
 export default LoginScreen;
-
