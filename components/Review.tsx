@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { Image, Pressable, Text, View } from 'react-native';
 import EmojiTag from './EmojiTag';
+import { NewReviewType } from './CafePage/CafeTypes';
 
 type Review = {
   name: string;
@@ -14,12 +15,12 @@ type Review = {
 };
 
 interface Props {
-  review: Review;
+  review: NewReviewType;
 }
 
 export default function ReviewComponent({ review }: Props) {
   const [liked, setLiked] = useState(false);
-  const [numLikes, setNumLikes] = useState(review.numLikes);
+  const [numLikes, setNumLikes] = useState(5);
 
   async function handleLike() {
     if (liked) {
@@ -31,7 +32,7 @@ export default function ReviewComponent({ review }: Props) {
     setLiked(!liked);
   }
 
-  const date = new Date(review.datePosted).toLocaleDateString('en-US', {
+  const date = new Date(review.created_at).toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
     year: 'numeric',
@@ -67,9 +68,9 @@ export default function ReviewComponent({ review }: Props) {
           }}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <Text style={{ color: '#808080', fontWeight: 700, paddingRight: 4 }}>
-              {review.name}
+              {review.user_id}
             </Text>
-            {[...Array(review.score)].map((_, index) => (
+            {[...Array(review.rating)].map((_, index) => (
               <Ionicons key={index} name="star" size={11} color="#FFB400" />
             ))}
           </View>
@@ -79,33 +80,35 @@ export default function ReviewComponent({ review }: Props) {
 
         <Text style={{ paddingRight: 15 }}>{review.description}</Text>
 
-        <View style={{ flexDirection: 'row', gap: 5 }}>
-          {review.images.slice(0, 2).map((image, index) => (
-            <Image
-              source={{ uri: image }}
-              key={index}
-              style={{
-                width: '38%',
-                height: 96,
-                borderRadius: 10,
-              }}
-            />
-          ))}
-          {/* Clicking this would hopefully open full view images */}
-          {review.images.length > 2 && (
-            <Pressable
-              style={{
-                flex: 1,
-                backgroundColor: '#D9D9D9',
-                borderRadius: 10,
-                justifyContent: 'center',
-              }}>
-              <Text style={{ textAlign: 'center', fontSize: 24, color: '#808080' }}>
-                +{review.images.length - 2}
-              </Text>
-            </Pressable>
-          )}
-        </View>
+        {review.images !== null && (
+          <View style={{ flexDirection: 'row', gap: 5 }}>
+            {review.images.slice(0, 2).map((image, index) => (
+              <Image
+                source={{ uri: image }}
+                key={index}
+                style={{
+                  width: '38%',
+                  height: 96,
+                  borderRadius: 10,
+                }}
+              />
+            ))}
+            {/* Clicking this would hopefully open full view images */}
+            {review.images.length > 2 && (
+              <Pressable
+                style={{
+                  flex: 1,
+                  backgroundColor: '#D9D9D9',
+                  borderRadius: 10,
+                  justifyContent: 'center',
+                }}>
+                <Text style={{ textAlign: 'center', fontSize: 24, color: '#808080' }}>
+                  +{review.images.length - 2}
+                </Text>
+              </Pressable>
+            )}
+          </View>
+        )}
 
         <View
           style={{

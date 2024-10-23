@@ -3,7 +3,26 @@ export type CafeType = {
   name: string;
   address: string;
   hours: string;
-  topTags: string[]; // hopefully we can store as "<emoji> <tag>" all in one string
+  latitude: number;
+  longitude: number;
+};
+
+type ProfileJoinReview = {
+  bio: string;
+  id: number;
+};
+export type NewReviewType = {
+  cafe_id: string;
+  created_at: string;
+  description: string;
+  id: number;
+  images: string[] | null;
+  profile_id: number;
+  profiles: ProfileJoinReview;
+  public: boolean;
+  rating: number;
+  tags: string[];
+  user_id: string;
 };
 
 export type ReviewType = {

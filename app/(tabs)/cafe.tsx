@@ -2,12 +2,13 @@ import { router } from 'expo-router';
 import { Image, Pressable, SafeAreaView, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import BottomSheet, { BottomSheetHandleProps, BottomSheetView } from '@gorhom/bottom-sheet';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Cafe from '@/components/CafePage/Cafe';
 import Log from '@/components/CafePage/Log';
 import React from 'react';
 import { useLocalSearchParams } from 'expo-router';
-import { CafeType } from '@/components/CafePage/CafeTypes';
+import { CafeType, NewReviewType, ReviewType } from '@/components/CafePage/CafeTypes';
+import { supabase } from '@/lib/supabase';
 
 /**
  * An example of how you can open this page
@@ -51,9 +52,10 @@ import { CafeType } from '@/components/CafePage/CafeTypes';
  * Ideally upgrade this to take in a cafe as a param and render it that way
  */
 export default function Index() {
-  const cafeObj = useLocalSearchParams() as CafeType;
+  const cafeObj = useLocalSearchParams() as unknown as CafeType;
 
   const [loggingVisit, setLoggingVisit] = useState(false);
+  const [reviews, setReviews] = useState<NewReviewType[]>([]);
 
   // idk stuff for the bottom sheet
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -88,20 +90,32 @@ export default function Index() {
     router.back();
   }
 
-  const review = {
-    name: 'Jane Doe',
-    description:
-      'This cafe has quickly become my go-to for a peaceful break. The ambiance is so calm and relaxing, perfect for unwinding or getting some work done. The staff really knows their stuff when it comes to coffee, and their recommendations never disappoint. Plus, their music selection is always on point—just the right vibe without being too loud. It’s a hidden gem!',
-    tags: ['🌱 Vegan', '🍵 Matcha', '🛜 Free Wifi', '🌳 Outdoor'],
-    numLikes: 169,
-    datePosted: '2021-09-01T12:00:00Z',
-    score: 5,
-    images: [
-      'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12',
-      'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12',
-      'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12',
-    ],
-  };
+  // const review = {
+  //   name: 'Jane Doe',
+  //   description:
+  //     'This cafe has quickly become my go-to for a peaceful break. The ambiance is so calm and relaxing, perfect for unwinding or getting some work done. The staff really knows their stuff when it comes to coffee, and their recommendations never disappoint. Plus, their music selection is always on point—just the right vibe without being too loud. It’s a hidden gem!',
+  //   tags: ['🌱 Vegan', '🍵 Matcha', '🛜 Free Wifi', '🌳 Outdoor'],
+  //   numLikes: 169,
+  //   datePosted: '2021-09-01T12:00:00Z',
+  //   score: 5,
+  //   images: [
+  //     'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12',
+  //     'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12',
+  //     'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12',
+  //   ],
+  // };
+
+  async function fetchReviews() {
+    const { data, error } = await supabase.from('reviews').select('*, profiles ( id, bio )');
+    if (error) {
+      console.log('Error fetching reviews', error);
+    } else {
+      setReviews(data);
+    }
+  }
+  useEffect(() => {
+    fetchReviews();
+  }, []);
 
   return (
     <SafeAreaView
@@ -142,7 +156,7 @@ export default function Index() {
             {loggingVisit ? (
               <Log setLoggingVisit={setLoggingVisit} />
             ) : (
-              <Cafe cafe={cafeObj} reviews={[review, review, review]} logVisit={logVisit} />
+              <Cafe cafe={cafeObj} reviews={reviews} logVisit={logVisit} />
             )}
           </BottomSheetView>
         </BottomSheet>
