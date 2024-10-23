@@ -1,37 +1,50 @@
-import React from 'react';
-import { View, Text, TextInput, StyleSheet, SafeAreaView, TouchableOpacity, FlatList, ScrollView } from "react-native";
-import Icon from 'react-native-vector-icons/MaterialIcons';
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import React from "react";
+import { Link } from "expo-router";
+import {
+  View,
+  Text,
+  TextInput,
+  StyleSheet,
+  SafeAreaView,
+  TouchableOpacity,
+  FlatList,
+  ScrollView,
+} from "react-native";
+import Icon from "react-native-vector-icons/MaterialIcons";
+import { NavigationContainer } from "@react-navigation/native";
+import { createNativeStackNavigator } from "@react-navigation/native-stack";
 
-import CardComponent from '@/components/Card';
+import CardComponent from "@/components/Card";
 import Review from "@/components/Review";
 
-
-export default function Home(){
-  {/* Dummy Cafes */}
+export default function Home() {
+  {
+    /* Dummy Cafes */
+  }
   const cafes = [
     {
-      name: '11th Hour Coffee',
-      localImage: require('../../assets/images/11th-hour.png'),
+      name: "11th Hour Coffee",
+      localImage: require("../../assets/images/11th-hour.png"),
       rating: 4.6,
-      tags: ['🛜', '🪴', '🥐'],
+      tags: ["🛜", "🪴", "🥐"],
     },
     {
-      name: 'The Abbey', 
-      localImage: require('../../assets/images/abbey.png'),
+      name: "The Abbey",
+      localImage: require("../../assets/images/abbey.png"),
       rating: 4.7,
-      tags: ['📚', '☕', '🛜'],
+      tags: ["📚", "☕", "🛜"],
     },
     {
-      name: 'Verve',
-      localImage: require('../../assets/images/verve.png'),
+      name: "Verve",
+      localImage: require("../../assets/images/verve.png"),
       rating: 4.4,
-      tags: ['🪴', '☕', '📚'],
-    }
+      tags: ["🪴", "☕", "📚"],
+    },
   ];
 
-  {/* Dummy Review */}
+  {
+    /* Dummy Review */
+  }
   const review = {
     name: "Jane Doe",
     description:
@@ -50,40 +63,40 @@ export default function Home(){
   return (
     <SafeAreaView>
       <ScrollView style={styles.scroll}>
-          <View style = {styles.container}>
-          {/* Greeting */}  
-            <Text style = {styles.greeting}>Hello, Jane!</Text>
+        <View style={styles.container}>
+          {/* Greeting */}
+          <Text style={styles.greeting}>Hello, Jane!</Text>
 
           {/* Header */}
-          <Text style = {styles.heading}>Where's your next</Text>
-          <Text style = {styles.h2}>cafe adventure?</Text>
+          <Text style={styles.heading}>Where's your next</Text>
+          <Text style={styles.h2}>cafe adventure?</Text>
 
           {/* Search Bar */}
-          <View style = {styles.searchWrapper}>
-            <Icon name="search" size={20} color='#8a8888'></Icon>
+          <View style={styles.searchWrapper}>
+            <Icon name="search" size={20} color="#8a8888"></Icon>
             <View>
-              <Text style = {styles.search}>Search a cafe, profile, etc.</Text>
+              <Text style={styles.search}>Search a cafe, profile, etc.</Text>
             </View>
           </View>
 
           {/* Popular */}
-          <Text style = {styles.section}>Popular near you</Text>
-          <View style = {styles.popInfo}>
-            <TouchableOpacity activeOpacity = {0.6} style = {styles.locButton}>
-              <Icon name ="location-pin" size={15} color='#8a8888'></Icon>
-              <Text style ={{color: '#8a8888'}}>Santa Cruz, CA</Text>
+          <Text style={styles.section}>Popular near you</Text>
+          <View style={styles.popInfo}>
+            <TouchableOpacity activeOpacity={0.6} style={styles.locButton}>
+              <Icon name="location-pin" size={15} color="#8a8888"></Icon>
+              <Text style={{ color: "#8a8888" }}>Santa Cruz, CA</Text>
             </TouchableOpacity>
 
             {/* Turn into button later */}
-            <Text style ={{color: '#8a8888'}}>Browse all</Text>
+            <Text style={{ color: "#8a8888" }}>Browse all</Text>
           </View>
 
           {/* Cafe Carousel */}
           <View>
-            <FlatList 
+            <FlatList
               horizontal
               data={cafes}
-              renderItem={({ item }) => (<CardComponent card={item}/>)}
+              renderItem={({ item }) => <CardComponent card={item} />}
               keyExtractor={(item) => item.name}
               style={styles.carousel}
             />
@@ -94,7 +107,7 @@ export default function Home(){
             <Text style={styles.section}>Popular Reviews this Week</Text>
 
             {/* Turn into button later */}
-            <Text style ={{color: '#8a8888'}}>Browse all</Text> 
+            <Text style={{ color: "#8a8888" }}>Browse all</Text>
           </View>
           {/* MAP REVIEWS HERE */}
           <View style={styles.placeholder}>
@@ -103,94 +116,89 @@ export default function Home(){
 
           <Text style={styles.section}>New from friends</Text>
           {/* Feed */}
-          </View>
-
+        </View>
       </ScrollView>
     </SafeAreaView>
-    
   );
 }
 
 const styles = StyleSheet.create({
-  scroll:{
+  scroll: {},
 
-  },
-
-  container:{
+  container: {
     flex: 1,
     padding: 20,
   },
 
-  greeting:{
-    fontFamily: 'SF-Pro-Display-Regular',
+  greeting: {
+    fontFamily: "SF-Pro-Display-Regular",
     fontSize: 14,
     marginBottom: 5,
   },
 
-  heading:{
-    fontFamily: 'SF-Pro-Display-Semibold',
+  heading: {
+    fontFamily: "SF-Pro-Display-Semibold",
     fontSize: 24,
   },
 
-  h2:{
-    color: '#8a8888',
+  h2: {
+    color: "#8a8888",
     fontSize: 24,
   },
 
-  searchWrapper:{
+  searchWrapper: {
     marginTop: 15,
     marginBottom: 25,
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingHorizontal: 10,
     paddingVertical: 8,
-    alignItems: 'center',
+    alignItems: "center",
     borderWidth: 1,
-    borderColor: 'black',
+    borderColor: "black",
     borderRadius: 30,
   },
 
-  search:{
+  search: {
     flex: 1,
-    color: '#8a8888',
+    color: "#8a8888",
     marginTop: 2,
     marginLeft: 5,
   },
 
-  section:{
-    fontFamily: 'SF-Pro-Display-Semibold',
+  section: {
+    fontFamily: "SF-Pro-Display-Semibold",
     fontSize: 20,
   },
 
-  popInfo:{
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  popInfo: {
+    flexDirection: "row",
+    justifyContent: "space-between",
     paddingVertical: 10,
     fontSize: 16,
-    color: '#8a8888',
+    color: "#8a8888",
   },
 
-  locButton:{
-    flexDirection: 'row',
+  locButton: {
+    flexDirection: "row",
     borderWidth: 1,
-    borderColor: '#e6e6e6',
+    borderColor: "#e6e6e6",
     borderRadius: 30,
     paddingVertical: 5,
     paddingHorizontal: 20,
-    backgroundColor: '#e6e6e6',
+    backgroundColor: "#e6e6e6",
   },
 
-  carousel:{
+  carousel: {
     height: 230,
   },
 
-  reviewContainer:{
-    flexDirection: 'row',
-    justifyContent: 'space-between'
+  reviewContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
 
-  placeholder:{
+  placeholder: {
     marginTop: 15,
     marginBottom: 20,
   },
-
 });
