@@ -106,7 +106,7 @@ export default function Index() {
   // };
 
   async function fetchReviews() {
-    const { data, error } = await supabase.from('reviews').select('*, profiles ( id, bio )');
+    const { data, error } = await supabase.from('reviews').select('*, profiles ( user_id, bio )');
     if (error) {
       console.log('Error fetching reviews', error);
     } else {
@@ -154,7 +154,12 @@ export default function Index() {
               paddingTop: 5,
             }}>
             {loggingVisit ? (
-              <Log setLoggingVisit={setLoggingVisit} />
+              <Log
+                setLoggingVisit={setLoggingVisit}
+                cafe={cafeObj}
+                reviews={reviews}
+                setReviews={setReviews}
+              />
             ) : (
               <Cafe cafe={cafeObj} reviews={reviews} logVisit={logVisit} />
             )}

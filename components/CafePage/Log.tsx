@@ -1,20 +1,25 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import React from 'react';
 import { useState } from 'react';
-import { Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
-import { cafeTags } from './CafeTypes';
+import { Alert, Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { cafeTags, CafeType, NewReviewType } from './CafeTypes';
 import EmojiTag from '../EmojiTag';
 import * as ImagePicker from 'expo-image-picker';
+import { supabase } from '@/lib/supabase';
 
 interface Props {
   setLoggingVisit: (arg: boolean) => void;
+  cafe: CafeType;
+  reviews: NewReviewType[];
+  setReviews: (arg: NewReviewType[]) => void;
 }
 
-export default function Log({ setLoggingVisit }: Props) {
-  const [rating, setRating] = useState(4);
+export default function Log({ setLoggingVisit, cafe, reviews, setReviews }: Props) {
+  const [rating, setRating] = useState(7);
   const [publicPost, setPublicPost] = useState(true);
   const [emojiTags, setEmojiTags] = useState<string[]>([]);
   const [images, setImages] = useState<ImagePicker.ImagePickerAsset[]>([]);
+  const [description, setDescription] = useState('');
 
   function handleTagClick(tag: string) {
     if (emojiTags.includes(tag)) {
@@ -39,6 +44,7 @@ export default function Log({ setLoggingVisit }: Props) {
       return;
     }
 
+    // makes sure no duplicates are added
     const newImages = [...images];
     for (const image of result.assets) {
       if (!newImages.some((img) => img.assetId === image.assetId)) {
@@ -46,6 +52,31 @@ export default function Log({ setLoggingVisit }: Props) {
       }
     }
     setImages(newImages);
+  }
+
+  async function handlePost() {
+    try {
+      // no need to pass in user id, supabase will get it itself
+      const { data, error } = await supabase
+        .from('reviews')
+        .insert({
+          cafe_id: cafe.id,
+          rating,
+          description,
+          images: [],
+          tags: emojiTags,
+          public: publicPost,
+        })
+        .select()
+        .single();
+      if (error) throw error;
+
+      setReviews([data, ...reviews]);
+      setLoggingVisit(false);
+      Alert.alert('Visit uploaded!');
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return (
@@ -107,8 +138,12 @@ export default function Log({ setLoggingVisit }: Props) {
           borderRadius: 5,
           borderColor: '#808080',
         }}
+        value={description}
+        onChangeText={setDescription}
         placeholder="Describe your visit..."
         multiline
+        autoCapitalize="none"
+        autoCorrect={false}
       />
 
       <Pressable
@@ -167,6 +202,7 @@ export default function Log({ setLoggingVisit }: Props) {
           alignItems: 'center',
         }}>
         <Pressable
+          onPress={handlePost}
           style={{
             flexDirection: 'row',
             gap: 6,
