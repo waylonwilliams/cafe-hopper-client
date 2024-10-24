@@ -66,10 +66,35 @@ export default function Log({ setLoggingVisit }: Props) {
 
       {/* Star rating */}
       <View style={{ flexDirection: 'row', gap: 5 }}>
-        {[1, 2, 3, 4, 5].map((num) => (
-          <Pressable onPress={() => setRating(num)} key={num}>
-            <Ionicons name="star" size={30} color={num <= rating ? '#FFB400' : '#808080'} />
-          </Pressable>
+        {[1, 3, 5, 7, 9].map((num) => (
+          // <Pressable onPress={() => setRating(num)} key={num}>
+          <View key={num} style={{ position: 'relative' }}>
+            <Ionicons
+              name={rating === num ? 'star-half' : 'star'}
+              size={32}
+              color={num <= rating ? '#FFB400' : '#808080'}
+            />
+            <Pressable
+              onPress={() => setRating(num)}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '50%',
+                height: '100%',
+              }}
+            />
+            <Pressable
+              onPress={() => setRating(num + 1)}
+              style={{
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                width: '50%',
+                height: '100%',
+              }}
+            />
+          </View>
         ))}
       </View>
 
