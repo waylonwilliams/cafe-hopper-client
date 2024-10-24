@@ -11,5 +11,5 @@ export function TabBarIcon({
   style,
   ...rest
 }: IconProps<ComponentProps<typeof MaterialIcons>['name']>) {
-  return <MaterialIcons size={28} style={[{ marginBottom: -3 }, style]} {...rest} />;
+  return <MaterialIcons size={32} style={[{ marginBottom: 0 }, style]} {...rest} />;
 }

@@ -1,20 +1,20 @@
 import {
-  Alert,
   Text,
   View,
   SafeAreaView,
   StyleSheet,
   Dimensions,
   TouchableOpacity,
+  TextInput,
 } from 'react-native';
-import MapView, { Callout, PROVIDER_GOOGLE, Marker, Region } from 'react-native-maps';
+import MapView, { Marker } from 'react-native-maps';
 import React, { useEffect, useState, useRef } from 'react';
 import * as Location from 'expo-location';
 import { MaterialIcons } from '@expo/vector-icons';
 import { markers } from '../../assets/markers';
 import { MarkerType } from '../../components/CustomMarker';
 import CustomMarker from '../../components/CustomMarker';
-import { Link, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 
 export default function Map() {
   const [mapRegion, setMapRegion] = useState({
@@ -24,6 +24,7 @@ export default function Map() {
     longitudeDelta: 0.005,
   });
 
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('map'); // State for switching between views
   const mapRef = useRef<MapView>(null); // Reference to the MapView
   const router = useRouter(); // Get the router instance from expo-router
 
@@ -85,37 +86,62 @@ export default function Map() {
 
   return (
     <View style={{ flex: 1 }}>
-      <TouchableOpacity style={styles.location} onPress={userLocation}>
-        <Text>
-          <MaterialIcons name="my-location" size={24} color="black" />
-        </Text>
-      </TouchableOpacity>
-      <MapView
-        ref={mapRef} // Attach reference to MapView
-        style={styles.map}
-        initialRegion={mapRegion}
-        region={mapRegion}
-        showsUserLocation={true} // Show the default blue dot for user location
-        followsUserLocation={true}
-        showsMyLocationButton={true}
-        mapType="standard">
-        {markers.map((marker, index) => {
-          const validMarker: MarkerType = {
-            ...marker,
-            category: marker.category as 'liked' | 'saved' | 'default' | undefined,
-          };
-          return (
-            <Marker
-              key={index}
-              coordinate={marker}
-              onPress={() => handleMarkerPress(validMarker)}
-              // onPress={() => console.log("presseed")}
-            >
-              <CustomMarker marker={validMarker} />
-            </Marker>
-          );
-        })}
-      </MapView>
+      {/* Top Bar with Dummy Search Bar */}
+      <View style={styles.topBar}>
+        <TextInput style={styles.searchBar} placeholder="Search..." placeholderTextColor="#888" />
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[styles.toggleButton, viewMode === 'list' ? styles.activeButton : null]}
+            onPress={() => setViewMode('list')}>
+            <Text style={styles.buttonText}>List</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.toggleButton, viewMode === 'map' ? styles.activeButton : null]}
+            onPress={() => setViewMode('map')}>
+            <Text style={styles.buttonText}>Map</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Content based on viewMode */}
+      {viewMode === 'map' ? (
+        <View style={{ flex: 1 }}>
+          <TouchableOpacity style={styles.location} onPress={userLocation}>
+            <Text>
+              <MaterialIcons name="my-location" size={24} color="black" />
+            </Text>
+          </TouchableOpacity>
+          <MapView
+            ref={mapRef} // Attach reference to MapView
+            style={styles.map}
+            initialRegion={mapRegion}
+            region={mapRegion}
+            showsUserLocation={true} // Show the default blue dot for user location
+            followsUserLocation={true}
+            showsMyLocationButton={true}
+            mapType="standard">
+            {markers.map((marker, index) => {
+              const validMarker: MarkerType = {
+                ...marker,
+                category: marker.category as 'liked' | 'saved' | 'default' | undefined,
+              };
+              return (
+                <Marker
+                  key={index}
+                  coordinate={marker}
+                  onPress={() => handleMarkerPress(validMarker)}>
+                  <CustomMarker marker={validMarker} />
+                </Marker>
+              );
+            })}
+          </MapView>
+        </View>
+      ) : (
+        <View style={styles.listView}>
+          {/* Placeholder for the list view */}
+          <Text>List View is currently empty.</Text>
+        </View>
+      )}
     </View>
   );
 }
@@ -136,7 +162,48 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  customMarker: {
+  topBar: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    padding: 10,
+    paddingTop: 70,
+    backgroundColor: '#f8f8f8',
+    borderBottomWidth: 1,
+    borderBottomColor: '#ddd',
+    zIndex: 100, // Ensure the top bar is on top of everything
+  },
+  searchBar: {
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: '#e0e0e0',
+    paddingHorizontal: 15,
+    marginBottom: 10,
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center', // Align buttons in the center
+  },
+  toggleButton: {
+    width: 70, // Fixed width for smaller buttons
+    padding: 5,
+    paddingVertical: 10,
+    alignItems: 'center',
+    borderRadius: 20,
+    backgroundColor: '#f0f0f0',
+    marginHorizontal: 5,
+  },
+  activeButton: {
+    backgroundColor: '#c9c9c9',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+  },
+  listView: {
+    flex: 1,
+    justifyContent: 'center',
     alignItems: 'center',
   },
 });
