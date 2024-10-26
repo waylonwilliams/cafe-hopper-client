@@ -15,6 +15,7 @@ import { markers } from '../../assets/markers';
 import { MarkerType } from '../../components/CustomMarker';
 import CustomMarker from '../../components/CustomMarker';
 import { useRouter } from 'expo-router';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 
 export default function Map() {
   const [mapRegion, setMapRegion] = useState({
@@ -88,7 +89,16 @@ export default function Map() {
     <View style={{ flex: 1 }}>
       {/* Top Bar with Dummy Search Bar */}
       <View style={styles.topBar}>
-        <TextInput style={styles.searchBar} placeholder="Search..." placeholderTextColor="#888" />
+        <View style={styles.searchBar}>
+          <View style={{ marginRight: 5 }}>
+            <Icon name="search" size={20} color="#8a8888"></Icon>
+          </View>
+
+          <TextInput
+            placeholder="Search a cafe, characteristic, etc."
+            placeholderTextColor="#888"
+          />
+        </View>
         <View style={styles.buttonContainer}>
           <TouchableOpacity
             style={[styles.toggleButton, viewMode === 'list' ? styles.activeButton : null]}
@@ -175,11 +185,14 @@ const styles = StyleSheet.create({
     zIndex: 100, // Ensure the top bar is on top of everything
   },
   searchBar: {
-    height: 40,
-    borderRadius: 20,
-    backgroundColor: '#e0e0e0',
-    paddingHorizontal: 15,
     marginBottom: 10,
+    flexDirection: 'row',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: 'black',
+    borderRadius: 30,
   },
   buttonContainer: {
     flexDirection: 'row',
