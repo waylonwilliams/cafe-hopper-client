@@ -6,6 +6,8 @@ import { cafeTags, CafeType, NewReviewType } from './CafeTypes';
 import EmojiTag from '../EmojiTag';
 import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '@/lib/supabase';
+import 'react-native-get-random-values'; // needed for uuid
+import { v4 as uuidv4 } from 'uuid';
 
 interface Props {
   setLoggingVisit: (arg: boolean) => void;
@@ -13,6 +15,8 @@ interface Props {
   reviews: NewReviewType[];
   setReviews: (arg: NewReviewType[]) => void;
 }
+
+const baseUrl = 'https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/posts/';
 
 export default function Log({ setLoggingVisit, cafe, reviews, setReviews }: Props) {
   const [rating, setRating] = useState(7);
@@ -31,12 +35,14 @@ export default function Log({ setLoggingVisit, cafe, reviews, setReviews }: Prop
 
   async function selectImages() {
     // https://docs.expo.dev/versions/latest/sdk/imagepicker/#imagepickeroptions
+    // do I need to get images access first?
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images, // images only
       quality: 1, // not compressed
       allowsMultipleSelection: true,
       exif: false, // removes some data we don't need
       orderedSelection: true,
+      // base64: true, // b64 encoded file content, will need to change to blob before upload
       // selectionLimit: 5, // add maximum number of images per review?
     });
 
@@ -45,17 +51,55 @@ export default function Log({ setLoggingVisit, cafe, reviews, setReviews }: Prop
     }
 
     // makes sure no duplicates are added
+    let tooLarge = false;
     const newImages = [...images];
     for (const image of result.assets) {
+      // filter out duplicates
       if (!newImages.some((img) => img.assetId === image.assetId)) {
-        newImages.push(image);
+        // check if image exceeds 5mb limit
+        if (image.fileSize && !(image.fileSize > 5 * 1024 * 1024)) {
+          newImages.push(image);
+        } else {
+          tooLarge = true;
+        }
       }
     }
+    if (tooLarge) Alert.alert('One or more images exceeded the 5MB limit');
     setImages(newImages);
   }
 
   async function handlePost() {
     try {
+      const imagePromises: Promise<
+        | { data: { id: string; path: string; fullPath: string }; error: null }
+        | { data: null; error: any }
+      >[] = [];
+
+      const imagePaths: string[] = [];
+
+      // upload all images concurrently
+      for (const image of images) {
+        const i = await fetch(image.uri);
+        const blob = await i.blob();
+        // supabase doesn't accept blob, change to arrayBuffer
+        const arrBuffer = await new Response(blob).arrayBuffer();
+
+        const fileName = `public/${uuidv4()}`;
+
+        // currently getting a no message 400 failure, idk
+        const res = supabase.storage.from('posts').upload(fileName, arrBuffer, {
+          contentType: image.mimeType,
+        });
+        imagePromises.push(res);
+        imagePaths.push(`${baseUrl}${fileName}`);
+      }
+      const uploadResults = await Promise.all(imagePromises);
+
+      // make sure images uploaded successfully
+      for (const result of uploadResults) {
+        if (result.error) throw result.error;
+      }
+
       // no need to pass in user id, supabase will get it itself
       const { data, error } = await supabase
         .from('reviews')
@@ -63,7 +107,7 @@ export default function Log({ setLoggingVisit, cafe, reviews, setReviews }: Prop
           cafe_id: cafe.id,
           rating,
           description,
-          images: [],
+          images: imagePaths,
           tags: emojiTags,
           public: publicPost,
         })
