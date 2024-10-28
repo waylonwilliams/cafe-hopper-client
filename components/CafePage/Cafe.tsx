@@ -9,9 +9,17 @@ interface Props {
   cafe: CafeType;
   reviews: NewReviewType[];
   logVisit: () => void;
+  setViewingImages: (arg: string[]) => void;
+  setViewingImageIndex: (arg: number | null) => void;
 }
 
-export default function Cafe({ cafe, reviews, logVisit }: Props) {
+export default function Cafe({
+  cafe,
+  reviews,
+  logVisit,
+  setViewingImages,
+  setViewingImageIndex,
+}: Props) {
   const [liked, setLiked] = useState(false);
   const [togo, setTogo] = useState(false);
   const [showHours, setShowHours] = useState(false);
@@ -220,7 +228,12 @@ export default function Cafe({ cafe, reviews, logVisit }: Props) {
 
       {/* Should map them */}
       {reviews.map((review, index) => (
-        <Review review={review} key={index} />
+        <Review
+          review={review}
+          key={index}
+          setViewingImages={setViewingImages}
+          setViewingImageIndex={setViewingImageIndex}
+        />
       ))}
     </ScrollView>
   );

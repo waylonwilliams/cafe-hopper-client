@@ -6,13 +6,15 @@ import { NewReviewType } from './CafePage/CafeTypes';
 
 interface Props {
   review: NewReviewType;
+  setViewingImages: (arg: string[]) => void;
+  setViewingImageIndex: (arg: number | null) => void;
 }
 
-export default function ReviewComponent({ review }: Props) {
+export default function ReviewComponent({ review, setViewingImages, setViewingImageIndex }: Props) {
   const [liked, setLiked] = useState(false);
   const [numLikes, setNumLikes] = useState(5);
 
-  async function handleLike() {
+  function handleLike() {
     if (liked) {
       setNumLikes(numLikes - 1);
     } else {
@@ -20,6 +22,12 @@ export default function ReviewComponent({ review }: Props) {
     }
 
     setLiked(!liked);
+  }
+
+  function handleImagePress(index: number) {
+    // to press on an image there should always be images, so just for ts
+    if (review.images) setViewingImages(review.images);
+    setViewingImageIndex(index);
   }
 
   const date = new Date(review.created_at).toLocaleDateString('en-US', {
@@ -73,15 +81,19 @@ export default function ReviewComponent({ review }: Props) {
         {review.images !== null && (
           <View style={{ flexDirection: 'row', gap: 5 }}>
             {review.images.slice(0, 2).map((image, index) => (
-              <Image
-                source={{ uri: image }}
+              <Pressable
                 key={index}
-                style={{
-                  width: '38%',
-                  height: 96,
-                  borderRadius: 10,
-                }}
-              />
+                style={{ width: '34%', height: 96, position: 'relative' }}
+                onPress={() => handleImagePress(index)}>
+                <Image
+                  source={{ uri: image }}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    borderRadius: 10,
+                  }}
+                />
+              </Pressable>
             ))}
             {/* Clicking this would hopefully open full view images */}
             {review.images.length > 2 && (
@@ -91,7 +103,8 @@ export default function ReviewComponent({ review }: Props) {
                   backgroundColor: '#D9D9D9',
                   borderRadius: 10,
                   justifyContent: 'center',
-                }}>
+                }}
+                onPress={() => setViewingImageIndex(2)}>
                 <Text style={{ textAlign: 'center', fontSize: 24, color: '#808080' }}>
                   +{review.images.length - 2}
                 </Text>

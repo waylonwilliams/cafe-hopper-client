@@ -56,6 +56,8 @@ export default function Index() {
 
   const [loggingVisit, setLoggingVisit] = useState(false);
   const [reviews, setReviews] = useState<NewReviewType[]>([]);
+  const [viewingImages, setViewingImages] = useState<string[]>([]);
+  const [viewingImageIndex, setViewingImageIndex] = useState<number | null>(null);
 
   // idk stuff for the bottom sheet
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -161,11 +163,34 @@ export default function Index() {
                 setReviews={setReviews}
               />
             ) : (
-              <Cafe cafe={cafeObj} reviews={reviews} logVisit={logVisit} />
+              <Cafe
+                cafe={cafeObj}
+                reviews={reviews}
+                logVisit={logVisit}
+                setViewingImages={setViewingImages}
+                setViewingImageIndex={setViewingImageIndex}
+              />
             )}
           </BottomSheetView>
         </BottomSheet>
       </View>
+
+      {viewingImageIndex !== null && (
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            opacity: 0.9,
+            backgroundColor: '#aaaaaa',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+          }}>
+          {/* Images mapped here in horizontal scroll */}
+        </View>
+      )}
     </SafeAreaView>
   );
 }

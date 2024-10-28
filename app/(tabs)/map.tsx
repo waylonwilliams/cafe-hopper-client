@@ -42,31 +42,25 @@ export default function Map() {
     }
   };
 
+  // temporary update to this so that it provides real database info
   const handleMarkerPress = (marker: MarkerType) => {
     // Navigate to cafe view and pass marker data as parameters
     console.log(`Navigating to cafe view for: ${marker.name}`);
     router.push({
       pathname: '/cafe',
       params: {
-        id: 1,
-        name: "Cafe Oshima's",
-        address: '2/37 Cao Thang, Ward 5, District 3, Ho Chi Minh City, Vietnam',
-        topTags: [
-          '🍵 Matcha',
-          '🛜 Free Wifi',
-          '🌱 Vegan',
-          '🌳 Outdoor',
-          '🐶 Pet Friendly',
-          '🏠 Indoor',
-          '🚗 Parking',
-        ],
-        hours: `8:00AM - 10:00PM Monday
-                    8:00AM - 10:00PM Tuesday
-                    8:00AM - 10:00PM Wednesday
-                    8:00AM - 10:00PM Thursday
-                    8:00AM - 10:00PM Friday
-                    8:00AM - 10:00PM Saturday
-                    8:00AM - 10:00PM Sunday`,
+        id: 'ChIJ1USNsRYVjoARsVMJfrLeXqg',
+        name: 'Verve Coffee Roasters',
+        address: '816 41st Ave, Santa Cruz, CA 95062, USA',
+        hours: `Monday:7:00AM–6:00PM
+Tuesday:7:00AM–6:00PM
+Wednesday:7:00AM–6:00PM
+Thursday:7:00AM–6:00PM
+Friday:7:00AM–6:00PM
+Saturday:7:00AM–6:00PM
+Sunday:7:00AM–6:00PM`,
+        latitude: 36.9641309,
+        longitude: -121.9647378,
       },
     });
   };
