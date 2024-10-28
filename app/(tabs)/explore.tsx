@@ -35,6 +35,8 @@ export default function Map() {
   const [emojiTags, setEmojiTags] = useState<string[]>([]); // State to track selected emoji tags
   const mapRef = useRef<MapView>(null); // Reference to the MapView
   const router = useRouter(); // Get the router instance from expo-router
+  const [selectedHours, setSelectedHours] = useState('Any'); // Track selected hours
+  const [selectedRating, setSelectedRating] = useState('Any'); // Track selected rating
 
   const userLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
@@ -106,6 +108,14 @@ export default function Map() {
     }
   };
 
+  const handleHourClick = (option: string) => {
+    setSelectedHours(option);
+  };
+
+  const handleRatingClick = (option: string) => {
+    setSelectedRating(option);
+  };
+
   return (
     <TouchableWithoutFeedback onPress={dismissDropdown}>
       <View style={{ flex: 1 }}>
@@ -140,24 +150,92 @@ export default function Map() {
           <View style={styles.filterDropdown}>
             <ScrollView contentContainerStyle={styles.scrollContainer}>
               {/* Hours Section */}
-              <Text style={styles.filterSectionTitle}>Hours</Text>
-              <Text style={styles.filterOption}>Open Now</Text>
-              <Text style={styles.filterOption}>Open 24 Hours</Text>
+              <View style={styles.filterSection}>
+                <Text style={styles.filterSectionTitle}>
+                  {/* idk why the icon is floating weird */}
+                  <MaterialIcons name="schedule" size={16} /> Hours
+                </Text>
+                <View style={styles.filterButtonsContainer}>
+                  <Pressable
+                    style={[
+                      styles.filterButton,
+                      selectedHours === 'Any' ? styles.activeFilterButton : null,
+                    ]}
+                    onPress={() => handleHourClick('Any')}>
+                    <Text>Any</Text>
+                  </Pressable>
+                  <Pressable
+                    style={[
+                      styles.filterButton,
+                      selectedHours === 'Open Now' ? styles.activeFilterButton : null,
+                    ]}
+                    onPress={() => handleHourClick('Open Now')}>
+                    <Text>Open now</Text>
+                  </Pressable>
+                  <Pressable
+                    style={[
+                      styles.filterButton,
+                      selectedHours === 'Custom' ? styles.activeFilterButton : null,
+                    ]}
+                    onPress={() => handleHourClick('Custom')}>
+                    <Text>Custom</Text>
+                  </Pressable>
+                </View>
+              </View>
 
               {/* Ratings Section */}
-              <Text style={styles.filterSectionTitle}>Ratings Above</Text>
-              <Text style={styles.filterOption}>4.0</Text>
-              <Text style={styles.filterOption}>4.5</Text>
-              <Text style={styles.filterOption}>5.0</Text>
-
-              {/* Tags Section */}
-              <Text style={styles.filterSectionTitle}>More Filters</Text>
-              <View style={styles.emojiContainer}>
-                {cafeTags.map((tag, index) => (
-                  <Pressable onPress={() => handleTagClick(tag)} key={index}>
-                    <EmojiTag key={index} tag={tag} filled={emojiTags.includes(tag)} />
+              <View style={styles.filterSection}>
+                <View style={styles.ratingContainer}>
+                  <MaterialIcons name="star" size={16} />
+                  <Text style={styles.filterSectionTitle}> Rating</Text>
+                  <Text style={styles.atLeastText}> at least</Text>
+                </View>
+                <View style={styles.filterButtonsContainer}>
+                  <Pressable
+                    style={[
+                      styles.filterButton,
+                      selectedRating === 'Any' ? styles.activeFilterButton : null,
+                    ]}
+                    onPress={() => handleRatingClick('Any')}>
+                    <Text>Any</Text>
                   </Pressable>
-                ))}
+                  <Pressable
+                    style={[
+                      styles.filterButton,
+                      selectedRating === '3.0' ? styles.activeFilterButton : null,
+                    ]}
+                    onPress={() => handleRatingClick('3.0')}>
+                    <Text>3.0</Text>
+                  </Pressable>
+                  <Pressable
+                    style={[
+                      styles.filterButton,
+                      selectedRating === '4.0' ? styles.activeFilterButton : null,
+                    ]}
+                    onPress={() => handleRatingClick('4.0')}>
+                    <Text>4.0</Text>
+                  </Pressable>
+                  <Pressable
+                    style={[
+                      styles.filterButton,
+                      selectedRating === '4.5' ? styles.activeFilterButton : null,
+                    ]}
+                    onPress={() => handleRatingClick('4.5')}>
+                    <Text>4.5</Text>
+                  </Pressable>
+                </View>
+
+                {/* Tags Section */}
+                <View style={styles.morefilterContainer}>
+                  <Text style={styles.filterSectionTitle}>More Filters</Text>
+                  <View style={styles.emojiContainer}>
+                    {cafeTags.map((tag, index) => (
+                      <Pressable onPress={() => handleTagClick(tag)} key={index}>
+                        <EmojiTag key={index} tag={tag} filled={emojiTags.includes(tag)} />
+                      </Pressable>
+                    ))}
+                  </View>
+                </View>
               </View>
             </ScrollView>
           </View>
@@ -276,7 +354,7 @@ const styles = StyleSheet.create({
     left: 11,
     zIndex: 200, // Ensure it's on top of other elements
     backgroundColor: '#fbfbfb', // White background for the dropdown
-    borderRadius: 10, // Rounded corners
+    borderRadius: 30, // Rounded corners
     height: 450, // Fixed height for the dropdown
     width: 370, // Fixed width for the dropdown
     borderWidth: 1, // Optional: border to visually distinguish
@@ -290,7 +368,6 @@ const styles = StyleSheet.create({
   filterSectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    marginBottom: 10,
     textAlign: 'left',
   },
   filterOption: {
@@ -302,6 +379,43 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 5,
     flexWrap: 'wrap',
-    paddingHorizontal: 10,
+    paddingRight: 10,
+    marginTop: 10,
+  },
+  filterSection: {
+    marginBottom: 20,
+  },
+  morefilterContainer: {
+    marginTop: 20,
+  },
+  filterButtonsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    flexWrap: 'wrap',
+  },
+  filterButton: {
+    flex: 1,
+    margin: 5,
+    paddingVertical: 10,
+    borderWidth: 1,
+    borderColor: '#000',
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  activeFilterButton: {
+    backgroundColor: '#ddd',
+  },
+  atLeastText: {
+    fontSize: 12,
+    color: '#888',
+    marginLeft: 5,
+  },
+  ratingContainer: {
+    flexDirection: 'row', // Align items horizontally
+    alignItems: 'center', // Vertically center the content
+  },
+  filterIcon: {
+    marginRight: 5,
   },
 });
