@@ -1,3 +1,4 @@
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Text,
   View,
@@ -6,9 +7,12 @@ import {
   Dimensions,
   TouchableOpacity,
   TextInput,
+  TouchableWithoutFeedback,
+  Keyboard,
+  Pressable,
+  ScrollView,
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
-import React, { useEffect, useState, useRef } from 'react';
 import * as Location from 'expo-location';
 import { MaterialIcons } from '@expo/vector-icons';
 import { markers } from '../../assets/markers';
@@ -16,6 +20,8 @@ import { MarkerType } from '../../components/CustomMarker';
 import CustomMarker from '../../components/CustomMarker';
 import { useRouter } from 'expo-router';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import EmojiTag from '../../components/EmojiTag';
+import { cafeTags } from '../../components/CafePage/CafeTypes';
 
 export default function Map() {
   const [mapRegion, setMapRegion] = useState({
@@ -26,6 +32,8 @@ export default function Map() {
   });
 
   const [viewMode, setViewMode] = useState<'list' | 'map'>('map'); // State for switching between views
+  const [showFilters, setShowFilters] = useState(false); // State to toggle the filter dropdown
+  const [emojiTags, setEmojiTags] = useState<string[]>([]); // State to track selected emoji tags
   const mapRef = useRef<MapView>(null); // Reference to the MapView
   const router = useRouter(); // Get the router instance from expo-router
 
@@ -71,12 +79,12 @@ export default function Map() {
           '🚗 Parking',
         ],
         hours: `8:00AM - 10:00PM Monday
-                    8:00AM - 10:00PM Tuesday
-                    8:00AM - 10:00PM Wednesday
-                    8:00AM - 10:00PM Thursday
-                    8:00AM - 10:00PM Friday
-                    8:00AM - 10:00PM Saturday
-                    8:00AM - 10:00PM Sunday`,
+                8:00AM - 10:00PM Tuesday
+                8:00AM - 10:00PM Wednesday
+                8:00AM - 10:00PM Thursday
+                8:00AM - 10:00PM Friday
+                8:00AM - 10:00PM Saturday
+                8:00AM - 10:00PM Sunday`,
       },
     });
   };
@@ -85,74 +93,104 @@ export default function Map() {
     userLocation();
   }, []);
 
+  const dismissDropdown = () => {
+    // Hide dropdown when tapping away or outside
+    setShowFilters(false);
+    Keyboard.dismiss(); // Hide keyboard if it's open
+  };
+
+  const handleTagClick = (tag: string) => {
+    if (emojiTags.includes(tag)) {
+      setEmojiTags(emojiTags.filter((t) => t !== tag));
+    } else {
+      setEmojiTags([...emojiTags, tag]);
+    }
+  };
+
   return (
-    <View style={{ flex: 1 }}>
-      {/* Top Bar with Dummy Search Bar */}
-      <View style={styles.topBar}>
-        <View style={styles.searchBar}>
-          <View style={{ marginRight: 5 }}>
-            <Icon name="search" size={20} color="#8a8888"></Icon>
+    <TouchableWithoutFeedback onPress={dismissDropdown}>
+      <View style={{ flex: 1 }}>
+        {/* Top Bar with Dummy Search Bar */}
+        <View style={styles.topBar}>
+          <View style={styles.searchBar}>
+            <View style={{ marginRight: 5 }}>
+              <Icon name="search" size={20} color="#8a8888" />
+            </View>
+            <TextInput
+              placeholder="Search a cafe, characteristic, etc."
+              placeholderTextColor="#888"
+              onFocus={() => setShowFilters(true)} // Show filters when search is focused
+            />
           </View>
+          <View style={styles.buttonContainer}>
+            <TouchableOpacity
+              style={[styles.toggleButton, viewMode === 'list' ? styles.activeButton : null]}
+              onPress={() => setViewMode('list')}>
+              <Text style={styles.buttonText}>List</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.toggleButton, viewMode === 'map' ? styles.activeButton : null]}
+              onPress={() => setViewMode('map')}>
+              <Text style={styles.buttonText}>Map</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
 
-          <TextInput
-            placeholder="Search a cafe, characteristic, etc."
-            placeholderTextColor="#888"
-          />
-        </View>
-        <View style={styles.buttonContainer}>
-          <TouchableOpacity
-            style={[styles.toggleButton, viewMode === 'list' ? styles.activeButton : null]}
-            onPress={() => setViewMode('list')}>
-            <Text style={styles.buttonText}>List</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={[styles.toggleButton, viewMode === 'map' ? styles.activeButton : null]}
-            onPress={() => setViewMode('map')}>
-            <Text style={styles.buttonText}>Map</Text>
-          </TouchableOpacity>
-        </View>
+        {/* Filter dropdown */}
+        {showFilters && (
+          <View style={styles.filterDropdown}>
+            <Text style={styles.filterDropdownTitle}>More Filters</Text>
+            <ScrollView contentContainerStyle={styles.emojiContainer}>
+              {cafeTags.map((tag, index) => (
+                <Pressable onPress={() => handleTagClick(tag)} key={index}>
+                  <EmojiTag key={index} tag={tag} filled={emojiTags.includes(tag)} />
+                </Pressable>
+              ))}
+            </ScrollView>
+          </View>
+        )}
+
+        {/* Content based on viewMode */}
+        {viewMode === 'map' ? (
+          <View style={{ flex: 1 }}>
+            <TouchableOpacity style={styles.location} onPress={userLocation}>
+              <Text>
+                <MaterialIcons name="my-location" size={24} color="black" />
+              </Text>
+            </TouchableOpacity>
+            <MapView
+              ref={mapRef} // Attach reference to MapView
+              style={styles.map}
+              initialRegion={mapRegion}
+              region={mapRegion}
+              showsUserLocation={true} // Show the default blue dot for user location
+              followsUserLocation={true}
+              showsMyLocationButton={true}
+              mapType="standard">
+              {markers.map((marker, index) => {
+                const validMarker: MarkerType = {
+                  ...marker,
+                  category: marker.category as 'liked' | 'saved' | 'default' | undefined,
+                };
+                return (
+                  <Marker
+                    key={index}
+                    coordinate={marker}
+                    onPress={() => handleMarkerPress(validMarker)}>
+                    <CustomMarker marker={validMarker} />
+                  </Marker>
+                );
+              })}
+            </MapView>
+          </View>
+        ) : (
+          <View style={styles.listView}>
+            {/* Placeholder for the list view */}
+            <Text>List View is currently empty.</Text>
+          </View>
+        )}
       </View>
-
-      {/* Content based on viewMode */}
-      {viewMode === 'map' ? (
-        <View style={{ flex: 1 }}>
-          <TouchableOpacity style={styles.location} onPress={userLocation}>
-            <Text>
-              <MaterialIcons name="my-location" size={24} color="black" />
-            </Text>
-          </TouchableOpacity>
-          <MapView
-            ref={mapRef} // Attach reference to MapView
-            style={styles.map}
-            initialRegion={mapRegion}
-            region={mapRegion}
-            showsUserLocation={true} // Show the default blue dot for user location
-            followsUserLocation={true}
-            showsMyLocationButton={true}
-            mapType="standard">
-            {markers.map((marker, index) => {
-              const validMarker: MarkerType = {
-                ...marker,
-                category: marker.category as 'liked' | 'saved' | 'default' | undefined,
-              };
-              return (
-                <Marker
-                  key={index}
-                  coordinate={marker}
-                  onPress={() => handleMarkerPress(validMarker)}>
-                  <CustomMarker marker={validMarker} />
-                </Marker>
-              );
-            })}
-          </MapView>
-        </View>
-      ) : (
-        <View style={styles.listView}>
-          {/* Placeholder for the list view */}
-          <Text>List View is currently empty.</Text>
-        </View>
-      )}
-    </View>
+    </TouchableWithoutFeedback>
   );
 }
 
@@ -201,7 +239,7 @@ const styles = StyleSheet.create({
   toggleButton: {
     width: 70, // Fixed width for smaller buttons
     padding: 5,
-    paddingVertical: 10,
+    paddingVertical: 7,
     alignItems: 'center',
     borderRadius: 20,
     backgroundColor: '#f0f0f0',
@@ -218,5 +256,32 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  filterDropdown: {
+    position: 'absolute',
+    top: 120, // Position below the top bar
+    left: 11,
+    zIndex: 200, // Ensure it's on top of other elements
+    backgroundColor: '#fbfbfb', // White background for the dropdown
+    borderRadius: 10, // Rounded corners
+    height: 450, // Fixed height for the dropdown
+    width: 370, // Fixed width for the dropdown
+    borderWidth: 1, // Optional: border to visually distinguish
+    borderColor: '#000000', // Optional: light border color
+    elevation: 5, // Optional: adds shadow on Android
+    paddingHorizontal: 10, // Add padding to the dropdown
+  },
+  filterDropdownTitle: {
+    fontSize: 16,
+    fontWeight: '700',
+    marginTop: 10,
+    marginBottom: 10,
+    textAlign: 'left',
+  },
+  emojiContainer: {
+    flexDirection: 'row',
+    gap: 5,
+    flexWrap: 'wrap',
+    paddingHorizontal: 10,
   },
 });
