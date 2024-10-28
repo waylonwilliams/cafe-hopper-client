@@ -2,7 +2,6 @@ import React, { useEffect, useState, useRef } from 'react';
 import {
   Text,
   View,
-  SafeAreaView,
   StyleSheet,
   Dimensions,
   TouchableOpacity,
@@ -139,13 +138,27 @@ export default function Map() {
         {/* Filter dropdown */}
         {showFilters && (
           <View style={styles.filterDropdown}>
-            <Text style={styles.filterDropdownTitle}>More Filters</Text>
-            <ScrollView contentContainerStyle={styles.emojiContainer}>
-              {cafeTags.map((tag, index) => (
-                <Pressable onPress={() => handleTagClick(tag)} key={index}>
-                  <EmojiTag key={index} tag={tag} filled={emojiTags.includes(tag)} />
-                </Pressable>
-              ))}
+            <ScrollView contentContainerStyle={styles.scrollContainer}>
+              {/* Hours Section */}
+              <Text style={styles.filterSectionTitle}>Hours</Text>
+              <Text style={styles.filterOption}>Open Now</Text>
+              <Text style={styles.filterOption}>Open 24 Hours</Text>
+
+              {/* Ratings Section */}
+              <Text style={styles.filterSectionTitle}>Ratings Above</Text>
+              <Text style={styles.filterOption}>4.0</Text>
+              <Text style={styles.filterOption}>4.5</Text>
+              <Text style={styles.filterOption}>5.0</Text>
+
+              {/* Tags Section */}
+              <Text style={styles.filterSectionTitle}>More Filters</Text>
+              <View style={styles.emojiContainer}>
+                {cafeTags.map((tag, index) => (
+                  <Pressable onPress={() => handleTagClick(tag)} key={index}>
+                    <EmojiTag key={index} tag={tag} filled={emojiTags.includes(tag)} />
+                  </Pressable>
+                ))}
+              </View>
             </ScrollView>
           </View>
         )}
@@ -269,14 +282,21 @@ const styles = StyleSheet.create({
     borderWidth: 1, // Optional: border to visually distinguish
     borderColor: '#000000', // Optional: light border color
     elevation: 5, // Optional: adds shadow on Android
-    paddingHorizontal: 10, // Add padding to the dropdown
+    paddingHorizontal: 20, // Add padding to the dropdown
   },
-  filterDropdownTitle: {
+  scrollContainer: {
+    paddingVertical: 10, // Vertical padding for scroll content
+  },
+  filterSectionTitle: {
     fontSize: 16,
     fontWeight: '700',
-    marginTop: 10,
     marginBottom: 10,
     textAlign: 'left',
+  },
+  filterOption: {
+    fontSize: 14,
+    paddingVertical: 5,
+    color: '#333',
   },
   emojiContainer: {
     flexDirection: 'row',
