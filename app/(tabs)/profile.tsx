@@ -36,8 +36,10 @@ export default function Index() {
       }}>
       <Text>Profile page {loggedIn && 'Hello world'}</Text>
       {/* <Link href="../sign_up" asChild> */}
-      <Link href="../login" asChild>
-        {/* <Link href="../start" asChild> */}
+      {/* <Link href="../login" asChild> */}
+      {/* <Link href="../start" asChild> */}
+      {/* */}
+      <Link href="../custom_profile" asChild>
         <Pressable>
           <Text>Open start page</Text>
         </Pressable>
