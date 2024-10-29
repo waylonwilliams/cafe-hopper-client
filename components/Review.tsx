@@ -14,6 +14,9 @@ export default function ReviewComponent({ review, setViewingImages, setViewingIm
   const [liked, setLiked] = useState(false);
   const [numLikes, setNumLikes] = useState(5);
 
+  const numStars = Math.floor(review.rating / 2);
+  const halfStar = review.rating % 2 !== 0;
+
   function handleLike() {
     if (liked) {
       setNumLikes(numLikes - 1);
@@ -45,35 +48,45 @@ export default function ReviewComponent({ review, setViewingImages, setViewingIm
         padding: 15,
         paddingBottom: 20,
         flexDirection: 'row',
-        gap: 15,
+        gap: 10,
         position: 'relative',
       }}>
       {/* Pfp */}
       <View
         style={{
-          width: 35,
-          height: 35,
+          width: 30,
+          height: 30,
           backgroundColor: 'purple',
           borderRadius: 999,
-        }}></View>
+        }}
+      />
 
-      <View style={{ flex: 1, gap: 8 }}>
+      <View style={{ flex: 1, gap: 8, position: 'relative' }}>
         <View
           style={{
             flexDirection: 'row',
             justifyContent: 'space-between',
-            alignItems: 'center',
+            alignItems: 'flex-start',
+            gap: 2,
+            maxWidth: '100%',
+            overflow: 'hidden',
           }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <View style={{ flexShrink: 1, flexGrow: 1 }}>
             <Text style={{ color: '#808080', fontWeight: 700, paddingRight: 4 }}>
               {review.user_id}
             </Text>
-            {[...Array(review.rating)].map((_, index) => (
-              <Ionicons key={index} name="star" size={11} color="#FFB400" />
-            ))}
           </View>
 
-          <Text style={{ color: '#808080' }}>{date}</Text>
+          <View style={{ flexDirection: 'row', gap: 5, flexShrink: 0 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              {[...Array(numStars)].map((_, index) => (
+                <Ionicons key={index} name="star" size={11} color="#FFB400" />
+              ))}
+              {halfStar && <Ionicons key={numStars} name="star-half" size={11} color="#FFB400" />}
+            </View>
+
+            <Text style={{ color: '#808080' }}>{date}</Text>
+          </View>
         </View>
 
         <Text style={{ paddingRight: 15 }}>{review.description}</Text>

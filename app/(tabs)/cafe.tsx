@@ -92,21 +92,7 @@ export default function Index() {
     router.back();
   }
 
-  // const review = {
-  //   name: 'Jane Doe',
-  //   description:
-  //     'This cafe has quickly become my go-to for a peaceful break. The ambiance is so calm and relaxing, perfect for unwinding or getting some work done. The staff really knows their stuff when it comes to coffee, and their recommendations never disappoint. Plus, their music selection is always on point—just the right vibe without being too loud. It’s a hidden gem!',
-  //   tags: ['🌱 Vegan', '🍵 Matcha', '🛜 Free Wifi', '🌳 Outdoor'],
-  //   numLikes: 169,
-  //   datePosted: '2021-09-01T12:00:00Z',
-  //   score: 5,
-  //   images: [
-  //     'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12',
-  //     'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12',
-  //     'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12',
-  //   ],
-  // };
-
+  // fetch reviews assosicated with this cafe on load
   async function fetchReviews() {
     const { data, error } = await supabase.from('reviews').select('*, profiles ( user_id, bio )');
     if (error) {
