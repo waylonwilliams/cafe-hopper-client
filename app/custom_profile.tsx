@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, Pressable, Image, ScrollView } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Link } from 'expo-router';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
@@ -34,7 +35,11 @@ export default function Index() {
 
       {/* Profile */}
       <View style={styles.pfpContainer}>
-        <Image style={styles.pfp} />
+        {/* PLACEHOLDER --  ADD IMAGE UPLOAD*/}
+        <Image style={styles.pfp}/>
+        <TouchableOpacity style={styles.edit}>
+            <Icon name='edit' size={16}></Icon>
+        </TouchableOpacity>
       </View>
 
       {/* Input Boxes */}
@@ -55,7 +60,18 @@ export default function Index() {
         />
 
         <Text style={styles.h2}>Favorite Cafes</Text>
-        <View style={styles.favorites}></View>
+        <View style={styles.favorites}>
+            {[0, 1, 2].map((index) => (
+                <TouchableOpacity
+                key={index}
+                style={styles.cafeBox}
+                onPress={() => {
+                  console.log(`Add cafe at position ${index}`);
+                }}>
+                <Text>+</Text>
+              </TouchableOpacity>
+            ))}
+        </View>
       </View>
 
       <TouchableOpacity style={styles.saveButton} onPress={handleSaved}>
@@ -79,6 +95,7 @@ const styles = StyleSheet.create({
   },
 
   pfpContainer: {
+    position: 'relative',
     alignItems: 'center',
     padding: 15,
   },
@@ -88,6 +105,19 @@ const styles = StyleSheet.create({
     height: 100,
     backgroundColor: 'gray',
     borderRadius: 999,
+  },
+
+  edit: {
+    width: 25,
+    height: 25,
+    borderWidth: 1,
+    borderRadius: 999,
+    backgroundColor: 'white',
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'absolute',
+    right: -45,
+    bottom: -3,
   },
 
   inputWrapper: {
@@ -120,9 +150,19 @@ const styles = StyleSheet.create({
 
   favorites: {
     padding: 10,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
   },
 
-  cafeBox: {},
+  cafeBox: {
+    width: 100,
+    height: 125,
+    borderWidth: 1,
+    borderRadius: 10,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 10,
+  },
 
   saveButton: {
     alignItems: 'center',
