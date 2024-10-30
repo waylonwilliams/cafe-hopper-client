@@ -21,13 +21,11 @@ export default function ListCard({ cafe, review }: ListCardProps) {
       <Text style={styles.location}>{cafe.address}</Text>
 
       <View style={styles.tagsContainer}>
-        <FlatList
-          data={cafe.topTags}
-          renderItem={({ item }) => <EmojiTag tag={item} filled={true} />}
-          keyExtractor={(item) => item}
-          horizontal
-          showsHorizontalScrollIndicator={false}
-        />
+        {cafe.topTags.map((tag, index) => (
+          <View key={index} style={styles.tagWrapper}>
+            <EmojiTag tag={tag} filled={true} />
+          </View>
+        ))}
       </View>
     </View>
   );
@@ -78,5 +76,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     marginTop: 8,
+  },
+  tagWrapper: {
+    marginTop: 2,
+    marginRight: 3,
   },
 });
