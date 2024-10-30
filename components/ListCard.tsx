@@ -9,23 +9,29 @@ interface ListCardProps {
 }
 
 export default function ListCard({ cafe, review }: ListCardProps) {
+  // const mockImageUrl = 'https://via.placeholder.com/150';
+  const mockImageUrl = require('../assets/images/11th-hour.png');
+
   return (
     <View style={styles.card}>
-      <View style={styles.header}>
-        <Text style={styles.name}>{cafe.name}</Text>
-        <View style={styles.ratingContainer}>
-          <Text style={styles.ratingText}>⭐️{review.score}</Text>
-        </View>
-      </View>
-      <Text style={styles.hours}>{cafe.hours}</Text>
-      <Text style={styles.location}>{cafe.address}</Text>
-
-      <View style={styles.tagsContainer}>
-        {cafe.topTags.map((tag, index) => (
-          <View key={index} style={styles.tagWrapper}>
-            <EmojiTag tag={tag} filled={true} />
+      <Image source={{ uri: mockImageUrl }} style={styles.image} />
+      <View style={styles.body}>
+        <View style={styles.header}>
+          <Text style={styles.name}>{cafe.name}</Text>
+          <View style={styles.ratingContainer}>
+            <Text style={styles.ratingText}>⭐️{review.score}</Text>
           </View>
-        ))}
+        </View>
+        <Text style={styles.hours}>{cafe.hours}</Text>
+        <Text style={styles.location}>{cafe.address}</Text>
+
+        <View style={styles.tagsContainer}>
+          {cafe.topTags.map((tag, index) => (
+            <View key={index} style={styles.tagWrapper}>
+              <EmojiTag tag={tag} />
+            </View>
+          ))}
+        </View>
       </View>
     </View>
   );
@@ -37,10 +43,20 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     borderWidth: 1,
     borderColor: '#000000',
-    padding: 16,
     marginVertical: 8,
     elevation: 2,
     width: '94%', // Adjust width here
+    overflow: 'hidden',
+  },
+  body: {
+    paddingHorizontal: 16,
+    paddingBottom: 16,
+  },
+
+  image: {
+    width: '100%',
+    height: 150,
+    marginBottom: 8,
   },
   header: {
     flexDirection: 'row',

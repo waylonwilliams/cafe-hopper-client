@@ -47,7 +47,7 @@ const mockCafes: { cafe: CafeType; review: ReviewType }[] = [
   {
     cafe: {
       id: '2',
-      name: 'Brewed Awakening',
+      name: 'Blackbird',
       address: '123 Brew St., Coffee City, CA',
       hours: '7:00AM - 9:00PM',
       topTags: ['☕ Excellent coffee', '🪴 Ambiance', '🎶 Good music'],
@@ -62,7 +62,42 @@ const mockCafes: { cafe: CafeType; review: ReviewType }[] = [
       images: [],
     },
   },
-  // Add more mock data as needed
+  {
+    cafe: {
+      id: '3',
+      name: 'Blackbird',
+      address: '123 Brew St., Coffee City, CA',
+      hours: '7:00AM - 9:00PM',
+      topTags: ['☕ Excellent coffee', '🪴 Ambiance', '🎶 Good music'],
+    },
+    review: {
+      name: 'Jane Smith',
+      description: 'Lovely ambiance with great coffee!',
+      tags: ['☕ Excellent coffee', '🎶 Good music'],
+      numLikes: 85,
+      datePosted: '2023-09-05',
+      score: 4.2,
+      images: [],
+    },
+  },
+  {
+    cafe: {
+      id: '4',
+      name: 'Blackbird',
+      address: '123 Brew St., Coffee City, CA',
+      hours: '7:00AM - 9:00PM',
+      topTags: ['☕ Excellent coffee', '🪴 Ambiance', '🎶 Good music'],
+    },
+    review: {
+      name: 'Jane Smith',
+      description: 'Lovely ambiance with great coffee!',
+      tags: ['☕ Excellent coffee', '🎶 Good music'],
+      numLikes: 85,
+      datePosted: '2023-09-05',
+      score: 4.2,
+      images: [],
+    },
+  },
 ];
 
 export default function Map() {
@@ -318,11 +353,13 @@ export default function Map() {
             </MapView>
           </View>
         ) : (
-          <View style={styles.listView}>
-            {mockCafes.map((item, index) => (
-              <ListCard key={index} cafe={item.cafe} review={item.review} />
-            ))}
-          </View>
+          <ScrollView>
+            <View style={styles.listView}>
+              {mockCafes.map((item, index) => (
+                <ListCard key={index} cafe={item.cafe} review={item.review} />
+              ))}
+            </View>
+          </ScrollView>
         )}
       </View>
     </TouchableWithoutFeedback>
@@ -388,6 +425,8 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   listView: {
+    paddingTop: 180, // Adjust this based on searchBar height
+
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
