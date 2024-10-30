@@ -21,6 +21,49 @@ import { useRouter } from 'expo-router';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import EmojiTag from '../../components/EmojiTag';
 import { cafeTags } from '../../components/CafePage/CafeTypes';
+import ListCard from '@/components/ListCard';
+import { CafeType, ReviewType } from '@/components/CafePage/CafeTypes';
+
+// Mock data
+const mockCafes: { cafe: CafeType; review: ReviewType }[] = [
+  {
+    cafe: {
+      id: '1',
+      name: "Cafe Oshima's",
+      address: '2/37 Cao Thang, Ward 5, District 3, Ho Chi Minh City, Vietnam',
+      hours: `8:00AM - 10:00PM`,
+      topTags: ['🍵 Matcha', '🛜 Free Wifi', '🌱 Vegan', '🌳 Outdoor', '🐶 Pet Friendly'],
+    },
+    review: {
+      name: 'John Doe',
+      description: 'Great place to work and relax!',
+      tags: ['🛜 Free wifi', '🍵 Matcha'],
+      numLikes: 120,
+      datePosted: '2023-10-10',
+      score: 4.5,
+      images: [],
+    },
+  },
+  {
+    cafe: {
+      id: '2',
+      name: 'Brewed Awakening',
+      address: '123 Brew St., Coffee City, CA',
+      hours: '7:00AM - 9:00PM',
+      topTags: ['☕ Excellent coffee', '🪴 Ambiance', '🎶 Good music'],
+    },
+    review: {
+      name: 'Jane Smith',
+      description: 'Lovely ambiance with great coffee!',
+      tags: ['☕ Excellent coffee', '🎶 Good music'],
+      numLikes: 85,
+      datePosted: '2023-09-05',
+      score: 4.2,
+      images: [],
+    },
+  },
+  // Add more mock data as needed
+];
 
 export default function Map() {
   const [mapRegion, setMapRegion] = useState({
@@ -276,8 +319,9 @@ export default function Map() {
           </View>
         ) : (
           <View style={styles.listView}>
-            {/* Placeholder for the list view */}
-            <Text>List View is currently empty.</Text>
+            {mockCafes.map((item, index) => (
+              <ListCard key={index} cafe={item.cafe} review={item.review} />
+            ))}
           </View>
         )}
       </View>
