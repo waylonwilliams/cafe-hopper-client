@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Image, Pressable, SafeAreaView, View } from 'react-native';
+import { Dimensions, Image, Pressable, SafeAreaView, ScrollView, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import BottomSheet, { BottomSheetHandleProps, BottomSheetView } from '@gorhom/bottom-sheet';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -9,6 +9,7 @@ import React from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import { CafeType, NewReviewType } from '@/components/CafePage/CafeTypes';
 import { supabase } from '@/lib/supabase';
+import ImageFullView from '@/components/CafePage/ImageFullView';
 
 /**
  * An example of how you can open this page
@@ -56,7 +57,7 @@ export default function Index() {
 
   const [loggingVisit, setLoggingVisit] = useState(false);
   const [reviews, setReviews] = useState<NewReviewType[]>([]);
-  const [viewingImages, setViewingImages] = useState<string[]>([]);
+  const [viewingImages, setViewingImages] = useState<string[] | null>(null);
   const [viewingImageIndex, setViewingImageIndex] = useState<number | null>(null);
 
   // idk stuff for the bottom sheet
@@ -106,77 +107,68 @@ export default function Index() {
   }, []);
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'relative',
-        backgroundColor: 'white',
-      }}>
-      <View style={{ backgroundColor: '#f0f0f0', height: '100%', width: '100%' }}>
-        <Image
-          style={{ top: -70, width: '100%', position: 'absolute' }}
-          source={require('../../assets/images/oshimacafe.png')}
-        />
-
-        <Pressable onPress={goBack}>
-          <Ionicons
-            name="chevron-back"
-            size={24}
-            color="white"
-            style={{ padding: 4, position: 'absolute', zIndex: 2 }}
+    <>
+      <SafeAreaView
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          position: 'relative',
+          backgroundColor: 'white',
+        }}>
+        {/* The actual cafe here */}
+        <View style={{ backgroundColor: '#f0f0f0', height: '100%', width: '100%' }}>
+          <Image
+            style={{ top: -70, width: '100%', position: 'absolute' }}
+            source={require('../../assets/images/oshimacafe.png')}
           />
-        </Pressable>
 
-        <BottomSheet
-          ref={bottomSheetRef}
-          //   onChange={handleSheetChanges}
-          index={0}
-          snapPoints={snapPoints}
-          handleComponent={HandleComponent}>
-          <BottomSheetView
-            style={{
-              width: '100%',
-              height: '100%',
-              paddingTop: 5,
-            }}>
-            {loggingVisit ? (
-              <Log
-                setLoggingVisit={setLoggingVisit}
-                cafe={cafeObj}
-                reviews={reviews}
-                setReviews={setReviews}
-              />
-            ) : (
-              <Cafe
-                cafe={cafeObj}
-                reviews={reviews}
-                logVisit={logVisit}
-                setViewingImages={setViewingImages}
-                setViewingImageIndex={setViewingImageIndex}
-              />
-            )}
-          </BottomSheetView>
-        </BottomSheet>
-      </View>
+          <Pressable onPress={goBack}>
+            <Ionicons
+              name="chevron-back"
+              size={24}
+              color="white"
+              style={{ padding: 4, position: 'absolute', zIndex: 2 }}
+            />
+          </Pressable>
 
-      {viewingImageIndex !== null && (
-        <View
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            opacity: 0.9,
-            backgroundColor: '#aaaaaa',
-            justifyContent: 'flex-end',
-            alignItems: 'center',
-          }}>
-          {/* Images mapped here in horizontal scroll */}
+          <BottomSheet
+            ref={bottomSheetRef}
+            //   onChange={handleSheetChanges}
+            index={0}
+            snapPoints={snapPoints}
+            handleComponent={HandleComponent}>
+            <BottomSheetView
+              style={{
+                width: '100%',
+                height: '100%',
+                paddingTop: 5,
+              }}>
+              {loggingVisit ? (
+                <Log
+                  setLoggingVisit={setLoggingVisit}
+                  cafe={cafeObj}
+                  reviews={reviews}
+                  setReviews={setReviews}
+                />
+              ) : (
+                <Cafe
+                  cafe={cafeObj}
+                  reviews={reviews}
+                  logVisit={logVisit}
+                  setViewingImages={setViewingImages}
+                  setViewingImageIndex={setViewingImageIndex}
+                />
+              )}
+            </BottomSheetView>
+          </BottomSheet>
         </View>
+      </SafeAreaView>
+
+      {/* Image full view */}
+      {viewingImageIndex !== null && (
+        <ImageFullView images={viewingImages} setImages={setViewingImages} />
       )}
-    </SafeAreaView>
+    </>
   );
 }
