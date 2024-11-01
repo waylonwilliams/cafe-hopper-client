@@ -1,5 +1,5 @@
 import { router } from 'expo-router';
-import { Dimensions, Image, Pressable, SafeAreaView, ScrollView, Text, View } from 'react-native';
+import { Image, Pressable, SafeAreaView, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import BottomSheet, { BottomSheetHandleProps, BottomSheetView } from '@gorhom/bottom-sheet';
 import { useEffect, useMemo, useRef, useState } from 'react';
