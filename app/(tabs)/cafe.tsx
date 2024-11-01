@@ -2,12 +2,14 @@ import { router } from 'expo-router';
 import { Image, Pressable, SafeAreaView, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import BottomSheet, { BottomSheetHandleProps, BottomSheetView } from '@gorhom/bottom-sheet';
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import Cafe from '@/components/CafePage/Cafe';
 import Log from '@/components/CafePage/Log';
 import React from 'react';
 import { useLocalSearchParams } from 'expo-router';
-import { CafeType } from '@/components/CafePage/CafeTypes';
+import { CafeType, NewReviewType } from '@/components/CafePage/CafeTypes';
+import { supabase } from '@/lib/supabase';
+import ImageFullView from '@/components/CafePage/ImageFullView';
 
 /**
  * An example of how you can open this page
@@ -51,9 +53,12 @@ import { CafeType } from '@/components/CafePage/CafeTypes';
  * Ideally upgrade this to take in a cafe as a param and render it that way
  */
 export default function Index() {
-  const cafeObj = useLocalSearchParams() as CafeType;
+  const cafeObj = useLocalSearchParams() as unknown as CafeType;
 
   const [loggingVisit, setLoggingVisit] = useState(false);
+  const [reviews, setReviews] = useState<NewReviewType[]>([]);
+  const [viewingImages, setViewingImages] = useState<string[] | null>(null);
+  const [viewingImageIndex, setViewingImageIndex] = useState<number | null>(null);
 
   // idk stuff for the bottom sheet
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -88,65 +93,82 @@ export default function Index() {
     router.back();
   }
 
-  const review = {
-    name: 'Jane Doe',
-    description:
-      'This cafe has quickly become my go-to for a peaceful break. The ambiance is so calm and relaxing, perfect for unwinding or getting some work done. The staff really knows their stuff when it comes to coffee, and their recommendations never disappoint. Plus, their music selection is always on point—just the right vibe without being too loud. It’s a hidden gem!',
-    tags: ['🌱 Vegan', '🍵 Matcha', '🛜 Free Wifi', '🌳 Outdoor'],
-    numLikes: 169,
-    datePosted: '2021-09-01T12:00:00Z',
-    score: 5,
-    images: [
-      'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12',
-      'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12',
-      'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12',
-    ],
-  };
+  // fetch reviews assosicated with this cafe on load
+  async function fetchReviews() {
+    const { data, error } = await supabase.from('reviews').select('*, profiles ( user_id, bio )');
+    if (error) {
+      console.log('Error fetching reviews', error);
+    } else {
+      setReviews(data);
+    }
+  }
+  useEffect(() => {
+    fetchReviews();
+  }, []);
 
   return (
-    <SafeAreaView
-      style={{
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        position: 'relative',
-        backgroundColor: 'white',
-      }}>
-      <View style={{ backgroundColor: '#f0f0f0', height: '100%', width: '100%' }}>
-        <Image
-          style={{ top: -70, width: '100%', position: 'absolute' }}
-          source={require('../../assets/images/oshimacafe.png')}
-        />
-
-        <Pressable onPress={goBack}>
-          <Ionicons
-            name="chevron-back"
-            size={24}
-            color="white"
-            style={{ padding: 4, position: 'absolute', zIndex: 2 }}
+    <>
+      <SafeAreaView
+        style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          position: 'relative',
+          backgroundColor: 'white',
+        }}>
+        {/* The actual cafe here */}
+        <View style={{ backgroundColor: '#f0f0f0', height: '100%', width: '100%' }}>
+          <Image
+            style={{ top: -70, width: '100%', position: 'absolute' }}
+            source={require('../../assets/images/oshimacafe.png')}
           />
-        </Pressable>
 
-        <BottomSheet
-          ref={bottomSheetRef}
-          //   onChange={handleSheetChanges}
-          index={0}
-          snapPoints={snapPoints}
-          handleComponent={HandleComponent}>
-          <BottomSheetView
-            style={{
-              width: '100%',
-              height: '100%',
-              paddingTop: 5,
-            }}>
-            {loggingVisit ? (
-              <Log setLoggingVisit={setLoggingVisit} />
-            ) : (
-              <Cafe cafe={cafeObj} reviews={[review, review, review]} logVisit={logVisit} />
-            )}
-          </BottomSheetView>
-        </BottomSheet>
-      </View>
-    </SafeAreaView>
+          <Pressable onPress={goBack}>
+            <Ionicons
+              name="chevron-back"
+              size={24}
+              color="white"
+              style={{ padding: 4, position: 'absolute', zIndex: 2 }}
+            />
+          </Pressable>
+
+          <BottomSheet
+            ref={bottomSheetRef}
+            //   onChange={handleSheetChanges}
+            index={0}
+            snapPoints={snapPoints}
+            handleComponent={HandleComponent}>
+            <BottomSheetView
+              style={{
+                width: '100%',
+                height: '100%',
+                paddingTop: 5,
+              }}>
+              {loggingVisit ? (
+                <Log
+                  setLoggingVisit={setLoggingVisit}
+                  cafe={cafeObj}
+                  reviews={reviews}
+                  setReviews={setReviews}
+                />
+              ) : (
+                <Cafe
+                  cafe={cafeObj}
+                  reviews={reviews}
+                  logVisit={logVisit}
+                  setViewingImages={setViewingImages}
+                  setViewingImageIndex={setViewingImageIndex}
+                />
+              )}
+            </BottomSheetView>
+          </BottomSheet>
+        </View>
+      </SafeAreaView>
+
+      {/* Image full view */}
+      {viewingImageIndex !== null && (
+        <ImageFullView images={viewingImages} setImages={setViewingImages} />
+      )}
+    </>
   );
 }

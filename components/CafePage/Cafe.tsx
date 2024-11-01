@@ -3,20 +3,37 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import EmojiTag from '@/components/EmojiTag';
 import Review from '@/components/Review';
-import { CafeType, ReviewType } from './CafeTypes';
+import { CafeType, NewReviewType } from './CafeTypes';
 
 interface Props {
   cafe: CafeType;
-  reviews: ReviewType[];
+  reviews: NewReviewType[];
   logVisit: () => void;
+  setViewingImages: (arg: string[]) => void;
+  setViewingImageIndex: (arg: number | null) => void;
 }
 
-export default function Cafe({ cafe, reviews, logVisit }: Props) {
+export default function Cafe({
+  cafe,
+  reviews,
+  logVisit,
+  setViewingImages,
+  setViewingImageIndex,
+}: Props) {
   const [liked, setLiked] = useState(false);
   const [togo, setTogo] = useState(false);
   const [showHours, setShowHours] = useState(false);
 
-  const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+  const today = days[new Date().getDay()];
+  const entries = cafe.hours.split('\n');
+  const scheduleDict: { [key: string]: string } = {};
+  entries.forEach((entry) => {
+    const [day, ...timeParts] = entry.split(':'); // Split on the first colon
+    const time = timeParts.join(':').trim(); // Join the remaining parts and trim
+    scheduleDict[day.trim()] = time;
+  });
 
   // How you could calculate width of bar and such
   // const maxReviewValue = Math.max(...Object.values(cafe.reviews));
@@ -106,14 +123,14 @@ export default function Cafe({ cafe, reviews, logVisit }: Props) {
             {days.map((day, index) => (
               <View style={{ width: '100%', flexDirection: 'row' }} key={index}>
                 <Text style={{ width: '30%', color: '#808080' }}>{day}</Text>
-                <Text style={{ color: '#808080' }}>8:00AM - 10:00PM</Text>
+                <Text style={{ color: '#808080' }}>{scheduleDict[day]}</Text>
               </View>
             ))}
           </View>
         )}
 
         <View style={{ flexDirection: 'row', gap: 10 }}>
-          {!showHours && <Text style={{ color: '#808080' }}>8:00AM - 10:00PM</Text>}
+          {!showHours && <Text style={{ color: '#808080' }}>{scheduleDict[today]}</Text>}
           <Pressable onPress={() => setShowHours(!showHours)}>
             <Text style={{ color: '#808080', fontWeight: '700' }}>
               {showHours ? 'Hide' : 'See details'}
@@ -211,7 +228,12 @@ export default function Cafe({ cafe, reviews, logVisit }: Props) {
 
       {/* Should map them */}
       {reviews.map((review, index) => (
-        <Review review={review} key={index} />
+        <Review
+          review={review}
+          key={index}
+          setViewingImages={setViewingImages}
+          setViewingImageIndex={setViewingImageIndex}
+        />
       ))}
     </ScrollView>
   );
