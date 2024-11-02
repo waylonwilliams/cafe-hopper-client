@@ -3,7 +3,7 @@ import { Text, View } from 'react-native';
 
 interface Props {
   tag: string;
-  filled?: true;
+  filled?: boolean;
 }
 
 export default function EmojiTag({ tag, filled }: Props) {

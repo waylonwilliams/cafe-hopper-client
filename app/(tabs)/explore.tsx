@@ -10,6 +10,7 @@ import {
   Keyboard,
   Pressable,
   ScrollView,
+  FlatList,
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
@@ -23,6 +24,7 @@ import EmojiTag from '../../components/EmojiTag';
 import { cafeTags } from '../../components/CafePage/CafeTypes';
 import ListCard from '@/components/ListCard';
 import { CafeType, ReviewType } from '@/components/CafePage/CafeTypes';
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 // Mock data
 const mockCafes: { cafe: CafeType; review: ReviewType }[] = [
@@ -226,7 +228,7 @@ export default function Map() {
         {/* Filter dropdown */}
         {showFilters && (
           <View style={styles.filterDropdown}>
-            <ScrollView contentContainerStyle={styles.scrollContainer}>
+            <ScrollView>
               {/* Hours Section */}
               <View style={styles.filterSection}>
                 <Text style={styles.filterSectionTitle}>
@@ -353,13 +355,12 @@ export default function Map() {
             </MapView>
           </View>
         ) : (
-          <ScrollView>
-            <View style={styles.listView}>
-              {mockCafes.map((item, index) => (
-                <ListCard key={index} cafe={item.cafe} review={item.review} />
-              ))}
-            </View>
-          </ScrollView>
+          <FlatList
+            data={mockCafes}
+            keyExtractor={(item, index) => index.toString()}
+            renderItem={({ item }) => <ListCard cafe={item.cafe} review={item.review} />}
+            contentContainerStyle={styles.listView}
+          />
         )}
       </View>
     </TouchableWithoutFeedback>
@@ -425,11 +426,10 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   listView: {
-    paddingTop: 180, // Adjust this based on searchBar height
-
-    flex: 1,
+    paddingTop: 170, // Adjust this based on searchBar height
     justifyContent: 'center',
     alignItems: 'center',
+    width: '100%',
   },
   filterDropdown: {
     position: 'absolute',
@@ -438,15 +438,12 @@ const styles = StyleSheet.create({
     zIndex: 200, // Ensure it's on top of other elements
     backgroundColor: '#fbfbfb', // White background for the dropdown
     borderRadius: 30, // Rounded corners
-    height: 450, // Fixed height for the dropdown
-    width: 370, // Fixed width for the dropdown
+    height: screenHeight * 0.5, // 50% of screen height
+    width: screenWidth * 0.95, // 90% of screen width
     borderWidth: 1, // Optional: border to visually distinguish
     borderColor: '#000000', // Optional: light border color
     elevation: 5, // Optional: adds shadow on Android
     paddingHorizontal: 20, // Add padding to the dropdown
-  },
-  scrollContainer: {
-    paddingVertical: 10, // Vertical padding for scroll content
   },
   filterSectionTitle: {
     fontSize: 16,
