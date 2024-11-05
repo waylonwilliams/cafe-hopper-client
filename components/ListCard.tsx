@@ -9,12 +9,17 @@ interface ListCardProps {
 }
 
 export default function ListCard({ cafe, review }: ListCardProps) {
-  // const mockImageUrl = 'https://via.placeholder.com/150';
-  const mockImageUrl = require('../assets/images/11th-hour.png');
+  const mockImageUrl =
+    'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12';
 
   return (
     <View style={styles.card}>
-      <Image source={{ uri: mockImageUrl }} style={styles.image} />
+      {/* <Image source={{ uri: mockImageUrl }} style={{ height: 100 }} resizeMode="contain" /> */}
+
+      <View style={{ flex: 1, height: 170, paddingBottom: 8 }}>
+        <Image source={{ uri: mockImageUrl }} style={{ width: '100%', height: '100%' }} />
+      </View>
+
       <View style={styles.body}>
         <View style={styles.header}>
           <Text style={styles.name}>{cafe.name}</Text>
@@ -44,19 +49,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#000000',
     marginVertical: 8,
-    elevation: 2,
     width: '94%', // Adjust width here
     overflow: 'hidden',
+    position: 'relative',
   },
   body: {
     paddingHorizontal: 16,
     paddingBottom: 16,
-  },
-
-  image: {
-    width: '100%',
-    height: 150,
-    marginBottom: 8,
   },
   header: {
     flexDirection: 'row',
