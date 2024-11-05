@@ -8,6 +8,12 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
+async function getId(){
+    //get user id 
+  const uid = (await supabase.auth.getSession())?.data.session?.user.id;
+  
+
+}
 export default function Index() {
   //temporary to save name, loc, bio
   const [name, setName] = useState('');
@@ -20,6 +26,8 @@ export default function Index() {
     console.log('Bio: ', bio);
     console.log('changes saved');
   };
+
+
 
   return (
     <ScrollView>
