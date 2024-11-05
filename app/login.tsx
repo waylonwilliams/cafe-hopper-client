@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import {useRouter} from 'expo-router';
 
 AppState.addEventListener('change', (state) => {
   if (state === 'active') {
@@ -14,6 +15,7 @@ AppState.addEventListener('change', (state) => {
 });
 
 const LoginScreen = () => {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -29,9 +31,13 @@ const LoginScreen = () => {
     });
 
     if (error) Alert.alert(error.message);
+    if (!error) handleNavigation();
     setLoading(false);
   }
 
+  function handleNavigation(){
+    router.push('/(tabs)')
+  }
   // const handleLogin = () => {
   //   // Perform login logic here, e.g., API call
   //   console.log('Email:', email);
@@ -93,7 +99,7 @@ const LoginScreen = () => {
             source={require('@/assets/images/arrow.png')}></Image>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={goToSignup}>
+        <TouchableOpacity onPress={()=>router.push('/sign_up')}>
           <Text
           // style={styles.alt}
           >
