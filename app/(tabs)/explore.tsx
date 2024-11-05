@@ -102,7 +102,7 @@ const mockCafes: { cafe: CafeType; review: ReviewType }[] = [
   },
 ];
 
-export default function Map() {
+export default function Explore() {
   const [mapRegion, setMapRegion] = useState({
     latitude: 5.603717,
     longitude: -0.186964,
@@ -116,7 +116,19 @@ export default function Map() {
   const mapRef = useRef<MapView>(null); // Reference to the MapView
   const router = useRouter(); // Get the router instance from expo-router
   const [selectedHours, setSelectedHours] = useState('Any'); // Track selected hours
-  const [selectedRating, setSelectedRating] = useState('Any'); // Track selected rating
+  const [selectedRating, setSelectedRating] = useState('Any'); // Track selected rating]
+
+  // When the search bar is open it makes it not scrollable and closes when you press outside of it
+  // WHen its closed it does nothing, making it scrollable
+  const searchExitWrapper = (children: React.ReactNode) => {
+    if (showFilters) {
+      return (
+        <TouchableWithoutFeedback onPress={dismissDropdown}>{children}</TouchableWithoutFeedback>
+      );
+    } else {
+      return <>{children}</>;
+    }
+  };
 
   const userLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
@@ -196,174 +208,172 @@ export default function Map() {
     setSelectedRating(option);
   };
 
-  return (
-    <TouchableWithoutFeedback onPress={dismissDropdown}>
-      <View style={{ flex: 1 }}>
-        {/* Top Bar with Dummy Search Bar */}
-        <View style={styles.topBar}>
-          <View style={styles.searchBar}>
-            <View style={{ marginRight: 5 }}>
-              <Icon name="search" size={20} color="#8a8888" />
-            </View>
-            <TextInput
-              placeholder="Search a cafe, characteristic, etc."
-              placeholderTextColor="#888"
-              onFocus={() => setShowFilters(true)} // Show filters when search is focused
-            />
+  return searchExitWrapper(
+    <View>
+      {/* Top Bar with Dummy Search Bar */}
+      <View style={styles.topBar}>
+        <View style={styles.searchBar}>
+          <View style={{ marginRight: 5 }}>
+            <Icon name="search" size={20} color="#8a8888" />
           </View>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={[styles.toggleButton, viewMode === 'list' ? styles.activeButton : null]}
-              onPress={() => setViewMode('list')}>
-              <Text style={styles.buttonText}>List</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.toggleButton, viewMode === 'map' ? styles.activeButton : null]}
-              onPress={() => setViewMode('map')}>
-              <Text style={styles.buttonText}>Map</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* Filter dropdown */}
-        {showFilters && (
-          <View style={styles.filterDropdown}>
-            <ScrollView>
-              {/* Hours Section */}
-              <View style={styles.filterSection}>
-                <Text style={styles.filterSectionTitle}>
-                  {/* idk why the icon is floating weird */}
-                  <MaterialIcons name="schedule" size={16} /> Hours
-                </Text>
-                <View style={styles.filterButtonsContainer}>
-                  <Pressable
-                    style={[
-                      styles.filterButton,
-                      selectedHours === 'Any' ? styles.activeFilterButton : null,
-                    ]}
-                    onPress={() => handleHourClick('Any')}>
-                    <Text>Any</Text>
-                  </Pressable>
-                  <Pressable
-                    style={[
-                      styles.filterButton,
-                      selectedHours === 'Open Now' ? styles.activeFilterButton : null,
-                    ]}
-                    onPress={() => handleHourClick('Open Now')}>
-                    <Text>Open now</Text>
-                  </Pressable>
-                  <Pressable
-                    style={[
-                      styles.filterButton,
-                      selectedHours === 'Custom' ? styles.activeFilterButton : null,
-                    ]}
-                    onPress={() => handleHourClick('Custom')}>
-                    <Text>Custom</Text>
-                  </Pressable>
-                </View>
-              </View>
-
-              {/* Ratings Section */}
-              <View style={styles.filterSection}>
-                <View style={styles.ratingContainer}>
-                  <MaterialIcons name="star" size={16} />
-                  <Text style={styles.filterSectionTitle}> Rating</Text>
-                  <Text style={styles.atLeastText}> at least</Text>
-                </View>
-                <View style={styles.filterButtonsContainer}>
-                  <Pressable
-                    style={[
-                      styles.filterButton,
-                      selectedRating === 'Any' ? styles.activeFilterButton : null,
-                    ]}
-                    onPress={() => handleRatingClick('Any')}>
-                    <Text>Any</Text>
-                  </Pressable>
-                  <Pressable
-                    style={[
-                      styles.filterButton,
-                      selectedRating === '3.0' ? styles.activeFilterButton : null,
-                    ]}
-                    onPress={() => handleRatingClick('3.0')}>
-                    <Text>3.0</Text>
-                  </Pressable>
-                  <Pressable
-                    style={[
-                      styles.filterButton,
-                      selectedRating === '4.0' ? styles.activeFilterButton : null,
-                    ]}
-                    onPress={() => handleRatingClick('4.0')}>
-                    <Text>4.0</Text>
-                  </Pressable>
-                  <Pressable
-                    style={[
-                      styles.filterButton,
-                      selectedRating === '4.5' ? styles.activeFilterButton : null,
-                    ]}
-                    onPress={() => handleRatingClick('4.5')}>
-                    <Text>4.5</Text>
-                  </Pressable>
-                </View>
-
-                {/* Tags Section */}
-                <View style={styles.morefilterContainer}>
-                  <Text style={styles.filterSectionTitle}>More Filters</Text>
-                  <View style={styles.emojiContainer}>
-                    {cafeTags.map((tag, index) => (
-                      <Pressable onPress={() => handleTagClick(tag)} key={index}>
-                        <EmojiTag key={index} tag={tag} filled={emojiTags.includes(tag)} />
-                      </Pressable>
-                    ))}
-                  </View>
-                </View>
-              </View>
-            </ScrollView>
-          </View>
-        )}
-
-        {/* Content based on viewMode */}
-        {viewMode === 'map' ? (
-          <View style={{ flex: 1 }}>
-            <TouchableOpacity style={styles.location} onPress={userLocation}>
-              <Text>
-                <MaterialIcons name="my-location" size={24} color="black" />
-              </Text>
-            </TouchableOpacity>
-            <MapView
-              ref={mapRef} // Attach reference to MapView
-              style={styles.map}
-              initialRegion={mapRegion}
-              region={mapRegion}
-              showsUserLocation={true} // Show the default blue dot for user location
-              followsUserLocation={true}
-              showsMyLocationButton={true}
-              mapType="standard">
-              {markers.map((marker, index) => {
-                const validMarker: MarkerType = {
-                  ...marker,
-                  category: marker.category as 'liked' | 'saved' | 'default' | undefined,
-                };
-                return (
-                  <Marker
-                    key={index}
-                    coordinate={marker}
-                    onPress={() => handleMarkerPress(validMarker)}>
-                    <CustomMarker marker={validMarker} />
-                  </Marker>
-                );
-              })}
-            </MapView>
-          </View>
-        ) : (
-          <FlatList
-            data={mockCafes}
-            keyExtractor={(item, index) => index.toString()}
-            renderItem={({ item }) => <ListCard cafe={item.cafe} review={item.review} />}
-            contentContainerStyle={styles.listView}
+          <TextInput
+            placeholder="Search a cafe, characteristic, etc."
+            placeholderTextColor="#888"
+            onFocus={() => setShowFilters(true)} // Show filters when search is focused
           />
-        )}
+        </View>
+        <View style={styles.buttonContainer}>
+          <TouchableOpacity
+            style={[styles.toggleButton, viewMode === 'list' ? styles.activeButton : null]}
+            onPress={() => setViewMode('list')}>
+            <Text style={styles.buttonText}>List</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.toggleButton, viewMode === 'map' ? styles.activeButton : null]}
+            onPress={() => setViewMode('map')}>
+            <Text style={styles.buttonText}>Map</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    </TouchableWithoutFeedback>
+
+      {/* Filter dropdown */}
+      {showFilters && (
+        <View style={styles.filterDropdown}>
+          <ScrollView>
+            {/* Hours Section */}
+            <View style={styles.filterSection}>
+              <Text style={styles.filterSectionTitle}>
+                {/* idk why the icon is floating weird */}
+                <MaterialIcons name="schedule" size={16} /> Hours
+              </Text>
+              <View style={styles.filterButtonsContainer}>
+                <Pressable
+                  style={[
+                    styles.filterButton,
+                    selectedHours === 'Any' ? styles.activeFilterButton : null,
+                  ]}
+                  onPress={() => handleHourClick('Any')}>
+                  <Text>Any</Text>
+                </Pressable>
+                <Pressable
+                  style={[
+                    styles.filterButton,
+                    selectedHours === 'Open Now' ? styles.activeFilterButton : null,
+                  ]}
+                  onPress={() => handleHourClick('Open Now')}>
+                  <Text>Open now</Text>
+                </Pressable>
+                <Pressable
+                  style={[
+                    styles.filterButton,
+                    selectedHours === 'Custom' ? styles.activeFilterButton : null,
+                  ]}
+                  onPress={() => handleHourClick('Custom')}>
+                  <Text>Custom</Text>
+                </Pressable>
+              </View>
+            </View>
+
+            {/* Ratings Section */}
+            <View style={styles.filterSection}>
+              <View style={styles.ratingContainer}>
+                <MaterialIcons name="star" size={16} />
+                <Text style={styles.filterSectionTitle}> Rating</Text>
+                <Text style={styles.atLeastText}> at least</Text>
+              </View>
+              <View style={styles.filterButtonsContainer}>
+                <Pressable
+                  style={[
+                    styles.filterButton,
+                    selectedRating === 'Any' ? styles.activeFilterButton : null,
+                  ]}
+                  onPress={() => handleRatingClick('Any')}>
+                  <Text>Any</Text>
+                </Pressable>
+                <Pressable
+                  style={[
+                    styles.filterButton,
+                    selectedRating === '3.0' ? styles.activeFilterButton : null,
+                  ]}
+                  onPress={() => handleRatingClick('3.0')}>
+                  <Text>3.0</Text>
+                </Pressable>
+                <Pressable
+                  style={[
+                    styles.filterButton,
+                    selectedRating === '4.0' ? styles.activeFilterButton : null,
+                  ]}
+                  onPress={() => handleRatingClick('4.0')}>
+                  <Text>4.0</Text>
+                </Pressable>
+                <Pressable
+                  style={[
+                    styles.filterButton,
+                    selectedRating === '4.5' ? styles.activeFilterButton : null,
+                  ]}
+                  onPress={() => handleRatingClick('4.5')}>
+                  <Text>4.5</Text>
+                </Pressable>
+              </View>
+
+              {/* Tags Section */}
+              <View style={styles.morefilterContainer}>
+                <Text style={styles.filterSectionTitle}>More Filters</Text>
+                <View style={styles.emojiContainer}>
+                  {cafeTags.map((tag, index) => (
+                    <Pressable onPress={() => handleTagClick(tag)} key={index}>
+                      <EmojiTag key={index} tag={tag} filled={emojiTags.includes(tag)} />
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+            </View>
+          </ScrollView>
+        </View>
+      )}
+
+      {/* Content based on viewMode */}
+      {viewMode === 'map' ? (
+        <View style={{ flex: 1 }}>
+          <TouchableOpacity style={styles.location} onPress={userLocation}>
+            <Text>
+              <MaterialIcons name="my-location" size={24} color="black" />
+            </Text>
+          </TouchableOpacity>
+          <MapView
+            ref={mapRef} // Attach reference to MapView
+            style={styles.map}
+            initialRegion={mapRegion}
+            region={mapRegion}
+            showsUserLocation={true} // Show the default blue dot for user location
+            followsUserLocation={true}
+            showsMyLocationButton={true}
+            mapType="standard">
+            {markers.map((marker, index) => {
+              const validMarker: MarkerType = {
+                ...marker,
+                category: marker.category as 'liked' | 'saved' | 'default' | undefined,
+              };
+              return (
+                <Marker
+                  key={index}
+                  coordinate={marker}
+                  onPress={() => handleMarkerPress(validMarker)}>
+                  <CustomMarker marker={validMarker} />
+                </Marker>
+              );
+            })}
+          </MapView>
+        </View>
+      ) : (
+        <FlatList
+          data={mockCafes}
+          keyExtractor={(item, index) => index.toString()}
+          renderItem={({ item }) => <ListCard cafe={item.cafe} review={item.review} />}
+          contentContainerStyle={styles.listView}
+        />
+      )}
+    </View>,
   );
 }
 
@@ -430,6 +440,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     width: '100%',
+    paddingBottom: 90, // a bit of room for the navbar
   },
   filterDropdown: {
     position: 'absolute',
