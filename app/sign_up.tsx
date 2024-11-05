@@ -38,12 +38,20 @@ const SignUpScreen = () => {
         password: password,
       });
 
+
+      if (!error) handleNavigation();
       if (error) console.log(error);
-      if (!session) Alert.alert('Please check your inbox for email verification!');
+      // if (!session) Alert.alert('Please check your inbox for email verification!');
       setLoading(false);
     } else {
       Alert.alert('Passwords do not match!');
     }
+  }
+
+  function handleNavigation(){
+    // NEED TO CHANGE
+    // This should go to profile creation page
+    router.push('/login')
   }
 
   // const handleLogin = () => {
@@ -118,6 +126,12 @@ const SignUpScreen = () => {
       </View>
 
       <View style={styles.signupButton}>
+        {/* <TouchableOpacity style={styles.button} onPress={signUpWithEmail} disabled={loading}>
+          <Text style={styles.buttonText}>Start exploring</Text>
+          <Image
+            // style={styles.arrow}
+            source={require('@/assets/images/arrow.png')}></Image>
+        </TouchableOpacity> */}
         <TouchableOpacity style={styles.button} onPress={signUpWithEmail} disabled={loading}>
           <Text style={styles.buttonText}>Start exploring</Text>
           <Image
