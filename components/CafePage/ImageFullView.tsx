@@ -73,7 +73,7 @@ export default function ImageFullView({ images, setImages }: Props) {
             key={index}
             source={{ uri: image }}
             // This is a bit jank, height may exceed depending on screen size
-            style={{ width, height: '90%' }}
+            style={{ width, height: '86%' }}
             resizeMode="contain"
           />
         ))}
