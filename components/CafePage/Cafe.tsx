@@ -57,7 +57,7 @@ export default function Cafe({
       }}
       contentContainerStyle={{
         gap: 10,
-        paddingBottom: 30,
+        paddingBottom: 110,
       }}>
       {/* Name of cafe header */}
       <Text style={{ fontSize: 36, fontWeight: 500 }}>{cafe.name}</Text>
@@ -80,7 +80,9 @@ export default function Cafe({
               padding: 7,
               paddingHorizontal: 9,
             }}>
-            <Text style={{ fontSize: 16, fontWeight: 700 }}>⭐️ 4.5</Text>
+            <Text style={{ fontSize: 16, fontWeight: 700 }}>
+              ⭐️ {(cafe.rating / 2).toFixed(1)}
+            </Text>
           </View>
           <Text style={{ color: '#808080', paddingTop: 4 }}>269 reviews</Text>
         </View>

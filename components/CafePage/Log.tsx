@@ -130,6 +130,7 @@ export default function Log({ setLoggingVisit, cafe, reviews, setReviews }: Prop
         paddingVertical: 25,
         gap: 15,
         paddingHorizontal: 20,
+        paddingBottom: 110,
       }}>
       <Pressable
         onPress={() => setLoggingVisit(false)}

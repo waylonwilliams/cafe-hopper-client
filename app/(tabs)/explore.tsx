@@ -148,6 +148,7 @@ export default function Explore() {
       pathname: '/cafe',
       params: {
         id: 'ChIJ1USNsRYVjoARsVMJfrLeXqg',
+        created_at: '2021-06-21T18:00:00.000Z',
         name: 'Verve Coffee Roasters',
         address: '816 41st Ave, Santa Cruz, CA 95062, USA',
         hours: `Monday:7:00AM–6:00PM
@@ -159,6 +160,12 @@ Saturday:7:00AM–6:00PM
 Sunday:7:00AM–6:00PM`,
         latitude: 36.9641309,
         longitude: -121.9647378,
+        tags: ['☕ Excellent coffee', '🪴 Ambiance', '🎶 Good music'],
+        image:
+          'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12',
+        summary: 'A cozy cafe',
+        rating: 9.5,
+        num_reviews: 100,
       },
     });
   };

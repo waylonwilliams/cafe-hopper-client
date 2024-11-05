@@ -14,7 +14,7 @@ export type CafeType = {
   tags: string[] | null;
   image: string | null;
   summary: string | null;
-  rating: number;
+  rating: number; // reviews are on a scale of 1-10 for db, but div 2 for displaying
   num_reviews: number;
 };
 
@@ -22,6 +22,7 @@ type ProfileJoinReview = {
   bio: string;
   id: number;
 };
+
 export type NewReviewType = {
   cafe_id: string;
   created_at: string;
@@ -31,7 +32,7 @@ export type NewReviewType = {
   profile_id: number;
   profiles: ProfileJoinReview;
   public: boolean;
-  rating: number;
+  rating: number; // reviews are on a scale of 1-10 for db, but div 2 for displaying
   tags: string[];
   user_id: string;
 };
