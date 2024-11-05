@@ -126,12 +126,12 @@ const SignUpScreen = () => {
       </View>
 
       <View style={styles.signupButton}>
-        {/* <TouchableOpacity style={styles.button} onPress={signUpWithEmail} disabled={loading}>
-          <Text style={styles.buttonText}>Start exploring</Text>
-          <Image
+        <TouchableOpacity style={styles.guestbutton} onPress={()=>router.push('/(tabs)')} disabled={loading}>
+          <Text style={styles.guestText}>Sign in as guest</Text>
+          {/* <Image
             // style={styles.arrow}
-            source={require('@/assets/images/arrow.png')}></Image>
-        </TouchableOpacity> */}
+            source={require('@/assets/images/arrow.png')}></Image> */}
+        </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={signUpWithEmail} disabled={loading}>
           <Text style={styles.buttonText}>Start exploring</Text>
           <Image
@@ -200,6 +200,18 @@ const styles = StyleSheet.create({
   },
   signupButton: {
     alignItems: 'center',
+    marginTop: 30,
+  },
+  guestbutton:{
+    backgroundColor: 'black',
+    borderWidth: 1,
+    borderRadius: 32.05, // Half of height for pill shape
+    paddingVertical: 10, // Vertical padding
+    paddingHorizontal: 20, // Horizontal padding
+    elevation: 5, // Shadow for Android
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
   },
   button: {
     borderWidth: 1,
@@ -209,13 +221,19 @@ const styles = StyleSheet.create({
     elevation: 5, // Shadow for Android
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 70,
-    marginBottom: 20,
+    // marginTop: 70,
+    marginBottom: 10,
   },
   buttonText: {
     color: 'black', // Text color
     fontSize: 16, // Text size
     fontWeight: 'bold', // Text weight
+    paddingRight: 10,
+  },
+  guestText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
     paddingRight: 10,
   },
   alt_opt: {
