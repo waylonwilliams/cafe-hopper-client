@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet, Pressable, ScrollView, FlatList } from 'react-native';
+import { View, Text, Image, StyleSheet } from 'react-native';
 import { CafeType, ReviewType } from '@/components/CafePage/CafeTypes';
 import EmojiTag from '@/components/EmojiTag';
 
