@@ -1,14 +1,13 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
-import { CafeType, ReviewType } from '@/components/CafePage/CafeTypes';
+import { CafeType } from '@/components/CafePage/CafeTypes';
 import EmojiTag from '@/components/EmojiTag';
 
 interface ListCardProps {
   cafe: CafeType;
-  review: ReviewType;
 }
 
-export default function ListCard({ cafe, review }: ListCardProps) {
+export default function ListCard({ cafe }: ListCardProps) {
   const mockImageUrl =
     'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12';
 
@@ -24,19 +23,21 @@ export default function ListCard({ cafe, review }: ListCardProps) {
         <View style={styles.header}>
           <Text style={styles.name}>{cafe.name}</Text>
           <View style={styles.ratingContainer}>
-            <Text style={styles.ratingText}>⭐️{review.score}</Text>
+            <Text style={styles.ratingText}>⭐️4.2</Text>
           </View>
         </View>
         <Text style={styles.hours}>{cafe.hours}</Text>
         <Text style={styles.location}>{cafe.address}</Text>
 
-        <View style={styles.tagsContainer}>
-          {cafe.topTags.map((tag, index) => (
-            <View key={index} style={styles.tagWrapper}>
-              <EmojiTag tag={tag} />
-            </View>
-          ))}
-        </View>
+        {cafe.tags !== null && (
+          <View style={styles.tagsContainer}>
+            {cafe.tags.map((tag, index) => (
+              <View key={index} style={styles.tagWrapper}>
+                <EmojiTag tag={tag} />
+              </View>
+            ))}
+          </View>
+        )}
       </View>
     </View>
   );

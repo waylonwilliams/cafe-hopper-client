@@ -23,82 +23,70 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import EmojiTag from '../../components/EmojiTag';
 import { cafeTags } from '../../components/CafePage/CafeTypes';
 import ListCard from '@/components/ListCard';
-import { CafeType, ReviewType } from '@/components/CafePage/CafeTypes';
+import { CafeType } from '@/components/CafePage/CafeTypes';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 // Mock data
-const mockCafes: { cafe: CafeType; review: ReviewType }[] = [
+const mockCafes: CafeType[] = [
   {
-    cafe: {
-      id: '1',
-      name: "Cafe Oshima's",
-      address: '2/37 Cao Thang, Ward 5, District 3, Ho Chi Minh City, Vietnam',
-      hours: `8:00AM - 10:00PM`,
-      topTags: ['🍵 Matcha', '🛜 Free Wifi', '🌱 Vegan', '🌳 Outdoor', '🐶 Pet Friendly'],
-    },
-    review: {
-      name: 'John Doe',
-      description: 'Great place to work and relax!',
-      tags: ['🛜 Free wifi', '🍵 Matcha'],
-      numLikes: 120,
-      datePosted: '2023-10-10',
-      score: 4.5,
-      images: [],
-    },
+    id: '1',
+    name: "Cafe Oshima's",
+    address: '2/37 Cao Thang, Ward 5, District 3, Ho Chi Minh City, Vietnam',
+    hours: `8:00AM - 10:00PM`,
+    tags: ['🍵 Matcha', '🛜 Free Wifi', '🌱 Vegan', '🌳 Outdoor', '🐶 Pet Friendly'],
+    created_at: '',
+    latitude: 10.7757,
+    longitude: 106.686,
+    rating: 4.5,
+    num_reviews: 10,
+    image:
+      'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12',
+    summary: null,
   },
   {
-    cafe: {
-      id: '2',
-      name: 'Blackbird',
-      address: '123 Brew St., Coffee City, CA',
-      hours: '7:00AM - 9:00PM',
-      topTags: ['☕ Excellent coffee', '🪴 Ambiance', '🎶 Good music'],
-    },
-    review: {
-      name: 'Jane Smith',
-      description: 'Lovely ambiance with great coffee!',
-      tags: ['☕ Excellent coffee', '🎶 Good music'],
-      numLikes: 85,
-      datePosted: '2023-09-05',
-      score: 4.2,
-      images: [],
-    },
+    id: '2',
+    name: 'Blackbird',
+    address: '123 Brew St., Coffee City, CA',
+    hours: '7:00AM - 9:00PM',
+    tags: ['☕ Excellent coffee', '🪴 Ambiance', '🎶 Good music'],
+    created_at: '',
+    latitude: 10.7757,
+    longitude: 106.686,
+    rating: 4.5,
+    num_reviews: 10,
+    image:
+      'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12',
+    summary: null,
   },
   {
-    cafe: {
-      id: '3',
-      name: 'Blackbird',
-      address: '123 Brew St., Coffee City, CA',
-      hours: '7:00AM - 9:00PM',
-      topTags: ['☕ Excellent coffee', '🪴 Ambiance', '🎶 Good music'],
-    },
-    review: {
-      name: 'Jane Smith',
-      description: 'Lovely ambiance with great coffee!',
-      tags: ['☕ Excellent coffee', '🎶 Good music'],
-      numLikes: 85,
-      datePosted: '2023-09-05',
-      score: 4.2,
-      images: [],
-    },
+    id: '3',
+    name: 'Blackbird',
+    address: '123 Brew St., Coffee City, CA',
+    hours: '7:00AM - 9:00PM',
+    tags: ['☕ Excellent coffee', '🪴 Ambiance', '🎶 Good music'],
+    created_at: '',
+    latitude: 10.7757,
+    longitude: 106.686,
+    rating: 4.5,
+    num_reviews: 10,
+    image:
+      'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12',
+    summary: null,
   },
   {
-    cafe: {
-      id: '4',
-      name: 'Blackbird',
-      address: '123 Brew St., Coffee City, CA',
-      hours: '7:00AM - 9:00PM',
-      topTags: ['☕ Excellent coffee', '🪴 Ambiance', '🎶 Good music'],
-    },
-    review: {
-      name: 'Jane Smith',
-      description: 'Lovely ambiance with great coffee!',
-      tags: ['☕ Excellent coffee', '🎶 Good music'],
-      numLikes: 85,
-      datePosted: '2023-09-05',
-      score: 4.2,
-      images: [],
-    },
+    id: '4',
+    name: 'Blackbird',
+    address: '123 Brew St., Coffee City, CA',
+    hours: '7:00AM - 9:00PM',
+    tags: ['☕ Excellent coffee', '🪴 Ambiance', '🎶 Good music'],
+    created_at: '',
+    latitude: 10.7757,
+    longitude: 106.686,
+    rating: 4.5,
+    num_reviews: 10,
+    image:
+      'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12',
+    summary: null,
   },
 ];
 
@@ -159,25 +147,18 @@ export default function Explore() {
     router.push({
       pathname: '/cafe',
       params: {
-        id: 1,
-        name: "Cafe Oshima's",
-        address: '2/37 Cao Thang, Ward 5, District 3, Ho Chi Minh City, Vietnam',
-        topTags: [
-          '🍵 Matcha',
-          '🛜 Free Wifi',
-          '🌱 Vegan',
-          '🌳 Outdoor',
-          '🐶 Pet Friendly',
-          '🏠 Indoor',
-          '🚗 Parking',
-        ],
-        hours: `8:00AM - 10:00PM Monday
-                8:00AM - 10:00PM Tuesday
-                8:00AM - 10:00PM Wednesday
-                8:00AM - 10:00PM Thursday
-                8:00AM - 10:00PM Friday
-                8:00AM - 10:00PM Saturday
-                8:00AM - 10:00PM Sunday`,
+        id: 'ChIJ1USNsRYVjoARsVMJfrLeXqg',
+        name: 'Verve Coffee Roasters',
+        address: '816 41st Ave, Santa Cruz, CA 95062, USA',
+        hours: `Monday:7:00AM–6:00PM
+Tuesday:7:00AM–6:00PM
+Wednesday:7:00AM–6:00PM
+Thursday:7:00AM–6:00PM
+Friday:7:00AM–6:00PM
+Saturday:7:00AM–6:00PM
+Sunday:7:00AM–6:00PM`,
+        latitude: 36.9641309,
+        longitude: -121.9647378,
       },
     });
   };
@@ -369,7 +350,7 @@ export default function Explore() {
         <FlatList
           data={mockCafes}
           keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => <ListCard cafe={item.cafe} review={item.review} />}
+          renderItem={({ item }) => <ListCard cafe={item} />}
           contentContainerStyle={styles.listView}
         />
       )}
