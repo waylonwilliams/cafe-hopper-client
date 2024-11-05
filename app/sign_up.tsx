@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import {useRouter} from 'expo-router';
+import { useRouter } from 'expo-router';
 
 AppState.addEventListener('change', (state) => {
   if (state === 'active') {
@@ -38,7 +38,6 @@ const SignUpScreen = () => {
         password: password,
       });
 
-
       if (!error) handleNavigation();
       if (error) console.log(error);
       // if (!session) Alert.alert('Please check your inbox for email verification!');
@@ -48,10 +47,10 @@ const SignUpScreen = () => {
     }
   }
 
-  function handleNavigation(){
+  function handleNavigation() {
     // NEED TO CHANGE
     // This should go to profile creation page
-    router.push('/login')
+    router.push('/login');
   }
 
   // const handleLogin = () => {
@@ -126,7 +125,10 @@ const SignUpScreen = () => {
       </View>
 
       <View style={styles.signupButton}>
-        <TouchableOpacity style={styles.guestbutton} onPress={()=>router.push('/(tabs)')} disabled={loading}>
+        <TouchableOpacity
+          style={styles.guestbutton}
+          onPress={() => router.push('/(tabs)')}
+          disabled={loading}>
           <Text style={styles.guestText}>Sign in as guest</Text>
           {/* <Image
             // style={styles.arrow}
@@ -139,7 +141,7 @@ const SignUpScreen = () => {
             source={require('@/assets/images/arrow.png')}></Image>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={()=>router.push('/login')}>
+        <TouchableOpacity onPress={() => router.push('/login')}>
           <Text
           // style={styles.alt}
           >
@@ -202,7 +204,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 30,
   },
-  guestbutton:{
+  guestbutton: {
     backgroundColor: 'black',
     borderWidth: 1,
     borderRadius: 32.05, // Half of height for pill shape

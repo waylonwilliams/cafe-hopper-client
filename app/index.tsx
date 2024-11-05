@@ -1,7 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
-import {useRouter} from 'expo-router';
-
+import { useRouter } from 'expo-router';
 
 export default function GetStartedPage() {
   const router = useRouter();
@@ -16,7 +15,7 @@ export default function GetStartedPage() {
       <Image source={require('@/assets/images/cup.png')} style={styles.image} />
       <Text style={styles.title}>your next favorite cafe is just around the corner...</Text>
       {/* //<Button title="Get Started" onPress={handleGetStarted}  /> */}
-      <TouchableOpacity style={styles.start} onPress={()=>router.push('/sign_up')}>
+      <TouchableOpacity style={styles.start} onPress={() => router.push('/sign_up')}>
         <Text style={styles.buttonText}>Get started</Text>
         <Image style={styles.arrow} source={require('@/assets/images/arrow.png')}></Image>
       </TouchableOpacity>

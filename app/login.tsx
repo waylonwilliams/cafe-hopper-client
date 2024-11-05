@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import {useRouter} from 'expo-router';
+import { useRouter } from 'expo-router';
 
 AppState.addEventListener('change', (state) => {
   if (state === 'active') {
@@ -35,8 +35,8 @@ const LoginScreen = () => {
     setLoading(false);
   }
 
-  function handleNavigation(){
-    router.push('/(tabs)')
+  function handleNavigation() {
+    router.push('/(tabs)');
   }
   // const handleLogin = () => {
   //   // Perform login logic here, e.g., API call
@@ -99,7 +99,7 @@ const LoginScreen = () => {
             source={require('@/assets/images/arrow.png')}></Image>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={()=>router.push('/sign_up')}>
+        <TouchableOpacity onPress={() => router.push('/sign_up')}>
           <Text
           // style={styles.alt}
           >
