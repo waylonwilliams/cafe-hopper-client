@@ -1,9 +1,17 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
+import { supabase } from '@/lib/supabase';
 
-export default function GetStartedPage() {
+export default async function GetStartedPage() {
   const router = useRouter();
+
+  // if you are logged in, go to tabs right away
+  // we could move this to the login page that follows this if we always want start page to show
+  const { data } = await supabase.auth.getSession();
+  if (data.session !== null) {
+    router.push('/(tabs)');
+  }
 
   return (
     <View style={styles.container}>
