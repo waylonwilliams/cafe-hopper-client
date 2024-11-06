@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 
 AppState.addEventListener('change', (state) => {
   if (state === 'active') {
@@ -14,14 +15,15 @@ AppState.addEventListener('change', (state) => {
 });
 
 const LoginScreen = () => {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function signInWithEmail() {
-    console.log('Email:', email);
-    console.log('Password:', password);
+    // console.log('Email:', email);
+    // console.log('Password:', password);
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({
       email: email,
@@ -29,22 +31,9 @@ const LoginScreen = () => {
     });
 
     if (error) Alert.alert(error.message);
+    if (!error) router.push('/(tabs)');
     setLoading(false);
   }
-
-  // const handleLogin = () => {
-  //   // Perform login logic here, e.g., API call
-  //   console.log('Email:', email);
-  //   console.log('Password:', password);
-  // };
-
-  const goToSignup = () => {
-    console.log('go to sign up');
-  };
-
-  const toggleShowPassword = () => {
-    setShowPassword(!showPassword);
-  };
 
   return (
     <View style={styles.container}>
@@ -76,7 +65,7 @@ const LoginScreen = () => {
           size={20}
           color="#aaa"
           // style={styles.icon}
-          onPress={toggleShowPassword}
+          onPress={() => setShowPassword(!showPassword)}
         />
       </View>
 
@@ -88,17 +77,11 @@ const LoginScreen = () => {
       <View style={styles.signupButton}>
         <TouchableOpacity style={styles.button} onPress={signInWithEmail} disabled={loading}>
           <Text style={styles.buttonText}>Continue exploring</Text>
-          <Image
-            // style={styles.arrow}
-            source={require('@/assets/images/arrow.png')}></Image>
+          <Image source={require('@/assets/images/arrow.png')}></Image>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={goToSignup}>
-          <Text
-          // style={styles.alt}
-          >
-            Already have an account? Sign Up
-          </Text>
+        <TouchableOpacity onPress={() => router.push('/sign_up')}>
+          <Text>Already have an account? Sign Up</Text>
         </TouchableOpacity>
       </View>
     </View>
