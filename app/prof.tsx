@@ -1,28 +1,25 @@
-import { Alert, AppState } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, Pressable, Image, ScrollView, FlatList } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
+import { StyleSheet, Text, View, Pressable, Image, ScrollView, FlatList } from 'react-native';
 import { Link } from 'expo-router';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import CardComponent from '@/components/Card';
 
 interface Profile {
-    name: string;
-    location: string;
-    bio: string;
-    pfp: string;
+  name: string;
+  location: string;
+  bio: string;
+  pfp: string;
 }
 
 export default function Index() {
-    const [profile, setProfile] = useState<Profile>({
-        name: '',
-        location: '',
-        bio: '',
-        pfp: '',  
-    });
+  const [profile, setProfile] = useState<Profile>({
+    name: '',
+    location: '',
+    bio: '',
+    pfp: '',
+  });
 
   {
     /* Dummy Cafes */
@@ -50,109 +47,100 @@ export default function Index() {
 
   useEffect(() => {
     // Fetch user profile data when the component mounts
-    
-    const fetchProfile = async () => {
-        const uid = (await supabase.auth.getSession())?.data.session?.user.id;
-        const { data, error } = await supabase
-            .from('profiles')
-            .select('name, location, bio, pfp')
-            .eq('user_id', uid)
-            .single();
 
-        if (error) {
-            console.error('Error fetching profile:', error);
-        } else {
-            setProfile(data); // Store profile data in state
-        }
+    const fetchProfile = async () => {
+      const uid = (await supabase.auth.getSession())?.data.session?.user.id;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('name, location, bio, pfp')
+        .eq('user_id', uid)
+        .single();
+
+      if (error) {
+        console.error('Error fetching profile:', error);
+      } else {
+        setProfile(data); // Store profile data in state
+      }
     };
 
     fetchProfile();
   }, []);
 
   return (
-        <ScrollView>
+    <ScrollView>
+      {/* Profile */}
+      <View style={styles.pfpContainer}>
+        {/* Profile Picture */}
+        <Image source={{ uri: profile.pfp || 'default-image-url' }} style={styles.pfp} />
 
-            {/* Profile */}
-            <View style={styles.pfpContainer}>
-                {/* Profile Picture */}
-                <Image 
-                    source={{ uri: profile.pfp || 'default-image-url' }} 
-                    style={styles.pfp}
-                />
-
-                
-                <View style={styles.userInfo}>
-                    <View style={styles.nameContainer}>
-                        <Text style={styles.name}>{profile.name}</Text>
-                        <View style={styles.editButton}>
-                            <Link href="../custom_profile" asChild>
-                                <Pressable>
-                                <Text style={styles.edit}>{'Edit Profile'}</Text>
-                                </Pressable>
-                            </Link>
-                            <TouchableOpacity>
-                                <Icon name='edit' size={14}></Icon>
-                            </TouchableOpacity>
-                        </View>
-                    </View>
-
-                    <Text style={styles.bio}>{profile.bio}</Text>
-
-                    <View style={styles.stats}>
-                        {/* PLACEHOLDERS */}
-                        <Text style={styles.numbers}>0</Text>
-                        <Text style={styles.numbers}>0</Text>
-                        <Text style={styles.numbers}>0</Text>
-                        <Text style={styles.numbers}>0</Text>
-                    </View>
-
-                    <View style={styles.stats}>
-                        {/* PLACEHOLDERS */}
-                        <Text style={styles.statText}>Cafes</Text>
-                        <Text style={styles.statText}>This Year</Text>
-                        <Text style={styles.statText}>Followers</Text>
-                        <Text style={styles.statText}>Following</Text>
-                    </View>
-                </View>
-
+        <View style={styles.userInfo}>
+          <View style={styles.nameContainer}>
+            <Text style={styles.name}>{profile.name}</Text>
+            <View style={styles.editButton}>
+              <Link href="../custom_profile" asChild>
+                <Pressable>
+                  <Text style={styles.edit}>{'Edit Profile'}</Text>
+                </Pressable>
+              </Link>
+              <TouchableOpacity>
+                <Icon name="edit" size={14}></Icon>
+              </TouchableOpacity>
             </View>
+          </View>
 
-            {/* Recent Likes */}
-            <View style={styles.recent}>
-                <Text style={styles.listText}>Recent Likes</Text>
-                {/* PLACEHOLDER */}
-                <View>
-                    <FlatList
-                        horizontal
-                        data={cafes}
-                        renderItem={({ item }) => <CardComponent card={item} />}
-                        keyExtractor={(item) => item.name}
-                        style={styles.carousel}
-                    />
-                </View>
-            </View>
+          <Text style={styles.bio}>{profile.bio}</Text>
 
-            <View style={styles.recent}>
-                <Text style={styles.listText}>Favorite Cafes</Text>
-                {/* Cafe Carousel */}
-                <View>
-                    <FlatList
-                        horizontal
-                        data={cafes}
-                        renderItem={({ item }) => <CardComponent card={item} />}
-                        keyExtractor={(item) => item.name}
-                        style={styles.carousel}
-                    />
-                </View>
-            </View>
+          <View style={styles.stats}>
+            {/* PLACEHOLDERS */}
+            <Text style={styles.numbers}>0</Text>
+            <Text style={styles.numbers}>0</Text>
+            <Text style={styles.numbers}>0</Text>
+            <Text style={styles.numbers}>0</Text>
+          </View>
 
+          <View style={styles.stats}>
+            {/* PLACEHOLDERS */}
+            <Text style={styles.statText}>Cafes</Text>
+            <Text style={styles.statText}>This Year</Text>
+            <Text style={styles.statText}>Followers</Text>
+            <Text style={styles.statText}>Following</Text>
+          </View>
+        </View>
+      </View>
 
-        </ScrollView>    
+      {/* Recent Likes */}
+      <View style={styles.recent}>
+        <Text style={styles.listText}>Recent Likes</Text>
+        {/* PLACEHOLDER */}
+        <View>
+          <FlatList
+            horizontal
+            data={cafes}
+            renderItem={({ item }) => <CardComponent card={item} />}
+            keyExtractor={(item) => item.name}
+            style={styles.carousel}
+          />
+        </View>
+      </View>
+
+      <View style={styles.recent}>
+        <Text style={styles.listText}>Favorite Cafes</Text>
+        {/* Cafe Carousel */}
+        <View>
+          <FlatList
+            horizontal
+            data={cafes}
+            renderItem={({ item }) => <CardComponent card={item} />}
+            keyExtractor={(item) => item.name}
+            style={styles.carousel}
+          />
+        </View>
+      </View>
+    </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-
   pfpContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
@@ -166,12 +154,12 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
 
-  userInfo:{
+  userInfo: {
     flexDirection: 'column',
     marginLeft: 15,
   },
 
-  nameContainer:{
+  nameContainer: {
     flexDirection: 'row',
   },
 
@@ -192,12 +180,12 @@ const styles = StyleSheet.create({
     marginTop: 10,
   },
 
-  edit:{
+  edit: {
     fontSize: 12,
     marginRight: 5,
   },
 
-  bio:{
+  bio: {
     color: '#8a8888',
     fontSize: 12,
     fontWeight: '600',
@@ -206,31 +194,30 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
 
-  stats:{
+  stats: {
     flexDirection: 'row',
     justifyContent: 'center',
   },
 
-  numbers:{
+  numbers: {
     marginLeft: 25,
     marginRight: 25,
     alignContent: 'center',
   },
 
-  statText:{
+  statText: {
     padding: 3,
     marginLeft: 5,
     fontSize: 12,
   },
-  
-  recent:{
+
+  recent: {
     padding: 5,
     marginLeft: 10,
     marginBottom: 5,
-
   },
 
-  listText:{
+  listText: {
     fontSize: 18,
     marginBottom: 5,
   },
@@ -238,5 +225,4 @@ const styles = StyleSheet.create({
   carousel: {
     height: 220,
   },
-
 });

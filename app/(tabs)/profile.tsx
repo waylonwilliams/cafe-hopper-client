@@ -3,12 +3,14 @@ import { Text, SafeAreaView, Pressable } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
 
+// async function that waits to display profile info until it checks if there is a session
+// if there isn't, redirect to signup / login page
 
 export default function Index() {
   const [loggedIn, setLoggedIn] = useState(false);
 
   // run this function once on load to get initial auth state
-  useEffect(()  => {
+  useEffect(() => {
     const checkAuth = async () => {
       const { data, error } = await supabase.auth.getSession();
       if (error) {
@@ -29,7 +31,7 @@ export default function Index() {
       console.log('Session:', session);
       if (session) {
         setLoggedIn(true);
-      } else{
+      } else {
         setLoggedIn(false);
       }
     });
@@ -39,7 +41,6 @@ export default function Index() {
     };
   }, []);
 
-
   return (
     <SafeAreaView
       style={{
@@ -47,12 +48,12 @@ export default function Index() {
         justifyContent: 'center',
         alignItems: 'center',
       }}>
-      <Text>Profile page {loggedIn? 'Hello' : 'Please log in'}</Text>
+      <Text>Profile page {loggedIn ? 'Hello' : 'Please log in'}</Text>
       {/* <Link href="../sign_up" asChild> */}
       {/* <Link href="../login" asChild> */}
       {/* <Link href="../start" asChild> */}
       {/* <Link href="../custom_profile" asChild>*/}
-      <Link href={loggedIn ? "../prof" : "../sign_up"} asChild>
+      <Link href={loggedIn ? '../prof' : '../sign_up'} asChild>
         <Pressable>
           <Text>{loggedIn ? 'Go to Profile' : 'Go to Sign Up'}</Text>
         </Pressable>

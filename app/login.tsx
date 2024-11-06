@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 
 AppState.addEventListener('change', (state) => {
   if (state === 'active') {
@@ -32,16 +33,6 @@ const LoginScreen = () => {
     if (!error) router.replace('/(tabs)');
     setLoading(false);
   }
-
-  // const handleLogin = () => {
-  //   // Perform login logic here, e.g., API call
-  //   console.log('Email:', email);
-  //   console.log('Password:', password);
-  // };
-
-  const goToSignup = () => {
-    console.log('go to sign up');
-  };
 
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
