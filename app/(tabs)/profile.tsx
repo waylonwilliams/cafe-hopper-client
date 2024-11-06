@@ -1,10 +1,8 @@
-import { Link } from 'expo-router';
-import { Text, SafeAreaView, Pressable } from 'react-native';
+import { router } from 'expo-router';
+import { SafeAreaView } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
-
-// async function that waits to display profile info until it checks if there is a session
-// if there isn't, redirect to signup / login page
+import Prof from '../../components/prof';
 
 export default function Index() {
   const [loggedIn, setLoggedIn] = useState(false);
@@ -13,13 +11,13 @@ export default function Index() {
   useEffect(() => {
     const checkAuth = async () => {
       const { data, error } = await supabase.auth.getSession();
-      if (error) {
-        console.log('Error getting session on profile load:', error);
-      }
+      if (error) console.log('Error getting session on profile load:', error);
 
       if (data.session) {
-        console.log('Session:', data.session);
         setLoggedIn(true);
+      } else {
+        // send them to sign up if not logged in
+        router.push('/signUp');
       }
     };
 
@@ -27,8 +25,6 @@ export default function Index() {
 
     // this runs whenever the user logs in / logs out, right now I store in loggedIn variable
     const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log('Event:', event);
-      console.log('Session:', session);
       if (session) {
         setLoggedIn(true);
       } else {
@@ -48,16 +44,7 @@ export default function Index() {
         justifyContent: 'center',
         alignItems: 'center',
       }}>
-      <Text>Profile page {loggedIn ? 'Hello' : 'Please log in'}</Text>
-      {/* <Link href="../sign_up" asChild> */}
-      {/* <Link href="../login" asChild> */}
-      {/* <Link href="../start" asChild> */}
-      {/* <Link href="../custom_profile" asChild>*/}
-      <Link href={loggedIn ? '../prof' : '../sign_up'} asChild>
-        <Pressable>
-          <Text>{loggedIn ? 'Go to Profile' : 'Go to Sign Up'}</Text>
-        </Pressable>
-      </Link>
+      {loggedIn && <Prof />}
     </SafeAreaView>
   );
 }

@@ -1,8 +1,17 @@
 import { supabase } from '@/lib/supabase';
 import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, Pressable, Image, ScrollView } from 'react-native';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  Pressable,
+  Image,
+  ScrollView,
+  SafeAreaView,
+} from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { Link } from 'expo-router';
+import { router } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -61,10 +70,13 @@ export default function Index() {
       .select('*')
       .eq('user_id', uid)
       .single();
+    if (fetchError) {
+      console.error('Error fetching profile:', fetchError);
+    }
 
     // Update profile or create new one
     if (existingProfile) {
-      const { data: profile, error: profileError } = await supabase
+      const { error: profileError } = await supabase
         .from('profiles')
         .update({
           name,
@@ -95,78 +107,79 @@ export default function Index() {
   }
 
   return (
-    <ScrollView>
-      {/* Header */}
-      <View style={styles.header}>
-        <Link href="../prof" asChild>
-          <Pressable>
-            <Ionicons name="chevron-back" size={24} color="gray"></Ionicons>
+    <SafeAreaView>
+      <ScrollView>
+        {/* Header */}
+        <View style={styles.header}>
+          <Pressable onPress={() => router.back()}>
+            <Ionicons name="chevron-back" size={24} color="gray" />
           </Pressable>
-        </Link>
-        <Text style={styles.headingText}>Edit Profile</Text>
-      </View>
 
-      {/* Profile */}
-      <View style={styles.pfpContainer}>
-        {/* PLACEHOLDER --  ADD IMAGE UPLOAD*/}
-        <Image
-          style={styles.pfp}
-          source={image ? { uri: image.uri } : require('@/assets/images/default.jpg')}
-        />
-        <Pressable style={styles.edit} onPress={addPfp}>
-          <Icon name="edit" size={16}></Icon>
-        </Pressable>
-      </View>
-
-      {/* Input Boxes */}
-      <View style={styles.inputWrapper}>
-        <Text style={styles.h2}>Name</Text>
-        <TextInput
-          autoCapitalize="none"
-          style={styles.inputs}
-          placeholder="Name"
-          onChangeText={setName}
-          value={name}
-        />
-
-        <Text style={styles.h2}>Location</Text>
-        <TextInput
-          autoCapitalize="none"
-          style={styles.inputs}
-          placeholder="Location"
-          onChangeText={setLoc}
-          value={loc}
-        />
-
-        <Text style={styles.h2}>Bio</Text>
-        <TextInput
-          autoCapitalize="none"
-          style={styles.bio}
-          placeholder="Bio"
-          onChangeText={setBio}
-          value={bio}
-          multiline
-        />
-
-        <Text style={styles.h2}>Favorite Cafes</Text>
-        <View style={styles.favorites}>
-          {[0, 1, 2].map((index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.cafeBox}
-              onPress={() => {
-                console.log(`Add cafe at position ${index}`);
-              }}>
-              <Text>+</Text>
-            </TouchableOpacity>
-          ))}
+          <Text style={styles.headingText}>Edit Profile</Text>
         </View>
-      </View>
 
-      <TouchableOpacity style={styles.saveButton} onPress={saveChanges}>
-        <Text style={styles.saveText}>Save changes</Text>
-      </TouchableOpacity>
-    </ScrollView>
+        {/* Profile */}
+        <View style={styles.pfpContainer}>
+          {/* PLACEHOLDER --  ADD IMAGE UPLOAD*/}
+          <Image
+            style={styles.pfp}
+            source={image ? { uri: image.uri } : require('@/assets/images/default.jpg')}
+          />
+          <Pressable style={styles.edit} onPress={addPfp}>
+            <Icon name="edit" size={16}></Icon>
+          </Pressable>
+        </View>
+
+        {/* Input Boxes */}
+        <View style={styles.inputWrapper}>
+          <Text style={styles.h2}>Name</Text>
+          <TextInput
+            autoCapitalize="none"
+            style={styles.inputs}
+            placeholder="Name"
+            onChangeText={setName}
+            value={name}
+          />
+
+          <Text style={styles.h2}>Location</Text>
+          <TextInput
+            autoCapitalize="none"
+            style={styles.inputs}
+            placeholder="Location"
+            onChangeText={setLoc}
+            value={loc}
+          />
+
+          <Text style={styles.h2}>Bio</Text>
+          <TextInput
+            autoCapitalize="none"
+            style={styles.bio}
+            placeholder="Bio"
+            onChangeText={setBio}
+            value={bio}
+            multiline
+          />
+
+          <Text style={styles.h2}>Favorite Cafes</Text>
+          <View style={styles.favorites}>
+            {[0, 1, 2].map((index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.cafeBox}
+                onPress={() => {
+                  console.log(`Add cafe at position ${index}`);
+                }}>
+                <Text>+</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        <TouchableOpacity style={styles.saveButton} onPress={saveChanges}>
+          <Text style={styles.saveText}>Save changes</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 

@@ -13,7 +13,7 @@ interface Profile {
   pfp: string;
 }
 
-export default function Index() {
+export default function Prof() {
   const [profile, setProfile] = useState<Profile>({
     name: '',
     location: '',
@@ -77,7 +77,7 @@ export default function Index() {
           <View style={styles.nameContainer}>
             <Text style={styles.name}>{profile.name}</Text>
             <View style={styles.editButton}>
-              <Link href="../custom_profile" asChild>
+              <Link href="../customProfile" asChild>
                 <Pressable>
                   <Text style={styles.edit}>{'Edit Profile'}</Text>
                 </Pressable>
@@ -146,30 +146,25 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     padding: 20,
   },
-
   pfp: {
     width: 100,
     height: 100,
     backgroundColor: 'gray',
     borderRadius: 999,
   },
-
   userInfo: {
     flexDirection: 'column',
     marginLeft: 15,
   },
-
   nameContainer: {
     flexDirection: 'row',
   },
-
   name: {
     fontSize: 25,
     padding: 5,
     marginRight: 10,
     fontWeight: '500',
   },
-
   editButton: {
     flexDirection: 'row',
     height: 25,
@@ -179,12 +174,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     marginTop: 10,
   },
-
   edit: {
     fontSize: 12,
     marginRight: 5,
   },
-
   bio: {
     color: '#8a8888',
     fontSize: 12,
@@ -193,35 +186,29 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     marginLeft: 8,
   },
-
   stats: {
     flexDirection: 'row',
     justifyContent: 'center',
   },
-
   numbers: {
     marginLeft: 25,
     marginRight: 25,
     alignContent: 'center',
   },
-
   statText: {
     padding: 3,
     marginLeft: 5,
     fontSize: 12,
   },
-
   recent: {
     padding: 5,
     marginLeft: 10,
     marginBottom: 5,
   },
-
   listText: {
     fontSize: 18,
     marginBottom: 5,
   },
-
   carousel: {
     height: 220,
   },
