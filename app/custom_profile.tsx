@@ -4,14 +4,19 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, Pressable, Image, ScrollView } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Link } from 'expo-router';
+import * as ImagePicker from 'expo-image-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { v4 as uuidv4 } from 'uuid';
+
+const baseUrl = 'https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/pfps/';
 
 export default function Index() {
   const [name, setName] = useState('');
   const [loc, setLoc] = useState('');
   const [bio, setBio] = useState('');
+  const [image, setImage] = useState<ImagePicker.ImagePickerAsset | null>(null); 
 
   const handleSaved = () => {
     console.log('Name: ', name);
@@ -20,25 +25,88 @@ export default function Index() {
     console.log('changes saved');
   };
 
+  async function addPfp(){
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images, // images only
+      allowsEditing: true, //users can crop photo 
+      aspect: [1, 1], //square
+      quality: 0.5, // compressed for profile
+      exif: false, // removes some data we don't need
+    });
+
+    if (!result.canceled) {
+      setImage(result.assets[0]);
+    }
+
+  }
+
   async function saveChanges(){
     // Get user id 
     const uid = (await supabase.auth.getSession())?.data.session?.user.id;
+    let imageUrl = '';
 
-    // Update profile
-    const { data:profile, error: profileError} = await supabase
-    .from('profiles')
-    .update({
-      name,
-      location: loc,
-      bio,
-    })
-    .eq('user_id', uid);
+    // Handle images
+    if (image){
+      const response = await fetch(image.uri);
+      const blob = await response.blob();
+      const arrBuffer = await new Response(blob).arrayBuffer();
 
-    if (profileError){
-      console.error("Error in updating profile:", profileError);
-    } else{
-      console.log("Profile update success:", profile);
+      const fileName = `public/${uuidv4()}`;
+
+      const { data, error: uploadError } = await supabase
+      .storage
+      .from('pfps') // Replace with your bucket name
+      .upload(fileName, arrBuffer, { contentType: image.mimeType });
+
+      if (uploadError) {
+        console.error('Error uploading image: ', uploadError);
+        return;
+      }
+
+      imageUrl = `${baseUrl}${fileName}`;
     }
+    
+
+    // Check profile exists 
+    const { data: existingProfile, error: fetchError } = await supabase
+    .from('profiles')
+    .select('*')
+    .eq('user_id', uid)
+    .single();
+
+
+    // Update profile or create new one
+    if (existingProfile){
+      const { data: profile, error: profileError} = await supabase
+      .from('profiles')
+      .update({
+        name,
+        location: loc,
+        bio,
+        pfp: imageUrl,
+      })
+      .eq('user_id', uid);
+
+      if (profileError){
+        console.error("Error in updating profile:", profileError);
+      }
+
+    } else{
+        const { data: newProfile, error: insertError} = await supabase
+        .from('profiles')
+        .insert([{
+          user_id: uid,
+          name,
+          location: loc,
+          bio,
+          pfp: imageUrl,
+        }]);
+
+        if (insertError){
+          console.error("Error in inserting profile:", insertError);
+        }
+    }
+    
   }
 
   return (
@@ -56,22 +124,23 @@ export default function Index() {
       {/* Profile */}
       <View style={styles.pfpContainer}>
         {/* PLACEHOLDER --  ADD IMAGE UPLOAD*/}
-        <Image style={styles.pfp}/>
-        <TouchableOpacity style={styles.edit}>
+        <Image style={styles.pfp} source={image? {uri: image.uri} : require('@/assets/images/default.jpg')}/>
+        <Pressable style={styles.edit} onPress={addPfp}>
             <Icon name='edit' size={16}></Icon>
-        </TouchableOpacity>
+        </Pressable>
       </View>
 
       {/* Input Boxes */}
       <View style={styles.inputWrapper}>
         <Text style={styles.h2}>Name</Text>
-        <TextInput style={styles.inputs} placeholder="Name" onChangeText={setName} value={name} />
+        <TextInput autoCapitalize="none" style={styles.inputs} placeholder="Name" onChangeText={setName} value={name} />
 
         <Text style={styles.h2}>Location</Text>
-        <TextInput style={styles.inputs} placeholder="Location" onChangeText={setLoc} value={loc} />
+        <TextInput autoCapitalize="none" style={styles.inputs} placeholder="Location" onChangeText={setLoc} value={loc} />
 
         <Text style={styles.h2}>Bio</Text>
         <TextInput
+          autoCapitalize="none"
           style={styles.bio}
           placeholder="Bio"
           onChangeText={setBio}
@@ -136,8 +205,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     position: 'absolute',
-    right: -45,
-    bottom: -3,
+    right: 145,
+    bottom: 15,
   },
 
   inputWrapper: {

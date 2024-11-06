@@ -1,6 +1,6 @@
 import { Alert, AppState } from 'react-native';
 import { supabase } from '@/lib/supabase';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TextInput, Pressable, Image, ScrollView, FlatList } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Link } from 'expo-router';
@@ -9,11 +9,21 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import CardComponent from '@/components/Card';
 
+interface Profile {
+    name: string;
+    location: string;
+    bio: string;
+    pfp: string;
+}
 
 export default function Index() {
-    const [name, setName] = useState('');
-  const [loc, setLoc] = useState('');
-  const [bio, setBio] = useState('');
+    const [profile, setProfile] = useState<Profile>({
+        name: '',
+        location: '',
+        bio: '',
+        pfp: '',  
+    });
+
   {
     /* Dummy Cafes */
   }
@@ -38,16 +48,39 @@ export default function Index() {
     },
   ];
 
+  useEffect(() => {
+    // Fetch user profile data when the component mounts
+    
+    const fetchProfile = async () => {
+        const uid = (await supabase.auth.getSession())?.data.session?.user.id;
+        const { data, error } = await supabase
+            .from('profiles')
+            .select('name, location, bio, pfp')
+            .eq('user_id', uid)
+            .single();
+
+        if (error) {
+            console.error('Error fetching profile:', error);
+        } else {
+            setProfile(data); // Store profile data in state
+        }
+    };
+
+    fetchProfile();
+  }, []);
+
   return (
-    <SafeAreaView>
         <ScrollView>
 
             {/* Profile */}
             <View style={styles.pfpContainer}>
                 {/* PLACEHOLDER --  ADD IMAGE UPLOAD*/}
-                <Image style={styles.pfp}/>
+                <Image 
+                    source={{ uri: profile.pfp || 'default-image-url' }} 
+                    style={styles.pfp}
+                />
 
-                <Text>Name</Text>
+                <Text style={styles.name}>{profile.name}</Text>
                 <View style={styles.editButton}>
                     <Link href="../custom_profile" asChild>
                         <Pressable>
@@ -77,9 +110,7 @@ export default function Index() {
             </View>
 
 
-        </ScrollView>
-    </SafeAreaView>
-    
+        </ScrollView>    
   );
 }
 
@@ -98,6 +129,14 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
 
+  name: {
+    fontSize: 30,
+    padding: 5,
+    marginLeft: 15,
+    marginRight: 10,
+
+  },
+
   editButton: {
     flexDirection: 'row',
     height: 30,
@@ -105,6 +144,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     paddingVertical: 5,
     paddingHorizontal: 20,
+    marginTop: 10,
   },
   
   recent:{
