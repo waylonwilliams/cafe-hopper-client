@@ -74,29 +74,66 @@ export default function Index() {
 
             {/* Profile */}
             <View style={styles.pfpContainer}>
-                {/* PLACEHOLDER --  ADD IMAGE UPLOAD*/}
+                {/* Profile Picture */}
                 <Image 
                     source={{ uri: profile.pfp || 'default-image-url' }} 
                     style={styles.pfp}
                 />
 
-                <Text style={styles.name}>{profile.name}</Text>
-                <View style={styles.editButton}>
-                    <Link href="../custom_profile" asChild>
-                        <Pressable>
-                        <Text>{'Edit Profile'}</Text>
-                        </Pressable>
-                    </Link>
-                    <TouchableOpacity>
-                        <Icon name='edit' size={16}></Icon>
-                    </TouchableOpacity>
+                
+                <View style={styles.userInfo}>
+                    <View style={styles.nameContainer}>
+                        <Text style={styles.name}>{profile.name}</Text>
+                        <View style={styles.editButton}>
+                            <Link href="../custom_profile" asChild>
+                                <Pressable>
+                                <Text style={styles.edit}>{'Edit Profile'}</Text>
+                                </Pressable>
+                            </Link>
+                            <TouchableOpacity>
+                                <Icon name='edit' size={14}></Icon>
+                            </TouchableOpacity>
+                        </View>
+                    </View>
+
+                    <Text style={styles.bio}>{profile.bio}</Text>
+
+                    <View style={styles.stats}>
+                        {/* PLACEHOLDERS */}
+                        <Text>0</Text>
+                        <Text>0</Text>
+                        <Text>0</Text>
+                        <Text>0</Text>
+                    </View>
+
+                    <View style={styles.stats}>
+                        {/* PLACEHOLDERS */}
+                        <Text style={styles.statText}>Cafes</Text>
+                        <Text style={styles.statText}>This Year</Text>
+                        <Text style={styles.statText}>Followers</Text>
+                        <Text style={styles.statText}>Following</Text>
+                    </View>
                 </View>
 
             </View>
 
             {/* Recent Likes */}
             <View style={styles.recent}>
-                <Text>Recent Likes</Text>
+                <Text style={styles.listText}>Recent Likes</Text>
+                {/* PLACEHOLDER */}
+                <View>
+                    <FlatList
+                        horizontal
+                        data={cafes}
+                        renderItem={({ item }) => <CardComponent card={item} />}
+                        keyExtractor={(item) => item.name}
+                        style={styles.carousel}
+                    />
+                </View>
+            </View>
+
+            <View style={styles.recent}>
+                <Text style={styles.listText}>Favorite Cafes</Text>
                 {/* Cafe Carousel */}
                 <View>
                     <FlatList
@@ -129,31 +166,69 @@ const styles = StyleSheet.create({
     borderRadius: 999,
   },
 
+  userInfo:{
+    flexDirection: 'column',
+    marginLeft: 15,
+  },
+
+  nameContainer:{
+    flexDirection: 'row',
+  },
+
   name: {
     fontSize: 30,
     padding: 5,
-    marginLeft: 15,
     marginRight: 10,
 
   },
 
   editButton: {
     flexDirection: 'row',
-    height: 30,
+    height: 25,
     borderWidth: 1,
     borderRadius: 30,
     paddingVertical: 5,
-    paddingHorizontal: 20,
+    paddingHorizontal: 12,
     marginTop: 10,
+  },
+
+  edit:{
+    fontSize: 12,
+    marginRight: 5,
+  },
+
+  bio:{
+    color: '#8a8888',
+    fontSize: 12,
+    marginBottom: 10,
+    marginLeft: 5,
+  },
+
+  stats:{
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+  },
+
+  statText:{
+    padding: 3,
+    marginLeft: 5,
+    fontSize: 12,
   },
   
   recent:{
-    padding: 20,
+    padding: 5,
+    marginLeft: 10,
+    marginBottom: 5,
 
   },
 
+  listText:{
+    fontSize: 18,
+    marginBottom: 5,
+  },
+
   carousel: {
-    height: 230,
+    height: 220,
   },
 
 });
