@@ -26,10 +26,15 @@ export default function RootLayout() {
 
   return (
     <GestureHandlerRootView>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack
+        initialRouteName="index"
+        screenOptions={{ headerShown: false, gestureEnabled: false }}
+      />
+      {/* <Stack initialRouteName="start">
+        <Stack.Screen name="start" options={{headerShown:false}}/>
+        {/* <Stack.Screen name="(tabs)" options={{ headerShown: false }} /> }
         <Stack.Screen name="+not-found" />
-      </Stack>
+      </Stack> */}
     </GestureHandlerRootView>
   );
 }
