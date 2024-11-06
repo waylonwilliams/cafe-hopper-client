@@ -29,6 +29,7 @@ const LoginScreen = () => {
     });
 
     if (error) Alert.alert(error.message);
+    if (!error) router.replace('/(tabs)');
     setLoading(false);
   }
 
@@ -82,23 +83,17 @@ const LoginScreen = () => {
 
       <View style={styles.altLogin}>
         <Text>or sign in with</Text>
-        <Image style={styles.google} source={require('@/assets/images/Google.png')}></Image>
+        <Image style={styles.google} source={require('@/assets/images/Google.png')} />
       </View>
 
       <View style={styles.signupButton}>
         <TouchableOpacity style={styles.button} onPress={signInWithEmail} disabled={loading}>
           <Text style={styles.buttonText}>Continue exploring</Text>
-          <Image
-            // style={styles.arrow}
-            source={require('@/assets/images/arrow.png')}></Image>
+          <Image source={require('@/assets/images/arrow.png')} />
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={goToSignup}>
-          <Text
-          // style={styles.alt}
-          >
-            Already have an account? Sign Up
-          </Text>
+        <TouchableOpacity onPress={() => router.replace('/signUp')}>
+          <Text>Already have an account? Sign Up</Text>
         </TouchableOpacity>
       </View>
     </View>
