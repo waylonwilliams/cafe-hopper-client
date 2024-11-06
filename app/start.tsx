@@ -1,6 +1,8 @@
 import React from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 
+// do we need this file?
+// I think the start page is already being defined in index
 export default function GetStartedPage() {
   return (
     <View style={styles.container}>
