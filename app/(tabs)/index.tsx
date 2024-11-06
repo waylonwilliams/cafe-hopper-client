@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState}from 'react';
 import {
   View,
   Text,
@@ -7,7 +7,10 @@ import {
   TouchableOpacity,
   FlatList,
   ScrollView,
+  Pressable,
 } from 'react-native';
+import { Link } from 'expo-router';
+import { supabase } from '@/lib/supabase';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import CardComponent from '@/components/Card';
 import Review from '@/components/Review';
@@ -109,7 +112,14 @@ export default function Home() {
 
           <Text style={styles.section}>New from friends</Text>
           {/* Feed */}
+
+          <Link href="../prof" asChild>
+            <Pressable>
+              <Text>{'Go to Profile'}</Text>
+            </Pressable>
+          </Link>
         </View>
+
       </ScrollView>
     </SafeAreaView>
   );

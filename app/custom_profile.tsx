@@ -8,14 +8,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 
-async function getId(){
-    //get user id 
-  const uid = (await supabase.auth.getSession())?.data.session?.user.id;
-  
-
-}
 export default function Index() {
-  //temporary to save name, loc, bio
   const [name, setName] = useState('');
   const [loc, setLoc] = useState('');
   const [bio, setBio] = useState('');
@@ -27,7 +20,26 @@ export default function Index() {
     console.log('changes saved');
   };
 
+  async function saveChanges(){
+    // Get user id 
+    const uid = (await supabase.auth.getSession())?.data.session?.user.id;
 
+    // Update profile
+    const { data:profile, error: profileError} = await supabase
+    .from('profiles')
+    .update({
+      name,
+      location: loc,
+      bio,
+    })
+    .eq('user_id', uid);
+
+    if (profileError){
+      console.error("Error in updating profile:", profileError);
+    } else{
+      console.log("Profile update success:", profile);
+    }
+  }
 
   return (
     <ScrollView>
@@ -82,7 +94,7 @@ export default function Index() {
         </View>
       </View>
 
-      <TouchableOpacity style={styles.saveButton} onPress={handleSaved}>
+      <TouchableOpacity style={styles.saveButton} onPress={saveChanges}>
         <Text style={styles.saveText}>Save changes</Text>
       </TouchableOpacity>
     </ScrollView>
