@@ -4,17 +4,11 @@ import { useRouter } from 'expo-router';
 
 export default function GetStartedPage() {
   const router = useRouter();
-  const handleGetStarted = () => {
-    // Navigate to the next screen in your app
-    // Example: navigation.navigate('HomeScreen');
-    console.log('get started pressed');
-  };
 
   return (
     <View style={styles.container}>
       <Image source={require('@/assets/images/cup.png')} style={styles.image} />
       <Text style={styles.title}>your next favorite cafe is just around the corner...</Text>
-      {/* //<Button title="Get Started" onPress={handleGetStarted}  /> */}
       <TouchableOpacity style={styles.start} onPress={() => router.push('/sign_up')}>
         <Text style={styles.buttonText}>Get started</Text>
         <Image style={styles.arrow} source={require('@/assets/images/arrow.png')}></Image>

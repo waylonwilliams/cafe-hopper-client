@@ -24,48 +24,25 @@ const SignUpScreen = () => {
   const [loading, setLoading] = useState(false);
 
   async function signUpWithEmail() {
-    console.log('Email:', email);
-    console.log('Password:', password);
-    console.log('ConfPwd: ', confPassword);
+    // console.log('Email:', email);
+    // console.log('Password:', password);
+    // console.log('ConfPwd: ', confPassword);
     if (password === confPassword) {
       console.log('pwds match');
       if (password) setLoading(true);
-      const {
-        data: { session },
-        error,
-      } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email: email,
         password: password,
       });
 
-      if (!error) handleNavigation();
-      if (error) console.log(error);
-      // if (!session) Alert.alert('Please check your inbox for email verification!');
+      if (error) Alert.alert(error.message);
+      // supabase signup will also log them in, so just send them to tabs
+      if (!error) router.push('/(tabs)');
       setLoading(false);
     } else {
       Alert.alert('Passwords do not match!');
     }
   }
-
-  function handleNavigation() {
-    // NEED TO CHANGE
-    // This should go to profile creation page
-    router.push('/login');
-  }
-
-  // const handleLogin = () => {
-  //   // Perform login logic here, e.g., API call
-  //   console.log('Email:', email);
-  //   console.log('Password:', password);
-  // };
-
-  const goToLogin = () => {
-    console.log('go to login');
-  };
-
-  const toggleShowPassword = () => {
-    setShowPassword(!showPassword);
-  };
 
   return (
     <View style={styles.container}>
@@ -96,8 +73,7 @@ const SignUpScreen = () => {
           name={showPassword ? 'eye-off' : 'eye'}
           size={20}
           color="#aaa"
-          // style={styles.icon}
-          onPress={toggleShowPassword}
+          onPress={() => setShowPassword(!showPassword)}
         />
       </View>
       <View style={styles.inputContainer}>
@@ -114,8 +90,7 @@ const SignUpScreen = () => {
           name={showPassword ? 'eye-off' : 'eye'}
           size={20}
           color="#aaa"
-          // style={styles.icon}
-          onPress={toggleShowPassword}
+          onPress={() => setShowPassword(!showPassword)}
         />
       </View>
 
@@ -129,24 +104,15 @@ const SignUpScreen = () => {
           style={styles.guestbutton}
           onPress={() => router.push('/(tabs)')}
           disabled={loading}>
-          <Text style={styles.guestText}>Sign in as guest</Text>
-          {/* <Image
-            // style={styles.arrow}
-            source={require('@/assets/images/arrow.png')}></Image> */}
+          <Text style={styles.guestText}>Continue as guest</Text>
         </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={signUpWithEmail} disabled={loading}>
           <Text style={styles.buttonText}>Start exploring</Text>
-          <Image
-            // style={styles.arrow}
-            source={require('@/assets/images/arrow.png')}></Image>
+          <Image source={require('@/assets/images/arrow.png')}></Image>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => router.push('/login')}>
-          <Text
-          // style={styles.alt}
-          >
-            Already have an account? Login
-          </Text>
+          <Text>Already have an account? Login</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -157,11 +123,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    // alignItems: 'center',
     padding: 20,
   },
   titleContainer: {
-    // borderWidth:1,
     marginTop: 150,
     marginBottom: 20,
     marginHorizontal: 10,
@@ -170,8 +134,6 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 36,
     fontWeight: 'bold',
-    // marginBottom: 40,
-    // width: '90%',
   },
   inputContainer: {
     flexDirection: 'row',
@@ -187,7 +149,6 @@ const styles = StyleSheet.create({
     width: 30,
     height: 30,
   },
-
   input: {
     flex: 1,
     width: '100%',
@@ -195,7 +156,6 @@ const styles = StyleSheet.create({
     paddingLeft: 10,
     borderRadius: 20,
   },
-
   altLogin: {
     marginTop: 20,
     alignItems: 'center',
@@ -223,7 +183,6 @@ const styles = StyleSheet.create({
     elevation: 5, // Shadow for Android
     flexDirection: 'row',
     alignItems: 'center',
-    // marginTop: 70,
     marginBottom: 10,
   },
   buttonText: {

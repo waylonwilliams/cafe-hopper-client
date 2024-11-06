@@ -2,20 +2,13 @@ import React from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 
 export default function GetStartedPage() {
-  const handleGetStarted = () => {
-    // Navigate to the next screen in your app
-    // Example: navigation.navigate('HomeScreen');
-    console.log('get started pressed');
-  };
-
   return (
     <View style={styles.container}>
       <Image source={require('@/assets/images/cup.png')} style={styles.image} />
       <Text style={styles.title}>your next favorite cafe is just around the corner...</Text>
-      {/* //<Button title="Get Started" onPress={handleGetStarted}  /> */}
-      <TouchableOpacity style={styles.start} onPress={handleGetStarted}>
+      <TouchableOpacity style={styles.start}>
         <Text style={styles.buttonText}>Get started</Text>
-        <Image style={styles.arrow} source={require('@/assets/images/arrow.png')}></Image>
+        <Image source={require('@/assets/images/arrow.png')}></Image>
       </TouchableOpacity>
     </View>
   );
@@ -24,7 +17,6 @@ export default function GetStartedPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
@@ -40,9 +32,6 @@ const styles = StyleSheet.create({
     height: 161,
     marginTop: 225,
     marginBottom: 20,
-    // marginTop: 41,
-    // marginBottom: 40,
-
     resizeMode: 'contain',
   },
   start: {
@@ -61,5 +50,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold', // Text weight
     paddingRight: 10,
   },
-  arrow: {},
 });

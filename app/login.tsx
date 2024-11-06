@@ -22,8 +22,8 @@ const LoginScreen = () => {
   const [loading, setLoading] = useState(false);
 
   async function signInWithEmail() {
-    console.log('Email:', email);
-    console.log('Password:', password);
+    // console.log('Email:', email);
+    // console.log('Password:', password);
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({
       email: email,
@@ -31,26 +31,9 @@ const LoginScreen = () => {
     });
 
     if (error) Alert.alert(error.message);
-    if (!error) handleNavigation();
+    if (!error) router.push('/(tabs)');
     setLoading(false);
   }
-
-  function handleNavigation() {
-    router.push('/(tabs)');
-  }
-  // const handleLogin = () => {
-  //   // Perform login logic here, e.g., API call
-  //   console.log('Email:', email);
-  //   console.log('Password:', password);
-  // };
-
-  const goToSignup = () => {
-    console.log('go to sign up');
-  };
-
-  const toggleShowPassword = () => {
-    setShowPassword(!showPassword);
-  };
 
   return (
     <View style={styles.container}>
@@ -82,7 +65,7 @@ const LoginScreen = () => {
           size={20}
           color="#aaa"
           // style={styles.icon}
-          onPress={toggleShowPassword}
+          onPress={() => setShowPassword(!showPassword)}
         />
       </View>
 
@@ -94,17 +77,11 @@ const LoginScreen = () => {
       <View style={styles.signupButton}>
         <TouchableOpacity style={styles.button} onPress={signInWithEmail} disabled={loading}>
           <Text style={styles.buttonText}>Continue exploring</Text>
-          <Image
-            // style={styles.arrow}
-            source={require('@/assets/images/arrow.png')}></Image>
+          <Image source={require('@/assets/images/arrow.png')}></Image>
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => router.push('/sign_up')}>
-          <Text
-          // style={styles.alt}
-          >
-            Already have an account? Sign Up
-          </Text>
+          <Text>Already have an account? Sign Up</Text>
         </TouchableOpacity>
       </View>
     </View>
