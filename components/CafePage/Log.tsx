@@ -1,20 +1,29 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import React from 'react';
 import { useState } from 'react';
-import { Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
-import { cafeTags } from './CafeTypes';
+import { Alert, Image, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { cafeTags, CafeType, NewReviewType } from './CafeTypes';
 import EmojiTag from '../EmojiTag';
 import * as ImagePicker from 'expo-image-picker';
+import { supabase } from '@/lib/supabase';
+import 'react-native-get-random-values'; // needed for uuid
+import { v4 as uuidv4 } from 'uuid';
 
 interface Props {
   setLoggingVisit: (arg: boolean) => void;
+  cafe: CafeType;
+  reviews: NewReviewType[];
+  setReviews: (arg: NewReviewType[]) => void;
 }
 
-export default function Log({ setLoggingVisit }: Props) {
-  const [rating, setRating] = useState(4);
+const baseUrl = 'https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/posts/';
+
+export default function Log({ setLoggingVisit, cafe, reviews, setReviews }: Props) {
+  const [rating, setRating] = useState(7);
   const [publicPost, setPublicPost] = useState(true);
   const [emojiTags, setEmojiTags] = useState<string[]>([]);
   const [images, setImages] = useState<ImagePicker.ImagePickerAsset[]>([]);
+  const [description, setDescription] = useState('');
 
   function handleTagClick(tag: string) {
     if (emojiTags.includes(tag)) {
@@ -26,12 +35,14 @@ export default function Log({ setLoggingVisit }: Props) {
 
   async function selectImages() {
     // https://docs.expo.dev/versions/latest/sdk/imagepicker/#imagepickeroptions
+    // do I need to get images access first?
     const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images, // images only
       quality: 1, // not compressed
       allowsMultipleSelection: true,
       exif: false, // removes some data we don't need
       orderedSelection: true,
+      // base64: true, // b64 encoded file content, will need to change to blob before upload
       // selectionLimit: 5, // add maximum number of images per review?
     });
 
@@ -39,13 +50,77 @@ export default function Log({ setLoggingVisit }: Props) {
       return;
     }
 
+    // makes sure no duplicates are added
+    let tooLarge = false;
     const newImages = [...images];
     for (const image of result.assets) {
+      // filter out duplicates
       if (!newImages.some((img) => img.assetId === image.assetId)) {
-        newImages.push(image);
+        // check if image exceeds 5mb limit
+        if (image.fileSize && !(image.fileSize > 5 * 1024 * 1024)) {
+          newImages.push(image);
+        } else {
+          tooLarge = true;
+        }
       }
     }
+    if (tooLarge) Alert.alert('One or more images exceeded the 5MB limit');
     setImages(newImages);
+  }
+
+  async function handlePost() {
+    try {
+      const imagePromises: Promise<
+        | { data: { id: string; path: string; fullPath: string }; error: null }
+        | { data: null; error: any }
+      >[] = [];
+
+      const imagePaths: string[] = [];
+
+      // upload all images concurrently
+      for (const image of images) {
+        const i = await fetch(image.uri);
+        const blob = await i.blob();
+        // supabase doesn't accept blob, change to arrayBuffer
+        const arrBuffer = await new Response(blob).arrayBuffer();
+
+        const fileName = `public/${uuidv4()}`;
+
+        // currently getting a no message 400 failure, idk
+        const res = supabase.storage.from('posts').upload(fileName, arrBuffer, {
+          contentType: image.mimeType,
+        });
+        imagePromises.push(res);
+        imagePaths.push(`${baseUrl}${fileName}`);
+      }
+      const uploadResults = await Promise.all(imagePromises);
+
+      // make sure images uploaded successfully
+      for (const result of uploadResults) {
+        if (result.error) throw result.error;
+      }
+
+      // no need to pass in user id, supabase will get it itself
+      const { data, error } = await supabase
+        .from('reviews')
+        .insert({
+          cafe_id: cafe.id,
+          rating,
+          description,
+          images: imagePaths,
+          tags: emojiTags,
+          public: publicPost,
+        })
+        .select()
+        .single();
+      if (error) throw error;
+
+      setReviews([data, ...reviews]);
+      setLoggingVisit(false);
+      Alert.alert('Visit uploaded!');
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   return (
@@ -55,6 +130,7 @@ export default function Log({ setLoggingVisit }: Props) {
         paddingVertical: 25,
         gap: 15,
         paddingHorizontal: 20,
+        paddingBottom: 110,
       }}>
       <Pressable
         onPress={() => setLoggingVisit(false)}
@@ -66,10 +142,35 @@ export default function Log({ setLoggingVisit }: Props) {
 
       {/* Star rating */}
       <View style={{ flexDirection: 'row', gap: 5 }}>
-        {[1, 2, 3, 4, 5].map((num) => (
-          <Pressable onPress={() => setRating(num)} key={num}>
-            <Ionicons name="star" size={30} color={num <= rating ? '#FFB400' : '#808080'} />
-          </Pressable>
+        {[1, 3, 5, 7, 9].map((num) => (
+          // <Pressable onPress={() => setRating(num)} key={num}>
+          <View key={num} style={{ position: 'relative' }}>
+            <Ionicons
+              name={rating === num ? 'star-half' : 'star'}
+              size={32}
+              color={num <= rating ? '#FFB400' : '#808080'}
+            />
+            <Pressable
+              onPress={() => setRating(num)}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '50%',
+                height: '100%',
+              }}
+            />
+            <Pressable
+              onPress={() => setRating(num + 1)}
+              style={{
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                width: '50%',
+                height: '100%',
+              }}
+            />
+          </View>
         ))}
       </View>
 
@@ -82,8 +183,12 @@ export default function Log({ setLoggingVisit }: Props) {
           borderRadius: 5,
           borderColor: '#808080',
         }}
+        value={description}
+        onChangeText={setDescription}
         placeholder="Describe your visit..."
         multiline
+        autoCapitalize="none"
+        autoCorrect={false}
       />
 
       <Pressable
@@ -142,6 +247,7 @@ export default function Log({ setLoggingVisit }: Props) {
           alignItems: 'center',
         }}>
         <Pressable
+          onPress={handlePost}
           style={{
             flexDirection: 'row',
             gap: 6,

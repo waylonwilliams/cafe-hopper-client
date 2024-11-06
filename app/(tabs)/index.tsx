@@ -105,9 +105,7 @@ export default function Home() {
             <Text style={{ color: '#8a8888' }}>Browse all</Text>
           </View>
           {/* MAP REVIEWS HERE */}
-          <View style={styles.placeholder}>
-            <Review review={review}></Review>
-          </View>
+          <View style={styles.placeholder}>{/* <Review review={review}></Review> */}</View>
 
           <Text style={styles.section}>New from friends</Text>
           {/* Feed */}
