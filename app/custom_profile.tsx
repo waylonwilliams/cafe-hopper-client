@@ -113,7 +113,7 @@ export default function Index() {
     <ScrollView>
       {/* Header */}
       <View style={styles.header}>
-        <Link href="../profile" asChild>
+        <Link href="../prof" asChild>
           <Pressable>
             <Ionicons name="chevron-back" size={24} color="gray"></Ionicons>
           </Pressable>

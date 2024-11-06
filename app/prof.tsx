@@ -100,10 +100,10 @@ export default function Index() {
 
                     <View style={styles.stats}>
                         {/* PLACEHOLDERS */}
-                        <Text>0</Text>
-                        <Text>0</Text>
-                        <Text>0</Text>
-                        <Text>0</Text>
+                        <Text style={styles.numbers}>0</Text>
+                        <Text style={styles.numbers}>0</Text>
+                        <Text style={styles.numbers}>0</Text>
+                        <Text style={styles.numbers}>0</Text>
                     </View>
 
                     <View style={styles.stats}>
@@ -176,10 +176,10 @@ const styles = StyleSheet.create({
   },
 
   name: {
-    fontSize: 30,
+    fontSize: 25,
     padding: 5,
     marginRight: 10,
-
+    fontWeight: '500',
   },
 
   editButton: {
@@ -200,13 +200,21 @@ const styles = StyleSheet.create({
   bio:{
     color: '#8a8888',
     fontSize: 12,
+    fontWeight: '600',
+    marginTop: 5,
     marginBottom: 10,
-    marginLeft: 5,
+    marginLeft: 8,
   },
 
   stats:{
     flexDirection: 'row',
-    justifyContent: 'space-evenly',
+    justifyContent: 'center',
+  },
+
+  numbers:{
+    marginLeft: 25,
+    marginRight: 25,
+    alignContent: 'center',
   },
 
   statText:{
