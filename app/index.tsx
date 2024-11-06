@@ -1,26 +1,34 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View, Image, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { supabase } from '@/lib/supabase';
 
-export default async function GetStartedPage() {
+export default function GetStartedPage() {
   const router = useRouter();
 
-  // if you are logged in, go to tabs right away
-  // we could move this to the login page that follows this if we always want start page to show
-  const { data } = await supabase.auth.getSession();
-  if (data.session !== null) {
-    router.push('/(tabs)');
-  }
+  // since i can't make the component async, I do a check and don't show the screen until it loads
+  const [checked, setChecked] = useState(false);
+  const checkLogin = async () => {
+    const { data } = await supabase.auth.getSession();
+    if (data.session !== null) {
+      router.replace('/(tabs)');
+    }
+    setChecked(true);
+  };
+  checkLogin();
 
   return (
     <View style={styles.container}>
-      <Image source={require('@/assets/images/cup.png')} style={styles.image} />
-      <Text style={styles.title}>your next favorite cafe is just around the corner...</Text>
-      <TouchableOpacity style={styles.start} onPress={() => router.push('/sign_up')}>
-        <Text style={styles.buttonText}>Get started</Text>
-        <Image style={styles.arrow} source={require('@/assets/images/arrow.png')}></Image>
-      </TouchableOpacity>
+      {checked && (
+        <>
+          <Image source={require('@/assets/images/cup.png')} style={styles.image} />
+          <Text style={styles.title}>your next favorite cafe is just around the corner...</Text>
+          <TouchableOpacity style={styles.start} onPress={() => router.replace('/signUp')}>
+            <Text style={styles.buttonText}>Get started</Text>
+            <Image source={require('@/assets/images/arrow.png')}></Image>
+          </TouchableOpacity>
+        </>
+      )}
     </View>
   );
 }
@@ -28,7 +36,6 @@ export default async function GetStartedPage() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    // justifyContent: 'center',
     alignItems: 'center',
     padding: 20,
   },
@@ -44,9 +51,6 @@ const styles = StyleSheet.create({
     height: 161,
     marginTop: 225,
     marginBottom: 20,
-    // marginTop: 41,
-    // marginBottom: 40,
-
     resizeMode: 'contain',
   },
   start: {
@@ -65,5 +69,4 @@ const styles = StyleSheet.create({
     fontWeight: 'bold', // Text weight
     paddingRight: 10,
   },
-  arrow: {},
 });

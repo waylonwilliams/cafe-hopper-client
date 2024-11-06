@@ -37,7 +37,7 @@ const SignUpScreen = () => {
 
       if (error) Alert.alert(error.message);
       // supabase signup will also log them in, so just send them to tabs
-      if (!error) router.push('/(tabs)');
+      if (!error) router.replace('/(tabs)');
       setLoading(false);
     } else {
       Alert.alert('Passwords do not match!');
@@ -102,7 +102,7 @@ const SignUpScreen = () => {
       <View style={styles.signupButton}>
         <TouchableOpacity
           style={styles.guestbutton}
-          onPress={() => router.push('/(tabs)')}
+          onPress={() => router.replace('/(tabs)')}
           disabled={loading}>
           <Text style={styles.guestText}>Continue as guest</Text>
         </TouchableOpacity>
@@ -111,7 +111,7 @@ const SignUpScreen = () => {
           <Image source={require('@/assets/images/arrow.png')}></Image>
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => router.push('/login')}>
+        <TouchableOpacity onPress={() => router.replace('/login')}>
           <Text>Already have an account? Login</Text>
         </TouchableOpacity>
       </View>
