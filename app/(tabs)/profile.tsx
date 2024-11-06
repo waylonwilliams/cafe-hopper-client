@@ -1,31 +1,41 @@
-import { Link } from 'expo-router';
-import { Text, SafeAreaView, Pressable } from 'react-native';
+import { router } from 'expo-router';
+import { SafeAreaView } from 'react-native';
 import { supabase } from '@/lib/supabase';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import Prof from '../../components/prof';
 
 export default function Index() {
   const [loggedIn, setLoggedIn] = useState(false);
 
   // run this function once on load to get initial auth state
-  async function isLoggedIn() {
-    const { data, error } = await supabase.auth.getSession();
-    if (error) {
-      console.log('Error getting session on profile load:', error);
-    }
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data, error } = await supabase.auth.getSession();
+      if (error) console.log('Error getting session on profile load:', error);
 
-    if (data.session) {
-      console.log('Session:', data.session);
-      setLoggedIn(true);
-    }
-  }
-  isLoggedIn();
+      if (data.session) {
+        setLoggedIn(true);
+      } else {
+        // send them to sign up if not logged in
+        router.push('/signUp');
+      }
+    };
 
-  // this runs whenever the user logs in / logs out, right now I store in loggedIn variable
-  supabase.auth.onAuthStateChange((event, session) => {
-    console.log('Event:', event);
-    console.log('Session:', session);
-    if (session) setLoggedIn(true);
-  });
+    checkAuth();
+
+    // this runs whenever the user logs in / logs out, right now I store in loggedIn variable
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session) {
+        setLoggedIn(true);
+      } else {
+        setLoggedIn(false);
+      }
+    });
+
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
 
   return (
     <SafeAreaView
@@ -34,14 +44,7 @@ export default function Index() {
         justifyContent: 'center',
         alignItems: 'center',
       }}>
-      <Text>Profile page {loggedIn && 'Hello world'}</Text>
-      {/* <Link href="../sign_up" asChild> */}
-      <Link href="../login" asChild>
-        {/* <Link href="../start" asChild> */}
-        <Pressable>
-          <Text>Open start page</Text>
-        </Pressable>
-      </Link>
+      {loggedIn && <Prof />}
     </SafeAreaView>
   );
 }

@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, TouchableOpacity, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import { router } from 'expo-router';
 
 AppState.addEventListener('change', (state) => {
   if (state === 'active') {
@@ -15,15 +15,14 @@ AppState.addEventListener('change', (state) => {
 });
 
 const LoginScreen = () => {
-  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function signInWithEmail() {
-    // console.log('Email:', email);
-    // console.log('Password:', password);
+    console.log('Email:', email);
+    console.log('Password:', password);
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({
       email: email,
@@ -34,6 +33,10 @@ const LoginScreen = () => {
     if (!error) router.replace('/(tabs)');
     setLoading(false);
   }
+
+  const toggleShowPassword = () => {
+    setShowPassword(!showPassword);
+  };
 
   return (
     <View style={styles.container}>
@@ -65,7 +68,7 @@ const LoginScreen = () => {
           size={20}
           color="#aaa"
           // style={styles.icon}
-          onPress={() => setShowPassword(!showPassword)}
+          onPress={toggleShowPassword}
         />
       </View>
 

@@ -57,7 +57,7 @@ export default function Home() {
 
   return (
     <SafeAreaView>
-      <ScrollView style={styles.scroll}>
+      <ScrollView>
         <View style={styles.container}>
           {/* Greeting */}
           <Text style={styles.greeting}>Hello, Jane!</Text>
@@ -116,29 +116,23 @@ export default function Home() {
 }
 
 const styles = StyleSheet.create({
-  scroll: {},
-
   container: {
     flex: 1,
     padding: 20,
   },
-
   greeting: {
     fontFamily: 'SF-Pro-Display-Regular',
     fontSize: 14,
     marginBottom: 5,
   },
-
   heading: {
     fontFamily: 'SF-Pro-Display-Semibold',
     fontSize: 24,
   },
-
   h2: {
     color: '#8a8888',
     fontSize: 24,
   },
-
   searchWrapper: {
     marginTop: 15,
     marginBottom: 25,
@@ -150,19 +144,16 @@ const styles = StyleSheet.create({
     borderColor: 'black',
     borderRadius: 30,
   },
-
   search: {
     flex: 1,
     color: '#8a8888',
     marginTop: 2,
     marginLeft: 5,
   },
-
   section: {
     fontFamily: 'SF-Pro-Display-Semibold',
     fontSize: 20,
   },
-
   popInfo: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -170,7 +161,6 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#8a8888',
   },
-
   locButton: {
     flexDirection: 'row',
     borderWidth: 1,
@@ -180,16 +170,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     backgroundColor: '#e6e6e6',
   },
-
   carousel: {
     height: 230,
   },
-
   reviewContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
-
   placeholder: {
     marginTop: 15,
     marginBottom: 20,
