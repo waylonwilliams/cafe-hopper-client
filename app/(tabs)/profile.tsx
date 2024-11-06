@@ -3,6 +3,7 @@ import { Text, SafeAreaView, Pressable } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
 
+
 export default function Index() {
   const [loggedIn, setLoggedIn] = useState(false);
 
@@ -51,7 +52,7 @@ export default function Index() {
       {/* <Link href="../login" asChild> */}
       {/* <Link href="../start" asChild> */}
       {/* <Link href="../custom_profile" asChild>*/}
-      <Link href={loggedIn ? "../custom_profile" : "../sign_up"} asChild>
+      <Link href={loggedIn ? "../prof" : "../sign_up"} asChild>
         <Pressable>
           <Text>{loggedIn ? 'Go to Profile' : 'Go to Sign Up'}</Text>
         </Pressable>

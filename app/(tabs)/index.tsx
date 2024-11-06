@@ -112,12 +112,6 @@ export default function Home() {
 
           <Text style={styles.section}>New from friends</Text>
           {/* Feed */}
-
-          <Link href="../prof" asChild>
-            <Pressable>
-              <Text>{'Go to Profile'}</Text>
-            </Pressable>
-          </Link>
         </View>
 
       </ScrollView>
