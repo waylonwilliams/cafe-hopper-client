@@ -115,6 +115,23 @@ export default function Log({ setLoggingVisit, cafe, reviews, setReviews }: Prop
         .single();
       if (error) throw error;
 
+      // async ping to server to clean up data
+      // wrapped in a try block so it doens't matter if something goes wrong
+      try {
+        fetch(process.env.EXPO_PUBLIC_SERVER_URL + 'cafes/ping', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            cafeId: data.cafe_id,
+            rating,
+          }),
+        });
+      } catch (e) {
+        console.error("Couldn't ping server", e);
+      }
+
       setReviews([data, ...reviews]);
       setLoggingVisit(false);
       Alert.alert('Visit uploaded!');
