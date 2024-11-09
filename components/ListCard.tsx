@@ -29,7 +29,7 @@ export default function ListCard({ cafe }: ListCardProps) {
         <Text style={styles.hours}>{cafe.hours}</Text>
         <Text style={styles.location}>{cafe.address}</Text>
 
-        {cafe.tags !== null && (
+        {cafe.tags && (
           <View style={styles.tagsContainer}>
             {cafe.tags.map((tag, index) => (
               <View key={index} style={styles.tagWrapper}>

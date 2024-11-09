@@ -105,6 +105,8 @@ export default function Explore() {
   const router = useRouter(); // Get the router instance from expo-router
   const [selectedHours, setSelectedHours] = useState('Any'); // Track selected hours
   const [selectedRating, setSelectedRating] = useState('Any'); // Track selected rating]
+  const [searchText, setSearchText] = useState(''); // Track search text
+  const [searchedCafes, setSearchedCafes] = useState<CafeType[]>([]); // Track searched cafes
 
   // When the search bar is open it makes it not scrollable and closes when you press outside of it
   // WHen its closed it does nothing, making it scrollable
@@ -115,6 +117,60 @@ export default function Explore() {
       );
     } else {
       return <>{children}</>;
+    }
+  };
+
+  const searchCafes = async () => {
+    // Filter cafes based on selected filters
+    const requestBody = {
+      query: searchText,
+    };
+
+    try {
+      const response = await fetch('http://169.233.246.108:3000/cafes/search', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(requestBody),
+      });
+
+      const data = await response.json();
+
+      const cafes = [];
+      for (const cafe of data) {
+        // for the hours, we need to find the current day and get the hours for that day
+        if (cafe.hours) {
+          const entries = cafe.hours.split('\n') as string[];
+          const scheduleDict: { [key: string]: string } = {};
+          entries.forEach((entry) => {
+            const [day, ...timeParts] = entry.split(':'); // Split on the first colon
+            const time = timeParts.join(':').trim(); // Join the remaining parts and trim
+            scheduleDict[day.trim()] = time;
+          });
+          const today = new Date().toLocaleString('en-us', { weekday: 'long' });
+          cafe.hours = scheduleDict[today];
+        }
+        cafes.push({
+          id: cafe.id,
+          name: cafe.title,
+          address: cafe.address,
+          hours: cafe.hours,
+          tags: cafe.tags,
+          created_at: cafe.created_at,
+          latitude: cafe.latitude,
+          longitude: cafe.longitude,
+          rating: cafe.rating,
+          num_reviews: cafe.num_reviews,
+          image: cafe.image,
+          summary: cafe.summary,
+        });
+      }
+
+      setSearchedCafes(cafes);
+      console.log(data);
+    } catch (error) {
+      console.log('error', error);
     }
   };
 
@@ -208,7 +264,19 @@ Sunday:7:00AM–6:00PM`,
             placeholder="Search a cafe, characteristic, etc."
             placeholderTextColor="#888"
             onFocus={() => setShowFilters(true)} // Show filters when search is focused
+            value={searchText}
+            onChangeText={(text) => setSearchText(text)}
           />
+          <TouchableOpacity
+            // make it on the very right
+            style={{
+              position: 'absolute',
+              right: 10,
+              top: 12,
+            }}
+            onPress={searchCafes}>
+            <Text>Search</Text>
+          </TouchableOpacity>
         </View>
         <View style={styles.buttonContainer}>
           <TouchableOpacity
@@ -354,9 +422,15 @@ Sunday:7:00AM–6:00PM`,
           </MapView>
         </View>
       ) : (
+        // <FlatList
+        //   data={mockCafes}
+        //   keyExtractor={(item, index) => index.toString()}
+        //   renderItem={({ item }) => <ListCard cafe={item} />}
+        //   contentContainerStyle={styles.listView}
+        // />
         <FlatList
-          data={mockCafes}
-          keyExtractor={(item, index) => index.toString()}
+          data={searchedCafes}
+          keyExtractor={(item) => item.id}
           renderItem={({ item }) => <ListCard cafe={item} />}
           contentContainerStyle={styles.listView}
         />
@@ -432,6 +506,7 @@ const styles = StyleSheet.create({
   },
   filterDropdown: {
     position: 'absolute',
+    padding: 10,
     top: 120, // Position below the top bar
     left: 11,
     zIndex: 200, // Ensure it's on top of other elements
