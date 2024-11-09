@@ -17,12 +17,13 @@ export function TabBar({ state, descriptors, navigation }: BottomTabBarProps) {
         .map((route, index) => {
           const { options } = descriptors[route.key];
           // Use the options.title or options.tabBarLabel as the display name
-          const label =
-            options.tabBarLabel !== undefined
-              ? options.tabBarLabel
-              : options.title !== undefined
-                ? options.title
-                : route.name;
+          // commented this out cause linter
+          // const label =
+          //   options.tabBarLabel !== undefined
+          //     ? options.tabBarLabel
+          //     : options.title !== undefined
+          //       ? options.title
+          //       : route.name;
 
           const isFocused = state.index === index;
 
