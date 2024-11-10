@@ -46,9 +46,7 @@ export default function ImageFullView({ images, setImages }: Props) {
           justifyContent: 'center',
           alignItems: 'center',
         }}>
-        <Text style={{ color: 'white' }}>
-          {images.length} {images.length === 1 ? 'image' : 'images'}
-        </Text>
+        {images.length > 1 && <Text style={{ color: 'white' }}>{images.length} images</Text>}
 
         <Pressable
           onPress={() => setImages(null)}
