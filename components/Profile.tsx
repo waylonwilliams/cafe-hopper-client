@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { StyleSheet, Text, View, Pressable, Image, ScrollView, FlatList } from 'react-native';
 import { Link, useFocusEffect } from 'expo-router';
 import Icon from 'react-native-vector-icons/MaterialIcons';
