@@ -53,6 +53,21 @@ const getOrCreateList = async (userId: string, listName: string) => {
   }
 };
 
+// Function to check if a cafe is in a specific list
+const checkCafeInList = async (cafeId: string, userId: string, listName: string) => {
+  const listId = await getOrCreateList(userId, listName);
+
+  const { data, error } = await supabase
+    .from('cafeListEntries')
+    .select('id')
+    .eq('cafe_id', cafeId)
+    .eq('list_id', listId)
+    .eq('user_id', userId)
+    .single();
+
+  return !!data; // Returns true if the entry exists, false otherwise
+};
+
 // Function to add a cafe to a specific list
 const addCafeToList = async (cafeId: string, userId: string, listName: string) => {
   try {
@@ -75,7 +90,7 @@ const addCafeToList = async (cafeId: string, userId: string, listName: string) =
   }
 };
 
-// Function to remove a cafe from a specific list
+// Function to remove a cafe from a specific list 
 const removeCafeFromList = async (cafeId: string, userId: string, listName: string) => {
   try {
     const listId = await getOrCreateList(userId, listName);
@@ -111,37 +126,49 @@ export default function Cafe({
   const [togo, setTogo] = useState(false);
   const [showHours, setShowHours] = useState(false);
 
+  // Load initial "liked" and "to-go" states
+  useEffect(() => {
+    const loadInitialState = async () => {
+      try {
+        const isLiked = await checkCafeInList(cafe.id, userId, 'liked');
+        const isTogo = await checkCafeInList(cafe.id, userId, 'to-go');
+        setLiked(isLiked);
+        setTogo(isTogo);
+      } catch (error) {
+        console.error('Error loading initial state:', error);
+      }
+    };
+
+    loadInitialState();
+  }, [cafe.id, userId]);
+
   const handleLike = async () => {
     try {
       if (liked) {
+        // If currently liked, remove it from the "liked" list
         await removeCafeFromList(cafe.id, userId, 'liked');
       } else {
+        // Otherwise, add it to the "liked" list
         await addCafeToList(cafe.id, userId, 'liked');
       }
-      setLiked(!liked);
+      setLiked(!liked); // Toggle the liked state
     } catch (error) {
-      if (error instanceof Error) {
-        console.error('Error toggling like:', error.message);
-      } else {
-        console.error('Error toggling like:', error);
-      }
+      console.error('Error toggling like:', error);
     }
   };
 
   const handleTogo = async () => {
     try {
       if (togo) {
+        // If currently marked as to-go, remove it from the "to-go" list
         await removeCafeFromList(cafe.id, userId, 'to-go');
       } else {
+        // Otherwise, add it to the "to-go" list
         await addCafeToList(cafe.id, userId, 'to-go');
       }
-      setTogo(!togo);
+      setTogo(!togo); // Toggle the togo state
     } catch (error) {
-      if (error instanceof Error) {
-        console.error('Error toggling to-go:', error.message);
-      } else {
-        console.error('Error toggling to-go:', error);
-      }
+      console.error('Error toggling to-go:', error);
     }
   };
 
