@@ -1,7 +1,7 @@
 import { supabase } from '@/lib/supabase';
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, Pressable, Image, ScrollView, FlatList } from 'react-native';
-import { Link } from 'expo-router';
+import { Link, useFocusEffect } from 'expo-router';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import CardComponent from '@/components/Card';
@@ -54,9 +54,7 @@ export default function Profile({ uid }: Props) {
     },
   ];
 
-  useEffect(() => {
-    // Fetch user profile data when the component mounts
-
+  useFocusEffect(() => {
     const fetchProfile = async () => {
       try {
         const { data: profileData, error: profileError } = await supabase
@@ -70,7 +68,7 @@ export default function Profile({ uid }: Props) {
 
         let finalProfileData: ProfileType | null = profileData;
 
-        if (profileError) {
+        if (profileError || !profileData) {
           // Create a default profile when theirs doesn't exist
           const { data: newProfileData, error: upsertError } = await supabase
             .from('profiles')
@@ -104,7 +102,7 @@ export default function Profile({ uid }: Props) {
     };
 
     fetchProfile();
-  }, []);
+  });
 
   return (
     <ScrollView>
@@ -133,7 +131,7 @@ export default function Profile({ uid }: Props) {
                   }}
                   asChild>
                   <Pressable>
-                    <Text style={styles.edit}>Edit Profile</Text>
+                    <Text style={{ fontSize: 12 }}>Edit Profile</Text>
                   </Pressable>
                 </Link>
                 <TouchableOpacity>
@@ -143,9 +141,13 @@ export default function Profile({ uid }: Props) {
             )}
           </View>
 
-          <Text style={styles.bio}>{profile.bio}</Text>
-
-          <Text style={styles.location}>{profile.location}</Text>
+          <View style={{ gap: 4 }}>
+            <Text style={styles.bio}>{profile.bio}</Text>
+            <View style={{ flexDirection: 'row', gap: 4 }}>
+              <Icon color="#8a8888" name="location-on" size={14} />
+              <Text style={styles.location}>{profile.location}</Text>
+            </View>
+          </View>
 
           {/* Stats */}
           <View style={{ flexDirection: 'row', gap: 5 }}>
@@ -208,7 +210,9 @@ const styles = StyleSheet.create({
   pfpContainer: {
     flexDirection: 'row',
     justifyContent: 'flex-start',
-    padding: 20,
+    alignItems: 'center',
+    padding: 10,
+    gap: 10,
   },
   pfp: {
     width: 100,
@@ -218,35 +222,29 @@ const styles = StyleSheet.create({
   },
   userInfo: {
     flexDirection: 'column',
-    marginLeft: 15,
-    gap: 3,
+    gap: 5,
   },
   nameContainer: {
     flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
   },
   name: {
     fontSize: 25,
-    padding: 5,
-    marginRight: 10,
     fontWeight: '500',
   },
   editButton: {
     flexDirection: 'row',
-    height: 25,
     borderWidth: 1,
     borderRadius: 30,
     paddingVertical: 5,
     paddingHorizontal: 12,
-    marginTop: 10,
-  },
-  edit: {
-    fontSize: 12,
-    marginRight: 5,
   },
   bio: {
     color: '#8a8888',
     fontSize: 12,
     fontWeight: '600',
+    paddingLeft: 3, // to match the icon
   },
   location: {
     color: '#8a8888',
@@ -258,23 +256,17 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   numbers: {
-    marginLeft: 25,
-    marginRight: 25,
     alignContent: 'center',
   },
   statText: {
     padding: 3,
-    marginLeft: 5,
     fontSize: 12,
   },
   recent: {
     padding: 5,
-    marginLeft: 10,
-    marginBottom: 5,
   },
   listText: {
     fontSize: 18,
-    marginBottom: 5,
   },
   carousel: {
     height: 220,
