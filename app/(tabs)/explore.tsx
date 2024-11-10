@@ -449,7 +449,20 @@ Sunday:7:00AM–6:00PM`,
                 onPress={() => {
                   router.push({
                     pathname: '/cafe',
-                    // params: item,
+                    params: {
+                      id: item.id,
+                      created_at: item.created_at,
+                      name: item.name ? item.name : '',
+                      address: item.address ? item.address : '',
+                      hours: item.hours ? item.hours : '',
+                      latitude: item.latitude,
+                      longitude: item.longitude,
+                      tags: item.tags ? item.tags : [],
+                      rating: item.rating ? item.rating : 0,
+                      num_reviews: item.num_reviews ? item.num_reviews : 0,
+                      image: item.image ? item.image : '',
+                      summary: item.summary ? item.summary : '',
+                    },
                   });
                 }}>
                 <ListCard cafe={item} />
