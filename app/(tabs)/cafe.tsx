@@ -127,7 +127,7 @@ export default function Index() {
 
   // fetch reviews assosicated with this cafe on load
   async function fetchReviews() {
-    const { data, error } = await supabase.from('reviews').select('*, profiles ( user_id, bio )');
+    const { data, error } = await supabase.from('reviews').select('*').eq('cafe_id', cafe.id);
     if (error) {
       console.log('Error fetching reviews', error);
     } else {

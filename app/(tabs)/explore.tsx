@@ -18,12 +18,13 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { markers } from '../../assets/markers';
 import { MarkerType } from '../../components/CustomMarker';
 import CustomMarker from '../../components/CustomMarker';
-import { useRouter } from 'expo-router';
+import { Link, useRouter } from 'expo-router';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import EmojiTag from '../../components/EmojiTag';
 import { cafeTags } from '../../components/CafePage/CafeTypes';
 import ListCard from '@/components/ListCard';
 import { CafeType } from '@/components/CafePage/CafeTypes';
+import { addWhitelistedUIProps } from 'react-native-reanimated/lib/typescript/ConfigHelper';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 // Mock data
@@ -107,6 +108,7 @@ export default function Explore() {
   const [selectedRating, setSelectedRating] = useState('Any'); // Track selected rating]
   const [searchText, setSearchText] = useState(''); // Track search text
   const [searchedCafes, setSearchedCafes] = useState<CafeType[]>([]); // Track searched cafes
+  const [searchedMarkers, setMarkers] = useState<MarkerType[]>([]);
 
   // When the search bar is open it makes it not scrollable and closes when you press outside of it
   // WHen its closed it does nothing, making it scrollable
@@ -121,13 +123,14 @@ export default function Explore() {
   };
 
   const searchCafes = async () => {
+    setShowFilters(false); // Hide filters when searching
     // Filter cafes based on selected filters
     const requestBody = {
       query: searchText,
     };
 
     try {
-      const response = await fetch('http://169.233.246.108:3000/cafes/search', {
+      const response = await fetch('http://100.64.59.213:3000/cafes/search', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -135,40 +138,49 @@ export default function Explore() {
         body: JSON.stringify(requestBody),
       });
 
+      if (!response.ok) {
+        console.log('Failed to search');
+        return;
+      }
+
       const data = await response.json();
 
+      if (!Array.isArray(data)) {
+        console.log('Invalid data');
+        return;
+      }
+
       const cafes = [];
+      const markers: MarkerType[] = [];
       for (const cafe of data) {
-        // for the hours, we need to find the current day and get the hours for that day
-        if (cafe.hours) {
-          const entries = cafe.hours.split('\n') as string[];
-          const scheduleDict: { [key: string]: string } = {};
-          entries.forEach((entry) => {
-            const [day, ...timeParts] = entry.split(':'); // Split on the first colon
-            const time = timeParts.join(':').trim(); // Join the remaining parts and trim
-            scheduleDict[day.trim()] = time;
-          });
-          const today = new Date().toLocaleString('en-us', { weekday: 'long' });
-          cafe.hours = scheduleDict[today];
-        }
         cafes.push({
           id: cafe.id,
+          name: cafe.title ? cafe.title : '',
+          address: cafe.address ? cafe.address : '',
+          hours: cafe.hours ? cafe.hours : '',
+          tags: cafe.tags ? cafe.tags : [],
+          created_at: cafe.created_at ? cafe.created_at : '',
+          latitude: cafe.latitude ? cafe.latitude : 0,
+          longitude: cafe.longitude ? cafe.longitude : 0,
+          rating: cafe.rating ? cafe.rating : 0,
+          num_reviews: cafe.num_reviews ? cafe.num_reviews : 0,
+          image: cafe.image ? cafe.image : '',
+          summary: cafe.summary ? cafe.summary : '',
+        });
+
+        markers.push({
           name: cafe.title,
-          address: cafe.address,
-          hours: cafe.hours,
-          tags: cafe.tags,
-          created_at: cafe.created_at,
           latitude: cafe.latitude,
           longitude: cafe.longitude,
-          rating: cafe.rating,
-          num_reviews: cafe.num_reviews,
-          image: cafe.image,
-          summary: cafe.summary,
+          rating: cafe.rating ? cafe.rating : 0,
+          category: 'default',
         });
       }
 
       setSearchedCafes(cafes);
-      console.log(data);
+      setMarkers(markers);
+
+      console.log('searched successfully');
     } catch (error) {
       console.log('error', error);
     }
@@ -405,7 +417,7 @@ Sunday:7:00AM–6:00PM`,
             followsUserLocation={true}
             showsMyLocationButton={true}
             mapType="standard">
-            {markers.map((marker, index) => {
+            {searchedMarkers.map((marker, index) => {
               const validMarker: MarkerType = {
                 ...marker,
                 category: marker.category as 'liked' | 'saved' | 'default' | undefined,
@@ -431,7 +443,19 @@ Sunday:7:00AM–6:00PM`,
         <FlatList
           data={searchedCafes}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <ListCard cafe={item} />}
+          renderItem={({ item }) => {
+            return (
+              <Pressable
+                onPress={() => {
+                  router.push({
+                    pathname: '/cafe',
+                    // params: item,
+                  });
+                }}>
+                <ListCard cafe={item} />
+              </Pressable>
+            );
+          }}
           contentContainerStyle={styles.listView}
         />
       )}

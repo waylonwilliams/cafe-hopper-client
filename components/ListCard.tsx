@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import { View, Text, Image, StyleSheet, Pressable } from 'react-native';
 import { CafeType } from '@/components/CafePage/CafeTypes';
 import EmojiTag from '@/components/EmojiTag';
 
@@ -16,7 +16,10 @@ export default function ListCard({ cafe }: ListCardProps) {
       {/* <Image source={{ uri: mockImageUrl }} style={{ height: 100 }} resizeMode="contain" /> */}
 
       <View style={{ flex: 1, height: 170, paddingBottom: 8 }}>
-        <Image source={{ uri: mockImageUrl }} style={{ width: '100%', height: '100%' }} />
+        <Image
+          source={{ uri: cafe.image ? cafe.image : mockImageUrl }}
+          style={{ width: '100%', height: '100%' }}
+        />
       </View>
 
       <View style={styles.body}>
