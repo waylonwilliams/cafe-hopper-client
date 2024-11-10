@@ -9,6 +9,7 @@ import CardComponent from '@/components/Card';
 // setup with props so this can be used for other ppls profiles in the future
 interface Props {
   uid: string;
+  setViewingImages: React.Dispatch<React.SetStateAction<string[] | null>>;
 }
 
 interface ProfileType {
@@ -20,7 +21,7 @@ interface ProfileType {
 
 // how to refresh on router.back()?
 
-export default function Profile({ uid }: Props) {
+export default function Profile({ uid, setViewingImages }: Props) {
   const [profile, setProfile] = useState<ProfileType>({
     name: '',
     location: '',
@@ -111,10 +112,15 @@ export default function Profile({ uid }: Props) {
       {/* Profile */}
       <View style={styles.pfpContainer}>
         {/* Profile Picture */}
-        <Image
-          source={profile.pfp ? { uri: profile.pfp } : require('../assets/images/default.jpg')}
-          style={styles.pfp}
-        />
+        <Pressable
+          onPress={() => {
+            if (profile.pfp) setViewingImages([profile.pfp]);
+          }}>
+          <Image
+            source={profile.pfp ? { uri: profile.pfp } : require('../assets/images/default.jpg')}
+            style={styles.pfp}
+          />
+        </Pressable>
 
         <View style={styles.userInfo}>
           <View style={styles.nameContainer}>

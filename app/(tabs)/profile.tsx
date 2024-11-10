@@ -1,11 +1,14 @@
+import React from 'react';
 import { router } from 'expo-router';
-import { SafeAreaView } from 'react-native';
+import { SafeAreaView, View } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { useState, useEffect } from 'react';
 import Profile from '../../components/Profile';
+import ImageFullView from '@/components/CafePage/ImageFullView';
 
 export default function Index() {
   const [loggedIn, setLoggedIn] = useState<string | false>(false);
+  const [viewingImages, setViewingImages] = useState<string[] | null>(null);
 
   // run this function once on load to get initial auth state
   useEffect(() => {
@@ -38,8 +41,15 @@ export default function Index() {
   }, []);
 
   return (
-    <SafeAreaView style={{ position: 'relative' }}>
-      {loggedIn && <Profile uid={loggedIn} />}
-    </SafeAreaView>
+    <>
+      <SafeAreaView style={{ position: 'relative' }}>
+        {loggedIn && <Profile uid={loggedIn} setViewingImages={setViewingImages} />}
+      </SafeAreaView>
+      {viewingImages !== null && (
+        <View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}>
+          <ImageFullView images={viewingImages} setImages={setViewingImages} />
+        </View>
+      )}
+    </>
   );
 }
