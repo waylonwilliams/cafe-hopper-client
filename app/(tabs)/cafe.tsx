@@ -87,6 +87,7 @@ export default function Index() {
     num_reviews: parseFloat(assertString(cafeObj.num_reviews)),
   } as CafeType;
 
+  const [userId, setUserId] = useState<string | null>(null);
   const [loggingVisit, setLoggingVisit] = useState(false);
   const [reviews, setReviews] = useState<NewReviewType[]>([]);
   const [viewingImages, setViewingImages] = useState<string[] | null>(null);
@@ -114,6 +115,18 @@ export default function Index() {
       </View>
     );
   };
+  // Fetch user ID when component mounts
+  useEffect(() => {
+    const fetchUserId = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+      }
+    };
+    fetchUserId();
+  }, []);
 
   function logVisit() {
     setLoggingVisit(true);
@@ -192,6 +205,7 @@ export default function Index() {
               logVisit={logVisit}
               setViewingImages={setViewingImages}
               setViewingImageIndex={setViewingImageIndex}
+              userId={userId ?? ''} // Pass userId here
             />
           )}
         </BottomSheetView>

@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import EmojiTag from '@/components/EmojiTag';
 import Review from '@/components/Review';
 import { CafeType, NewReviewType } from './CafeTypes';
+import { supabase } from '@/lib/supabase';
 
 interface Props {
   cafe: CafeType;
@@ -11,7 +12,92 @@ interface Props {
   logVisit: () => void;
   setViewingImages: (arg: string[]) => void;
   setViewingImageIndex: (arg: number | null) => void;
+  userId: string; // Add userId here
 }
+
+// Function to get or create a list for "liked" or "to-go"
+const getOrCreateList = async (userId: string, listName: string) => {
+  try {
+    // Check if the list already exists for the user
+    const { data: existingList, error } = await supabase
+      .from('cafeList')
+      .select('id')
+      .eq('user_id', userId)
+      .eq('list_name', listName)
+      .single();
+
+    if (error && error.code !== 'PGRST116') {
+      throw error;
+    }
+
+    if (existingList) {
+      return existingList.id;
+    } else {
+      // If not exists, create the list
+      const { data, error: insertError } = await supabase
+        .from('cafeList')
+        .insert([{ user_id: userId, list_name: listName }])
+        .select()
+        .single();
+
+      if (insertError) throw insertError;
+      return data.id;
+    }
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('Error getting or creating list:', error.message);
+    } else {
+      console.error('Error getting or creating list:', error);
+    }
+    throw error;
+  }
+};
+
+// Function to add a cafe to a specific list
+const addCafeToList = async (cafeId: string, userId: string, listName: string) => {
+  try {
+    const listId = await getOrCreateList(userId, listName);
+
+    // Add the cafe to the list
+    const { data, error } = await supabase
+      .from('cafeListEntries')
+      .insert([{ cafe_id: cafeId, list_id: listId, user_id: userId }]);
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('Error adding cafe to list:', error.message);
+    } else {
+      console.error('Error adding cafe to list:', error);
+    }
+    throw error;
+  }
+};
+
+// Function to remove a cafe from a specific list
+const removeCafeFromList = async (cafeId: string, userId: string, listName: string) => {
+  try {
+    const listId = await getOrCreateList(userId, listName);
+
+    const { data, error } = await supabase
+      .from('cafeListEntries')
+      .delete()
+      .eq('cafe_id', cafeId)
+      .eq('list_id', listId)
+      .eq('user_id', userId);
+
+    if (error) throw error;
+    return data;
+  } catch (error) {
+    if (error instanceof Error) {
+      console.error('Error removing cafe from list:', error.message);
+    } else {
+      console.error('Error removing cafe from list:', error);
+    }
+    throw error;
+  }
+};
 
 export default function Cafe({
   cafe,
@@ -19,10 +105,45 @@ export default function Cafe({
   logVisit,
   setViewingImages,
   setViewingImageIndex,
+  userId, // Destructure userId here
 }: Props) {
   const [liked, setLiked] = useState(false);
   const [togo, setTogo] = useState(false);
   const [showHours, setShowHours] = useState(false);
+
+  const handleLike = async () => {
+    try {
+      if (liked) {
+        await removeCafeFromList(cafe.id, userId, 'liked');
+      } else {
+        await addCafeToList(cafe.id, userId, 'liked');
+      }
+      setLiked(!liked);
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error('Error toggling like:', error.message);
+      } else {
+        console.error('Error toggling like:', error);
+      }
+    }
+  };
+
+  const handleTogo = async () => {
+    try {
+      if (togo) {
+        await removeCafeFromList(cafe.id, userId, 'to-go');
+      } else {
+        await addCafeToList(cafe.id, userId, 'to-go');
+      }
+      setTogo(!togo);
+    } catch (error) {
+      if (error instanceof Error) {
+        console.error('Error toggling to-go:', error.message);
+      } else {
+        console.error('Error toggling to-go:', error);
+      }
+    }
+  };
 
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -87,14 +208,14 @@ export default function Cafe({
           <Text style={{ color: '#808080', paddingTop: 4 }}>269 reviews</Text>
         </View>
 
-        <Pressable onPress={() => setLiked(!liked)}>
+        <Pressable onPress={handleLike}>
           <View style={{ alignItems: 'center', gap: 2 }}>
             <Ionicons name={liked ? 'heart' : 'heart-outline'} size={32} color="black" />
             <Text style={{ color: '#808080' }}>Like</Text>
           </View>
         </Pressable>
 
-        <Pressable onPress={() => setTogo(!togo)}>
+        <Pressable onPress={handleTogo}>
           <View style={{ alignItems: 'center', gap: 2 }}>
             <Ionicons name={togo ? 'bookmark' : 'bookmark-outline'} size={32} color="black" />
             <Text style={{ color: '#808080' }}>To-go</Text>
