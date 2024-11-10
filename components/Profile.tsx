@@ -1,5 +1,5 @@
 import { supabase } from '@/lib/supabase';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { StyleSheet, Text, View, Pressable, Image, ScrollView, FlatList } from 'react-native';
 import { Link, useFocusEffect } from 'expo-router';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -54,55 +54,57 @@ export default function Profile({ uid }: Props) {
     },
   ];
 
-  useFocusEffect(() => {
-    const fetchProfile = async () => {
-      try {
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('name, location, bio, pfp')
-          .eq('user_id', uid)
-          .single();
-
-        const { data: sessionData } = await supabase.auth.getSession();
-        const myUid = sessionData?.session?.user.id;
-
-        let finalProfileData: ProfileType | null = profileData;
-
-        if (profileError || !profileData) {
-          // Create a default profile when theirs doesn't exist
-          const { data: newProfileData, error: upsertError } = await supabase
+  useFocusEffect(
+    useCallback(() => {
+      const fetchProfile = async () => {
+        try {
+          const { data: profileData, error: profileError } = await supabase
             .from('profiles')
-            .upsert({
-              user_id: uid,
-              name: 'Cafe lover',
-              location: 'Cafe',
-              bio: 'I love cafes!',
-            })
-            .select()
+            .select('name, location, bio, pfp')
+            .eq('user_id', uid)
             .single();
 
-          if (upsertError) {
-            console.error('Creating new profile error: ', upsertError);
-          } else {
-            finalProfileData = newProfileData;
+          const { data: sessionData } = await supabase.auth.getSession();
+          const myUid = sessionData?.session?.user.id;
+
+          let finalProfileData: ProfileType | null = profileData;
+
+          if (profileError || !profileData) {
+            // Create a default profile when theirs doesn't exist
+            const { data: newProfileData, error: upsertError } = await supabase
+              .from('profiles')
+              .upsert({
+                user_id: uid,
+                name: 'Cafe lover',
+                location: 'Cafe',
+                bio: 'I love cafes!',
+              })
+              .select()
+              .single();
+
+            if (upsertError) {
+              console.error('Creating new profile error: ', upsertError);
+            } else {
+              finalProfileData = newProfileData;
+            }
           }
-        }
 
-        if (!finalProfileData) {
-          throw 'Error fetching profile, neither fetch or upsert returned data';
-        }
+          if (!finalProfileData) {
+            throw 'Error fetching profile, neither fetch or upsert returned data';
+          }
 
-        setProfile(finalProfileData);
-        if (uid === myUid) {
-          setOwner(true);
+          setProfile(finalProfileData);
+          if (uid === myUid) {
+            setOwner(true);
+          }
+        } catch (error) {
+          console.error('Error fetching profile: ', error);
         }
-      } catch (error) {
-        console.error('Error fetching profile: ', error);
-      }
-    };
+      };
 
-    fetchProfile();
-  });
+      fetchProfile();
+    }, [uid]),
+  );
 
   return (
     <ScrollView>
