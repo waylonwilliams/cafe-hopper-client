@@ -127,7 +127,16 @@ export default function Explore() {
     // Filter cafes based on selected filters
     const requestBody = {
       query: searchText,
+      geolocation: {
+        lat: mapRegion.latitude,
+        lng: mapRegion.longitude,
+      },
+      openNow: selectedHours === 'Open Now',
+      rating: selectedRating,
+      tags: emojiTags,
     };
+
+    console.log('requestBody', requestBody);
 
     try {
       const response = await fetch('http://100.64.59.213:3000/cafes/search', {
