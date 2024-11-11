@@ -57,7 +57,9 @@ import ImageFullView from '@/components/CafePage/ImageFullView';
  */
 
 function assertString(v: string | string[] | undefined) {
+  console.log(v);
   if (typeof v !== 'string') {
+    console.log('somethig did not go right');
     throw new Error(
       'Something went wrong passing parameters to cafe page, probably not passing all required',
     );
@@ -126,17 +128,26 @@ export default function Index() {
   }
 
   // fetch reviews assosicated with this cafe on load
-  async function fetchReviews() {
-    const { data, error } = await supabase.from('reviews').select('*').eq('cafe_id', cafe.id);
-    if (error) {
-      console.log('Error fetching reviews', error);
-    } else {
-      setReviews(data);
-    }
-  }
+
   useEffect(() => {
-    fetchReviews();
-  }, []);
+    setReviews([]);
+    async function fetchReviews() {
+      try {
+        const { data, error } = await supabase.from('reviews').select('*').eq('cafe_id', cafe.id);
+        if (error) {
+          console.log('Error fetching reviews', error);
+        } else {
+          setReviews(data);
+        }
+      } catch (error) {
+        console.log('Unexpected error fetching reviews', error);
+      }
+    }
+    if (cafe.id) {
+      console.log('fetching reviews');
+      fetchReviews();
+    }
+  }, [cafe.id]);
 
   return (
     <>

@@ -53,7 +53,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#000000',
     marginVertical: 8,
-    width: '94%', // Adjust width here
+    // marginHorizontal: 8,
+    width: '100%', // Adjust width here
+    minWidth: '100%', // Adjust width here
     overflow: 'hidden',
     position: 'relative',
   },

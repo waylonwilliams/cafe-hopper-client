@@ -107,7 +107,7 @@ export default function Explore() {
   const [selectedHours, setSelectedHours] = useState('Any'); // Track selected hours
   const [selectedRating, setSelectedRating] = useState('Any'); // Track selected rating]
   const [searchText, setSearchText] = useState(''); // Track search text
-  const [searchedCafes, setSearchedCafes] = useState<CafeType[]>([]); // Track searched cafes
+  const [searchedCafes, setSearchedCafes] = useState<CafeType[]>(mockCafes); // Track searched cafes
   const [searchedMarkers, setMarkers] = useState<MarkerType[]>([]);
 
   // When the search bar is open it makes it not scrollable and closes when you press outside of it
@@ -275,20 +275,12 @@ Sunday:7:00AM–6:00PM`,
           <TextInput
             placeholder="Search a cafe, characteristic, etc."
             placeholderTextColor="#888"
-            onFocus={() => setShowFilters(true)} // Show filters when search is focused
+            // onFocus={() => setShowFilters(true)} // Show filters when search is focused
             value={searchText}
             onChangeText={(text) => setSearchText(text)}
+            returnKeyType="search"
+            onSubmitEditing={searchCafes}
           />
-          <TouchableOpacity
-            // make it on the very right
-            style={{
-              position: 'absolute',
-              right: 10,
-              top: 12,
-            }}
-            onPress={searchCafes}>
-            <Text>Search</Text>
-          </TouchableOpacity>
         </View>
         <View style={styles.buttonContainer}>
           <TouchableOpacity
@@ -414,7 +406,7 @@ Sunday:7:00AM–6:00PM`,
             initialRegion={mapRegion}
             region={mapRegion}
             showsUserLocation={true} // Show the default blue dot for user location
-            followsUserLocation={true}
+            // followsUserLocation={true}
             showsMyLocationButton={true}
             mapType="standard">
             {searchedMarkers.map((marker, index) => {
@@ -451,17 +443,17 @@ Sunday:7:00AM–6:00PM`,
                     pathname: '/cafe',
                     params: {
                       id: item.id,
-                      created_at: item.created_at,
-                      name: item.name ? item.name : '',
-                      address: item.address ? item.address : '',
+                      created_at: item.created_at ? item.created_at : '',
+                      name: item.name,
+                      address: item.address,
                       hours: item.hours ? item.hours : '',
                       latitude: item.latitude,
                       longitude: item.longitude,
                       tags: item.tags ? item.tags : [],
-                      rating: item.rating ? item.rating : 0,
-                      num_reviews: item.num_reviews ? item.num_reviews : 0,
                       image: item.image ? item.image : '',
                       summary: item.summary ? item.summary : '',
+                      rating: item.rating,
+                      num_reviews: item.num_reviews,
                     },
                   });
                 }}>
@@ -540,6 +532,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     paddingBottom: 90, // a bit of room for the navbar
+    flexGrow: 1,
+    paddingHorizontal: 10,
   },
   filterDropdown: {
     position: 'absolute',
