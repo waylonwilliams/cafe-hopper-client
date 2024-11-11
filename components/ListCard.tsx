@@ -11,6 +11,19 @@ export default function ListCard({ cafe }: ListCardProps) {
   const mockImageUrl =
     'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12';
 
+  // we want to only show the hours for today
+  // we can use the today variable to get the hours for today
+
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+  const today = days[new Date().getDay()];
+  const entries = cafe.hours.split('\n');
+  const scheduleDict: { [key: string]: string } = {};
+  entries.forEach((entry) => {
+    const [day, ...timeParts] = entry.split(':'); // Split on the first colon
+    const time = timeParts.join(':').trim(); // Join the remaining parts and trim
+    scheduleDict[day.trim()] = time;
+  });
   return (
     <View style={styles.card}>
       {/* <Image source={{ uri: mockImageUrl }} style={{ height: 100 }} resizeMode="contain" /> */}
@@ -29,7 +42,8 @@ export default function ListCard({ cafe }: ListCardProps) {
             <Text style={styles.ratingText}>⭐️4.2</Text>
           </View>
         </View>
-        <Text style={styles.hours}>{cafe.hours}</Text>
+        {/* Make the hours only show the hours for today */}
+        <Text style={styles.hours}>{scheduleDict[today]}</Text>
         <Text style={styles.location}>{cafe.address}</Text>
 
         {cafe.tags && (

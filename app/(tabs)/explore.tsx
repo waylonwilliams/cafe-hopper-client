@@ -275,7 +275,7 @@ Sunday:7:00AM–6:00PM`,
           <TextInput
             placeholder="Search a cafe, characteristic, etc."
             placeholderTextColor="#888"
-            // onFocus={() => setShowFilters(true)} // Show filters when search is focused
+            onFocus={() => setShowFilters(true)} // Show filters when search is focused
             value={searchText}
             onChangeText={(text) => setSearchText(text)}
             returnKeyType="search"
@@ -406,7 +406,7 @@ Sunday:7:00AM–6:00PM`,
             initialRegion={mapRegion}
             region={mapRegion}
             showsUserLocation={true} // Show the default blue dot for user location
-            // followsUserLocation={true}
+            followsUserLocation={true}
             showsMyLocationButton={true}
             mapType="standard">
             {searchedMarkers.map((marker, index) => {

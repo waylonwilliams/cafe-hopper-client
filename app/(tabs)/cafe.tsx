@@ -57,7 +57,7 @@ import ImageFullView from '@/components/CafePage/ImageFullView';
  */
 
 function assertString(v: string | string[] | undefined) {
-  console.log(v);
+  //   console.log(v);
   if (typeof v !== 'string') {
     console.log('somethig did not go right');
     throw new Error(
