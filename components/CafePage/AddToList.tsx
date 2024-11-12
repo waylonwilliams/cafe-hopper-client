@@ -58,6 +58,16 @@ export default function AddToList({ setAddingToList, cafe, userId }: Props) {
     }
   }
 
+  function getListIcon(listName: string) {
+    if (listName.toLowerCase() === 'liked') {
+      return 'heart';
+    } else if (listName.toLowerCase() === 'saved' || listName.toLowerCase() === 'to-go') {
+      return 'bookmark';
+    } else {
+      return 'list';
+    }
+  }
+
   return (
     <ScrollView contentContainerStyle={{ alignItems: 'center', paddingVertical: 25, gap: 15 }}>
       <Pressable
@@ -66,23 +76,51 @@ export default function AddToList({ setAddingToList, cafe, userId }: Props) {
         <Ionicons name="close" size={26} color="black" />
       </Pressable>
 
-      <Text style={{ fontWeight: 700, fontSize: 24 }}>Add to List</Text>
+      <Text style={{ fontWeight: 700, fontSize: 24, marginBottom: 5 }}>Save to List</Text>
+
+      {/* Render New List Button */}
+      <Pressable
+        style={{
+          backgroundColor: '#CCCCCC',
+          paddingVertical: 15,
+          paddingHorizontal: 10,
+          borderRadius: 30,
+          marginBottom: 10,
+          alignItems: 'center',
+          width: '40%',
+        }}>
+        <Text style={{ fontSize: 16, fontWeight: 600, color: 'white' }}>New List</Text>
+      </Pressable>
 
       {/* Render available lists */}
       <View style={{ width: '100%', paddingHorizontal: 20 }}>
-        <Text style={{ fontWeight: 600, fontSize: 18, marginBottom: 10 }}>Your Lists</Text>
         {lists.map((list) => (
-          <Pressable
+          <View
             key={list.id}
-            onPress={() => setSelectedListId(list.id)}
             style={{
-              padding: 10,
-              marginVertical: 5,
-              borderRadius: 5,
-              backgroundColor: selectedListId === list.id ? '#CCCCCC' : '#f0f0f0',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              paddingVertical: 10,
+              borderBottomWidth: 1,
+              borderBottomColor: '#E0E0E0',
             }}>
-            <Text style={{ fontSize: 16 }}>{list.name}</Text>
-          </Pressable>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 10 }}>
+              <Ionicons
+                name={getListIcon(list.name)}
+                size={20}
+                color="black"
+                style={{ marginRight: 10 }}
+              />
+              <Text style={{ fontSize: 16 }}>{list.name}</Text>
+            </View>
+            <Ionicons
+              name={selectedListId === list.id ? 'radio-button-on' : 'radio-button-off'}
+              size={20}
+              color="black"
+              onPress={() => setSelectedListId(list.id)}
+            />
+          </View>
         ))}
       </View>
 
@@ -93,8 +131,10 @@ export default function AddToList({ setAddingToList, cafe, userId }: Props) {
           alignItems: 'center',
           backgroundColor: '#CCCCCC',
           padding: 10,
-          borderRadius: 5,
+          borderRadius: 10,
           marginTop: 20,
+          width: '80%',
+          justifyContent: 'center',
         }}>
         <Ionicons name="checkmark-circle-outline" size={24} color="white" />
         <Text style={{ color: 'white', fontWeight: 700, marginLeft: 8 }}>Done</Text>
