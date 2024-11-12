@@ -9,8 +9,8 @@ export default function GetStartedPage() {
   // since i can't make the component async, I do a check and don't show the screen until it loads
   const [checked, setChecked] = useState(false);
   const checkLogin = async () => {
-    const { data } = await supabase.auth.getSession();
-    if (data.session !== null) {
+    const { data } = await supabase.auth.getUser(); // use getUser here to refresh on opening app
+    if (data.user !== null) {
       router.replace('/(tabs)');
     }
     setChecked(true);
