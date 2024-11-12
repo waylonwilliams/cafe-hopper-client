@@ -15,6 +15,7 @@ import {
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { MaterialIcons } from '@expo/vector-icons';
+import Constants from 'expo-constants';
 import { markers } from '../../assets/markers';
 import { MarkerType } from '../../components/CustomMarker';
 import CustomMarker from '../../components/CustomMarker';
@@ -26,6 +27,8 @@ import ListCard from '@/components/ListCard';
 import { CafeType } from '@/components/CafePage/CafeTypes';
 import { addWhitelistedUIProps } from 'react-native-reanimated/lib/typescript/ConfigHelper';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
+const API_URL = `http://${Constants.expoConfig?.hostUri!.split(':').shift()}:3000`;
 
 // Mock data
 const mockCafes: CafeType[] = [
@@ -139,7 +142,7 @@ export default function Explore() {
     console.log('requestBody', requestBody);
 
     try {
-      const response = await fetch('http://100.64.59.213:3000/cafes/search', {
+      const response = await fetch(`${API_URL}/cafes/search`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
