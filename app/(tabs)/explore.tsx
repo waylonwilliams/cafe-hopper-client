@@ -132,7 +132,7 @@ export default function Explore() {
         lng: mapRegion.longitude,
       },
       openNow: selectedHours === 'Open Now',
-      rating: selectedRating,
+      rating: selectedRating === 'Any' ? 0 : parseFloat(selectedRating),
       tags: emojiTags,
     };
 
