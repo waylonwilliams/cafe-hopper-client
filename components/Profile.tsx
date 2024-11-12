@@ -76,9 +76,7 @@ export default function Profile({ uid, setViewingImages }: Props) {
               .from('profiles')
               .upsert({
                 user_id: uid,
-                name: 'Cafe lover',
-                location: 'Cafe',
-                bio: 'I love cafes!',
+                // remove and use supabase defaults
               })
               .select()
               .single();
@@ -150,11 +148,13 @@ export default function Profile({ uid, setViewingImages }: Props) {
           </View>
 
           <View style={{ gap: 4 }}>
-            <Text style={styles.bio}>{profile.bio}</Text>
-            <View style={{ flexDirection: 'row', gap: 4 }}>
-              <Icon color="#8a8888" name="location-on" size={14} />
-              <Text style={styles.location}>{profile.location}</Text>
-            </View>
+            {profile.bio !== '' && <Text style={styles.bio}>{profile.bio}</Text>}
+            {profile.location !== '' && (
+              <View style={{ flexDirection: 'row', gap: 4 }}>
+                <Icon color="#8a8888" name="location-on" size={14} />
+                <Text style={styles.location}>{profile.location}</Text>
+              </View>
+            )}
           </View>
 
           {/* Stats */}
