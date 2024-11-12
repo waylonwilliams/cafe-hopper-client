@@ -5,6 +5,7 @@ import BottomSheet, { BottomSheetHandleProps, BottomSheetView } from '@gorhom/bo
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Cafe from '@/components/CafePage/Cafe';
 import Log from '@/components/CafePage/Log';
+import AddToList from '@/components/CafePage/AddToList';
 import React from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import { CafeType, NewReviewType } from '@/components/CafePage/CafeTypes';
@@ -93,6 +94,8 @@ export default function Index() {
   const [viewingImages, setViewingImages] = useState<string[] | null>(null);
   const [viewingImageIndex, setViewingImageIndex] = useState<number | null>(null);
 
+  const [addingToList, setAddingToList] = useState(false);
+
   // idk stuff for the bottom sheet
   const bottomSheetRef = useRef<BottomSheet>(null);
   //   const handleSheetChanges = useCallback((index: number) => {}, []);
@@ -130,6 +133,11 @@ export default function Index() {
 
   function logVisit() {
     setLoggingVisit(true);
+    bottomSheetRef.current?.snapToIndex(1);
+  }
+
+  function addToList() {
+    setAddingToList(true);
     bottomSheetRef.current?.snapToIndex(1);
   }
 
@@ -198,6 +206,8 @@ export default function Index() {
               reviews={reviews}
               setReviews={setReviews}
             />
+          ) : addingToList ? (
+            <AddToList setAddingToList={setAddingToList} cafe={cafe} userId={userId ?? ''} />
           ) : (
             <Cafe
               cafe={cafe}
@@ -205,7 +215,8 @@ export default function Index() {
               logVisit={logVisit}
               setViewingImages={setViewingImages}
               setViewingImageIndex={setViewingImageIndex}
-              userId={userId ?? ''} // Pass userId here
+              userId={userId ?? ''}
+              addToList={addToList}
             />
           )}
         </BottomSheetView>
