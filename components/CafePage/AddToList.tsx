@@ -4,6 +4,7 @@ import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { CafeType } from '@/components/CafePage/CafeTypes';
 import { addCafeToList, removeCafeFromList, checkCafeInList } from '@/lib/supabase-utils';
 import { supabase } from '@/lib/supabase';
+import NewList from './NewList';
 
 interface Props {
   setAddingToList: (arg: boolean) => void;
@@ -16,54 +17,50 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
   const [lists, setLists] = useState<
     { id: string; name: string; selected: boolean; cafeCount: number }[]
   >([]);
+  const [isNewListVisible, setIsNewListVisible] = useState(false);
+
+  // Define fetchUserLists within AddToList
+  const fetchUserLists = async () => {
+    try {
+      const { data: userLists, error } = await supabase
+        .from('cafeList')
+        .select('id, list_name')
+        .eq('user_id', userId);
+
+      if (error) throw error;
+
+      const updatedLists = await Promise.all(
+        (userLists || []).map(async (list) => {
+          const isSelected = await checkCafeInList(cafe.id, list.list_name);
+          const { count, error: countError } = await supabase
+            .from('cafeListEntries')
+            .select('cafe_id', { count: 'exact' })
+            .eq('list_id', list.id);
+
+          if (countError) throw countError;
+
+          return {
+            id: list.id,
+            name: list.list_name,
+            selected: isSelected,
+            cafeCount: count || 0,
+          };
+        }),
+      );
+      setLists(updatedLists);
+    } catch (error) {
+      console.error('Error fetching lists:', error);
+    }
+  };
 
   useEffect(() => {
-    // Fetch user's lists and check if the cafe is in "liked" or "to-go" lists
-    const fetchUserLists = async () => {
-      try {
-        const { data: userLists, error } = await supabase
-          .from('cafeList')
-          .select('id, list_name')
-          .eq('user_id', userId);
-
-        if (error) throw error;
-
-        const updatedLists = await Promise.all(
-          (userLists || []).map(async (list) => {
-            const isSelected = await checkCafeInList(cafe.id, list.list_name);
-
-            // Fetch the count of cafes in each list
-            const { count, error: countError } = await supabase
-              .from('cafeListEntries')
-              .select('cafe_id', { count: 'exact' })
-              .eq('list_id', list.id);
-
-            if (countError) throw countError;
-
-            // Sync with the view if the list is "liked" or "to-go"
-            if (
-              list.list_name.toLowerCase() === 'liked' ||
-              list.list_name.toLowerCase() === 'to-go'
-            ) {
-              updateCafeView(list.list_name, isSelected); // Ensure cafe view is in sync
-            }
-
-            return {
-              id: list.id,
-              name: list.list_name,
-              selected: isSelected,
-              cafeCount: count || 0, // Store the count for display
-            };
-          }),
-        );
-        setLists(updatedLists);
-      } catch (error) {
-        console.error('Error fetching lists:', error);
-      }
-    };
-
     fetchUserLists();
   }, [userId, cafe.id]);
+
+  const handleNewListCreated = () => {
+    setIsNewListVisible(false);
+    fetchUserLists(); // Refresh the lists when a new one is created
+  };
 
   function toggleListSelection(listId: string, listName: string) {
     setLists((prevLists) =>
@@ -121,6 +118,7 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
 
       {/* Render New List Button */}
       <Pressable
+        onPress={() => setIsNewListVisible(true)}
         style={{
           backgroundColor: '#CCCCCC',
           paddingVertical: 15,
@@ -130,7 +128,7 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
           alignItems: 'center',
           width: '40%',
         }}>
-        <Text style={{ fontSize: 16, fontWeight: 600, color: 'white' }}>New List</Text>
+        <Text style={{ fontSize: 16, fontWeight: '600', color: 'white' }}>New List</Text>
       </Pressable>
 
       {/* Render available lists */}
@@ -187,6 +185,13 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
         <Ionicons name="checkmark-circle-outline" size={24} color="white" />
         <Text style={{ color: 'white', fontWeight: 700, marginLeft: 8 }}>Done</Text>
       </Pressable>
+
+      <NewList
+        visible={isNewListVisible}
+        onClose={() => setIsNewListVisible(false)}
+        userId={userId}
+        onListCreated={handleNewListCreated}
+      />
     </ScrollView>
   );
 }
