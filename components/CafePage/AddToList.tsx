@@ -1,60 +1,92 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
 import React, { useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
-import EmojiTag from '@/components/EmojiTag';
-import { cafeTags, CafeType } from '@/components/CafePage/CafeTypes';
-import { addCafeToList } from '@/lib/supabase-utils';
+import { CafeType } from '@/components/CafePage/CafeTypes';
+import { addCafeToList, removeCafeFromList } from '@/lib/supabase-utils';
 import { supabase } from '@/lib/supabase';
 
 interface Props {
   setAddingToList: (arg: boolean) => void;
   cafe: CafeType;
   userId: string;
+  updateCafeView: (listName: string, selected: boolean) => void; // Callback to update cafe view icons for "liked" and "to-go"
 }
 
-export default function AddToList({ setAddingToList, cafe, userId }: Props) {
-  const [tags, setTags] = useState<string[]>([]);
-  const [lists, setLists] = useState<{ id: string; name: string }[]>([]);
-  const [selectedListId, setSelectedListId] = useState<string | null>(null);
+export default function AddToList({ setAddingToList, cafe, userId, updateCafeView }: Props) {
+  const [lists, setLists] = useState<{ id: string; name: string; selected: boolean }[]>([]);
 
   useEffect(() => {
-    // Fetch user's lists from Supabase on mount
+    // Fetch user's lists and check if the cafe is in "liked" or "to-go" lists
     const fetchUserLists = async () => {
       try {
-        const { data, error } = await supabase
+        const { data: userLists, error } = await supabase
           .from('cafeList')
           .select('id, list_name')
           .eq('user_id', userId);
 
         if (error) throw error;
-        setLists((data || []).map((list) => ({ id: list.id, name: list.list_name })));
+
+        const updatedLists = await Promise.all(
+          (userLists || []).map(async (list) => {
+            const { data: cafeInList } = await supabase
+              .from('cafeListItems')
+              .select('cafe_id')
+              .eq('list_id', list.id)
+              .eq('cafe_id', cafe.id);
+
+            const isSelected = !!(cafeInList && cafeInList.length > 0);
+            if (
+              list.list_name.toLowerCase() === 'liked' ||
+              list.list_name.toLowerCase() === 'to-go'
+            ) {
+              updateCafeView(list.list_name, isSelected); // Ensure cafe view is in sync
+            }
+
+            return {
+              id: list.id,
+              name: list.list_name,
+              selected: isSelected,
+            };
+          }),
+        );
+        setLists(updatedLists);
       } catch (error) {
         console.error('Error fetching lists:', error);
       }
     };
 
     fetchUserLists();
-  }, [userId]);
+  }, [userId, cafe.id]);
 
-  function handleTagClick(tag: string) {
-    setTags((prevTags) =>
-      prevTags.includes(tag) ? prevTags.filter((t) => t !== tag) : [...prevTags, tag],
+  function toggleListSelection(listId: string, listName: string) {
+    setLists((prevLists) =>
+      prevLists.map((list) => {
+        if (list.id === listId) {
+          const newSelected = !list.selected;
+          if (listName.toLowerCase() === 'liked' || listName.toLowerCase() === 'to-go') {
+            updateCafeView(listName, newSelected); // Only update cafe view for "liked" and "to-go"
+          }
+          return { ...list, selected: newSelected };
+        }
+        return list;
+      }),
     );
   }
 
   async function handleAddToList() {
-    if (!selectedListId) {
-      Alert.alert('Please select a list to add this cafe to.');
-      return;
-    }
-
     try {
-      await addCafeToList(cafe.id, userId, selectedListId);
-      Alert.alert('Cafe added to your list!');
+      for (const list of lists) {
+        if (list.selected) {
+          await addCafeToList(cafe.id, list.id);
+        } else {
+          await removeCafeFromList(cafe.id, list.id); // Assuming a function to remove from list
+        }
+      }
+      Alert.alert('Cafe list updated!');
       setAddingToList(false);
     } catch (error) {
-      console.error('Error adding cafe to list:', error);
-      Alert.alert('Failed to add cafe to list.');
+      console.error('Error updating cafe lists:', error);
+      Alert.alert('Failed to update cafe lists.');
     }
   }
 
@@ -114,12 +146,13 @@ export default function AddToList({ setAddingToList, cafe, userId }: Props) {
               />
               <Text style={{ fontSize: 16 }}>{list.name}</Text>
             </View>
-            <Ionicons
-              name={selectedListId === list.id ? 'radio-button-on' : 'radio-button-off'}
-              size={20}
-              color="black"
-              onPress={() => setSelectedListId(list.id)}
-            />
+            <Pressable onPress={() => toggleListSelection(list.id, list.name)}>
+              <Ionicons
+                name={list.selected ? 'checkbox' : 'square-outline'}
+                size={20}
+                color="black"
+              />
+            </Pressable>
           </View>
         ))}
       </View>
@@ -131,7 +164,7 @@ export default function AddToList({ setAddingToList, cafe, userId }: Props) {
           alignItems: 'center',
           backgroundColor: '#CCCCCC',
           padding: 10,
-          borderRadius: 10,
+          borderRadius: 30,
           marginTop: 20,
           width: '80%',
           justifyContent: 'center',

@@ -207,7 +207,14 @@ export default function Index() {
               setReviews={setReviews}
             />
           ) : addingToList ? (
-            <AddToList setAddingToList={setAddingToList} cafe={cafe} userId={userId ?? ''} />
+            <AddToList
+              setAddingToList={setAddingToList}
+              cafe={cafe}
+              userId={userId ?? ''}
+              updateCafeView={(listName, selected) => {
+                /* implement the callback function here */
+              }}
+            />
           ) : (
             <Cafe
               cafe={cafe}

@@ -34,8 +34,8 @@ export default function Cafe({
   useEffect(() => {
     const loadInitialState = async () => {
       try {
-        const isLiked = await checkCafeInList(cafe.id, userId, 'liked');
-        const isTogo = await checkCafeInList(cafe.id, userId, 'to-go');
+        const isLiked = await checkCafeInList(cafe.id, 'liked');
+        const isTogo = await checkCafeInList(cafe.id, 'to-go');
         setLiked(isLiked);
         setTogo(isTogo);
       } catch (error) {
@@ -50,10 +50,10 @@ export default function Cafe({
     try {
       if (liked) {
         // If currently liked, remove it from the "liked" list
-        await removeCafeFromList(cafe.id, userId, 'liked');
+        await removeCafeFromList(cafe.id, 'liked');
       } else {
         // Otherwise, add it to the "liked" list
-        await addCafeToList(cafe.id, userId, 'liked');
+        await addCafeToList(cafe.id, 'liked');
       }
       setLiked(!liked); // Toggle the liked state
     } catch (error) {
@@ -65,10 +65,10 @@ export default function Cafe({
     try {
       if (togo) {
         // If currently marked as to-go, remove it from the "to-go" list
-        await removeCafeFromList(cafe.id, userId, 'to-go');
+        await removeCafeFromList(cafe.id, 'to-go');
       } else {
         // Otherwise, add it to the "to-go" list
-        await addCafeToList(cafe.id, userId, 'to-go');
+        await addCafeToList(cafe.id, 'to-go');
       }
       setTogo(!togo); // Toggle the togo state
     } catch (error) {
