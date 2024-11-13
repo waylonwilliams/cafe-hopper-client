@@ -73,9 +73,11 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
     try {
       for (const list of lists) {
         if (list.selected) {
+          // Add cafe to the list by list ID directly, ensuring no new list is created
           await addCafeToList(cafe.id, list.id);
         } else {
-          await removeCafeFromList(cafe.id, list.id); // Assuming a function to remove from list
+          // Remove cafe from the list by list ID
+          await removeCafeFromList(cafe.id, list.id);
         }
       }
       Alert.alert('Cafe list updated!');

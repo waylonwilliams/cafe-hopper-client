@@ -17,25 +17,27 @@ export const getOrCreateList = async (listName: string) => {
       .select('id')
       .eq('user_id', userId)
       .eq('list_name', listName)
-      .maybeSingle();
+      .single(); // Expecting only one row
 
-    if (error) {
+    if (error && error.code !== 'PGRST116') {
+      // Only throw if the error isn't about no rows being returned
       throw error;
     }
 
     if (existingList) {
+      // Return the existing list if found
       return existingList.id;
-    } else {
-      // Create the list if it does not exist
-      const { data, error: insertError } = await supabase
-        .from('cafeList')
-        .insert([{ user_id: userId, list_name: listName }])
-        .select()
-        .single();
-
-      if (insertError) throw insertError;
-      return data.id;
     }
+
+    // Create the list if it does not exist
+    const { data, error: insertError } = await supabase
+      .from('cafeList')
+      .insert([{ user_id: userId, list_name: listName }])
+      .select()
+      .single();
+
+    if (insertError) throw insertError;
+    return data.id;
   } catch (error) {
     console.error(
       'Error getting or creating list:',
@@ -62,11 +64,29 @@ export const checkCafeInList = async (cafeId: string, listName: string) => {
   return !!data; // Returns true if the entry exists, false otherwise
 };
 
-// Function to add a cafe to a specific list
-export const addCafeToList = async (cafeId: string, listName: string) => {
+// Add cafe to a specific list by ID without creating a new list
+export const addCafeToList = async (cafeId: string, listId: string) => {
   const userId = await getUserId();
-  const listId = await getOrCreateList(listName);
 
+  // Check if the cafe is already in the list to avoid duplicates
+  const { data: existingEntry, error: checkError } = await supabase
+    .from('cafeListEntries')
+    .select('id')
+    .eq('cafe_id', cafeId)
+    .eq('list_id', listId)
+    .eq('user_id', userId)
+    .single();
+
+  if (checkError && checkError.code !== 'PGRST116') {
+    throw checkError;
+  }
+
+  if (existingEntry) {
+    // If entry already exists, do nothing to prevent duplicates
+    return;
+  }
+
+  // Insert the cafe into the list if not already present
   const { data, error } = await supabase
     .from('cafeListEntries')
     .insert([{ cafe_id: cafeId, list_id: listId, user_id: userId }]);
@@ -75,10 +95,9 @@ export const addCafeToList = async (cafeId: string, listName: string) => {
   return data;
 };
 
-// Function to remove a cafe from a specific list
-export const removeCafeFromList = async (cafeId: string, listName: string) => {
+// Remove cafe from a specific list by ID
+export const removeCafeFromList = async (cafeId: string, listId: string) => {
   const userId = await getUserId();
-  const listId = await getOrCreateList(listName);
 
   const { data, error } = await supabase
     .from('cafeListEntries')
