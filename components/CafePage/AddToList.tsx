@@ -13,7 +13,9 @@ interface Props {
 }
 
 export default function AddToList({ setAddingToList, cafe, userId, updateCafeView }: Props) {
-  const [lists, setLists] = useState<{ id: string; name: string; selected: boolean }[]>([]);
+  const [lists, setLists] = useState<
+    { id: string; name: string; selected: boolean; cafeCount: number }[]
+  >([]);
 
   useEffect(() => {
     // Fetch user's lists and check if the cafe is in "liked" or "to-go" lists
@@ -30,6 +32,14 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
           (userLists || []).map(async (list) => {
             const isSelected = await checkCafeInList(cafe.id, list.list_name);
 
+            // Fetch the count of cafes in each list
+            const { count, error: countError } = await supabase
+              .from('cafeListEntries')
+              .select('cafe_id', { count: 'exact' })
+              .eq('list_id', list.id);
+
+            if (countError) throw countError;
+
             // Sync with the view if the list is "liked" or "to-go"
             if (
               list.list_name.toLowerCase() === 'liked' ||
@@ -42,6 +52,7 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
               id: list.id,
               name: list.list_name,
               selected: isSelected,
+              cafeCount: count || 0, // Store the count for display
             };
           }),
         );
@@ -142,7 +153,13 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
                 color="black"
                 style={{ marginRight: 10 }}
               />
-              <Text style={{ fontSize: 16 }}>{list.name}</Text>
+              <View>
+                <Text style={{ fontSize: 16 }}>{list.name}</Text>
+                <Text style={{ fontSize: 12, color: 'gray' }}>
+                  {list.cafeCount} cafe{list.cafeCount === 1 ? '' : 's'}
+                </Text>
+                {/* Display the cafe count here */}
+              </View>
             </View>
             <Pressable onPress={() => toggleListSelection(list.id, list.name)}>
               <Ionicons
