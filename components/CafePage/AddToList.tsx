@@ -2,7 +2,7 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import React, { useEffect, useState } from 'react';
 import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { CafeType } from '@/components/CafePage/CafeTypes';
-import { addCafeToList, removeCafeFromList } from '@/lib/supabase-utils';
+import { addCafeToList, removeCafeFromList, checkCafeInList } from '@/lib/supabase-utils';
 import { supabase } from '@/lib/supabase';
 
 interface Props {
@@ -28,13 +28,9 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
 
         const updatedLists = await Promise.all(
           (userLists || []).map(async (list) => {
-            const { data: cafeInList } = await supabase
-              .from('cafeListItems')
-              .select('cafe_id')
-              .eq('list_id', list.id)
-              .eq('cafe_id', cafe.id);
+            const isSelected = await checkCafeInList(cafe.id, list.list_name);
 
-            const isSelected = !!(cafeInList && cafeInList.length > 0);
+            // Sync with the view if the list is "liked" or "to-go"
             if (
               list.list_name.toLowerCase() === 'liked' ||
               list.list_name.toLowerCase() === 'to-go'
