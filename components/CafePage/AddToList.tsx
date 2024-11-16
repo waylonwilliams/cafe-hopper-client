@@ -15,7 +15,7 @@ interface Props {
 
 export default function AddToList({ setAddingToList, cafe, userId, updateCafeView }: Props) {
   const [lists, setLists] = useState<
-    { id: string; name: string; selected: boolean; cafeCount: number }[]
+    { id: string; name: string; selected: boolean; cafeCount: number; visibility: boolean }[]
   >([]);
   const [isNewListVisible, setIsNewListVisible] = useState(false);
 
@@ -24,7 +24,7 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
     try {
       const { data: userLists, error } = await supabase
         .from('cafeList')
-        .select('id, list_name')
+        .select('id, list_name, public')
         .eq('user_id', userId);
 
       if (error) throw error;
@@ -44,6 +44,7 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
             name: list.list_name,
             selected: isSelected,
             cafeCount: count || 0,
+            visibility: list.public,
           };
         }),
       );
@@ -154,7 +155,9 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
               <View>
                 <Text style={{ fontSize: 16 }}>{list.name}</Text>
                 <Text style={{ fontSize: 12, color: 'gray' }}>
-                  {list.cafeCount} cafe{list.cafeCount === 1 ? '' : 's'}
+                  {list.cafeCount} cafe{list.cafeCount === 1 ? '' : 's'} -{' '}
+                  {list.visibility ? 'public' : 'private'}
+                  list
                 </Text>
                 {/* Display the cafe count here */}
               </View>
