@@ -56,13 +56,14 @@ import ImageFullView from '@/components/CafePage/ImageFullView';
       </Link>
  */
 
-function assertString(v: string | string[] | undefined) {
-  //   console.log(v);
-  if (typeof v !== 'string') {
-    console.log('somethig did not go right');
-    throw new Error(
-      'Something went wrong passing parameters to cafe page, probably not passing all required',
-    );
+function assertString(v: string | string[] | undefined): string {
+  if (v === undefined) {
+    console.warn('Parameter is undefined, using default value');
+    return '';
+  }
+  if (Array.isArray(v)) {
+    console.warn('Parameter is array, joining with commas');
+    return v.join(',');
   }
   return v;
 }
@@ -74,20 +75,41 @@ function assertString(v: string | string[] | undefined) {
 export default function Index() {
   const cafeObj = useLocalSearchParams();
 
-  const cafe = {
-    id: assertString(cafeObj.id),
-    created_at: assertString(cafeObj.created_at),
-    name: assertString(cafeObj.name),
-    hours: assertString(cafeObj.hours),
-    latitude: parseFloat(assertString(cafeObj.latitude)),
-    longitude: parseFloat(assertString(cafeObj.longitude)),
-    address: assertString(cafeObj.address),
-    tags: assertString(cafeObj.tags).split(','),
-    image: assertString(cafeObj.image),
-    summary: assertString(cafeObj.summary),
-    rating: parseFloat(assertString(cafeObj.rating)),
-    num_reviews: parseFloat(assertString(cafeObj.num_reviews)),
-  } as CafeType;
+  const cafe = useMemo(() => {
+    try {
+      return {
+        id: assertString(cafeObj.id),
+        created_at: assertString(cafeObj.created_at),
+        name: assertString(cafeObj.name),
+        hours: assertString(cafeObj.hours),
+        latitude: parseFloat(assertString(cafeObj.latitude)) || 0,
+        longitude: parseFloat(assertString(cafeObj.longitude)) || 0,
+        address: assertString(cafeObj.address),
+        tags: assertString(cafeObj.tags).split(',').filter(Boolean),
+        image: assertString(cafeObj.image),
+        summary: assertString(cafeObj.summary),
+        rating: parseFloat(assertString(cafeObj.rating)) || 0,
+        num_reviews: parseFloat(assertString(cafeObj.num_reviews)) || 0,
+      } as CafeType;
+    } catch (error) {
+      console.error('Error parsing cafe parameters:', error);
+      // Return a default cafe object
+      return {
+        id: '',
+        created_at: '',
+        name: 'Unknown Cafe',
+        hours: '',
+        latitude: 0,
+        longitude: 0,
+        address: '',
+        tags: [],
+        image: '',
+        summary: '',
+        rating: 0,
+        num_reviews: 0,
+      } as CafeType;
+    }
+  }, [cafeObj]);
 
   const [loggingVisit, setLoggingVisit] = useState(false);
   const [reviews, setReviews] = useState<NewReviewType[]>([]);

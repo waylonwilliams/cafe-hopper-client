@@ -102,7 +102,7 @@ export default function Explore() {
     longitudeDelta: 0.005,
   });
 
-  const [viewMode, setViewMode] = useState<'list' | 'map'>('map'); // State for switching between views
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list'); // State for switching between views
   const [showFilters, setShowFilters] = useState(false); // State to toggle the filter dropdown
   const [emojiTags, setEmojiTags] = useState<string[]>([]); // State to track selected emoji tags
   const mapRef = useRef<MapView>(null); // Reference to the MapView
@@ -112,6 +112,7 @@ export default function Explore() {
   const [searchText, setSearchText] = useState(''); // Track search text
   const [searchedCafes, setSearchedCafes] = useState<CafeType[]>(mockCafes); // Track searched cafes
   const [searchedMarkers, setMarkers] = useState<MarkerType[]>([]);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   // When the search bar is open it makes it not scrollable and closes when you press outside of it
   // WHen its closed it does nothing, making it scrollable
@@ -122,6 +123,43 @@ export default function Explore() {
       );
     } else {
       return <>{children}</>;
+    }
+  };
+
+  const navigateToCafe = (cafe: CafeType) => {
+    // Ensure all parameters are properly validated and formatted
+    if (isNavigating) {
+      return;
+    }
+    setIsNavigating(true);
+
+    try {
+      const cafeParams = {
+        id: cafe?.id ?? '',
+        created_at: cafe?.created_at ?? '',
+        name: cafe?.name ?? '',
+        address: cafe?.address ?? '',
+        hours: cafe?.hours ?? '',
+        latitude: cafe?.latitude ?? 0,
+        longitude: cafe?.longitude ?? 0,
+        tags: Array.isArray(cafe?.tags) ? cafe?.tags.join(',') : '',
+        image: cafe?.image ?? '',
+        summary: cafe?.summary ?? '',
+        rating: cafe?.rating ?? 0,
+        num_reviews: cafe?.num_reviews ?? 0,
+      };
+
+      // Add a small delay to ensure state updates are complete
+      setTimeout(() => {
+        router.push({
+          pathname: '/cafe',
+          params: cafeParams,
+        });
+      }, 100);
+    } catch (error) {
+      console.log('Failed to navigate to cafe', error);
+    } finally {
+      setIsNavigating(false);
     }
   };
 
@@ -162,10 +200,12 @@ export default function Explore() {
         return;
       }
 
+      const limitedData = data.slice(0, 15); // Limit to 15 cafes
+
       const cafes = [];
       const markers: MarkerType[] = [];
-      for (const cafe of data) {
-        cafes.push({
+      for (const cafe of limitedData) {
+        const newCafe = {
           id: cafe.id,
           name: cafe.title ? cafe.title : '',
           address: cafe.address ? cafe.address : '',
@@ -178,7 +218,8 @@ export default function Explore() {
           num_reviews: cafe.num_reviews ? cafe.num_reviews : 0,
           image: cafe.image ? cafe.image : '',
           summary: cafe.summary ? cafe.summary : '',
-        });
+        };
+        cafes.push(newCafe);
 
         markers.push({
           name: cafe.title,
@@ -186,6 +227,7 @@ export default function Explore() {
           longitude: cafe.longitude,
           rating: cafe.rating ? cafe.rating : 0,
           category: 'default',
+          cafe: newCafe,
         });
       }
 
@@ -223,31 +265,10 @@ export default function Explore() {
 
   const handleMarkerPress = (marker: MarkerType) => {
     // Navigate to cafe view and pass marker data as parameters
-    console.log(`Navigating to cafe view for: ${marker.name}`);
-    router.push({
-      pathname: '/cafe',
-      params: {
-        id: 'ChIJ1USNsRYVjoARsVMJfrLeXqg',
-        created_at: '2021-06-21T18:00:00.000Z',
-        name: 'Verve Coffee Roasters',
-        address: '816 41st Ave, Santa Cruz, CA 95062, USA',
-        hours: `Monday:7:00AM–6:00PM
-Tuesday:7:00AM–6:00PM
-Wednesday:7:00AM–6:00PM
-Thursday:7:00AM–6:00PM
-Friday:7:00AM–6:00PM
-Saturday:7:00AM–6:00PM
-Sunday:7:00AM–6:00PM`,
-        latitude: 36.9641309,
-        longitude: -121.9647378,
-        tags: ['☕ Excellent coffee', '🪴 Ambiance', '🎶 Good music'],
-        image:
-          'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12',
-        summary: 'A cozy cafe',
-        rating: 9.5,
-        num_reviews: 100,
-      },
-    });
+    console.log('Navigating to cafe', marker.name);
+    if (marker.cafe) {
+      navigateToCafe(marker.cafe);
+    }
   };
 
   useEffect(() => {
@@ -444,37 +465,36 @@ Sunday:7:00AM–6:00PM`,
         //   renderItem={({ item }) => <ListCard cafe={item} />}
         //   contentContainerStyle={styles.listView}
         // />
-        <FlatList
-          data={searchedCafes}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => {
-            return (
-              <Pressable
-                onPress={() => {
-                  router.push({
-                    pathname: '/cafe',
-                    params: {
-                      id: item.id,
-                      created_at: item.created_at ? item.created_at : '',
-                      name: item.name,
-                      address: item.address,
-                      hours: item.hours ? item.hours : '',
-                      latitude: item.latitude,
-                      longitude: item.longitude,
-                      tags: item.tags ? item.tags : [],
-                      image: item.image ? item.image : '',
-                      summary: item.summary ? item.summary : '',
-                      rating: item.rating,
-                      num_reviews: item.num_reviews,
-                    },
-                  });
-                }}>
-                <ListCard cafe={item} />
-              </Pressable>
-            );
-          }}
-          contentContainerStyle={styles.listView}
-        />
+        // <FlatList
+        //   data={searchedCafes}
+        //   keyExtractor={(item) => item.id}
+        //   renderItem={({ item }) => (
+        //     <Pressable
+        //       onPress={() => navigateToCafe(item)}
+        //       style={({ pressed }) => [
+        //         {
+        //           opacity: pressed ? 0.5 : 1,
+        //         },
+        //       ]}>
+        //       <ListCard cafe={item} />
+        //     </Pressable>
+        //   )}
+        //   contentContainerStyle={styles.listView}
+        // />
+        <ScrollView contentContainerStyle={styles.listView}>
+          {searchedCafes.map((cafe) => (
+            <Pressable
+              key={cafe.id}
+              onPress={() => navigateToCafe(cafe)}
+              style={({ pressed }) => [
+                {
+                  opacity: pressed ? 0.5 : 1,
+                },
+              ]}>
+              <ListCard cafe={cafe} />
+            </Pressable>
+          ))}
+        </ScrollView>
       )}
     </View>,
   );
