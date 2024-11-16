@@ -28,7 +28,8 @@ import { CafeType } from '@/components/CafePage/CafeTypes';
 import { addWhitelistedUIProps } from 'react-native-reanimated/lib/typescript/ConfigHelper';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
-const API_URL = `http://${Constants.expoConfig?.hostUri!.split(':').shift()}:3000`;
+// const API_URL = `http://${Constants.expoConfig?.hostUri!.split(':').shift()}:3000`;
+const API_URL = 'https://localhost:3000';
 
 // Mock data
 const mockCafes: CafeType[] = [
@@ -173,11 +174,9 @@ export default function Explore() {
         lng: mapRegion.longitude,
       },
       openNow: selectedHours === 'Open Now',
-      rating: selectedRating === 'Any' ? 0 : parseFloat(selectedRating),
+      rating: selectedRating === 'Any' ? 0 : parseFloat(selectedRating) * 2,
       tags: emojiTags,
     };
-
-    console.log('requestBody', requestBody);
 
     try {
       const response = await fetch(`${API_URL}/cafes/search`, {
