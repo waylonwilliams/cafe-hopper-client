@@ -252,7 +252,7 @@ export default function Profile({ uid, setViewingImages }: Props) {
             style={styles.carousel}
           />
         </View>
-        
+
         {/* Lists */}
         <View style={styles.recent}>
           <Text style={styles.listText}>Lists</Text>
@@ -260,7 +260,6 @@ export default function Profile({ uid, setViewingImages }: Props) {
             <ProfileList key={list.id} list={list} />
           ))}
         </View>
-
       </View>
     </ScrollView>
   );
