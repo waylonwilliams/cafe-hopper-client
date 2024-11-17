@@ -5,7 +5,7 @@ import { Link } from 'expo-router';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import CardComponent from '@/components/Card';
-
+import ProfileList from './ProfileList';
 interface Profile {
   name: string;
   location: string;
@@ -45,25 +45,67 @@ export default function Prof() {
     },
   ];
 
-  useEffect(() => {
-    // Fetch user profile data when the component mounts
+  interface UserList {
+    id: string;
+    name: string;
+    cafeCount: number;
+    visibility: boolean;
+  }
 
-    const fetchProfile = async () => {
-      const uid = (await supabase.auth.getSession())?.data.session?.user.id;
-      const { data, error } = await supabase
+  const [userLists, setUserLists] = useState<UserList[]>([]); // State to hold user's lists
+  useEffect(() => {
+    const fetchUserProfileAndLists = async () => {
+      const userId = (await supabase.auth.getSession())?.data.session?.user.id;
+
+      // Fetch Profile Data
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('name, location, bio, pfp')
-        .eq('user_id', uid)
+        .eq('user_id', userId)
         .single();
 
-      if (error) {
-        console.error('Error fetching profile:', error);
+      if (profileError) {
+        console.error('Error fetching profile:', profileError);
       } else {
-        setProfile(data); // Store profile data in state
+        setProfile(profileData);
       }
+
+      // Fetch User Lists
+      const { data: userLists, error: listsError } = await supabase
+        .from('cafeList')
+        .select('id, list_name, public')
+        .eq('user_id', userId);
+
+      if (listsError) {
+        console.error('Error fetching lists:', listsError);
+        return;
+      }
+
+      const formattedLists = await Promise.all(
+        (userLists || []).map(async (list) => {
+          // Fetch cafe count for each list
+          const { count: cafeCount, error: countError } = await supabase
+            .from('cafeListEntries')
+            .select('cafe_id', { count: 'exact' })
+            .eq('list_id', list.id);
+
+          if (countError) {
+            console.error(`Error fetching cafe count for list :`, countError);
+          }
+
+          return {
+            id: list.id,
+            name: list.list_name,
+            cafeCount: cafeCount || 0,
+            visibility: list.public,
+          };
+        }),
+      );
+
+      setUserLists(formattedLists);
     };
 
-    fetchProfile();
+    fetchUserProfileAndLists();
   }, []);
 
   return (
@@ -135,6 +177,14 @@ export default function Prof() {
             style={styles.carousel}
           />
         </View>
+      </View>
+
+      {/* Lists */}
+      <View style={styles.recent}>
+        <Text style={styles.listText}>Lists</Text>
+        {userLists.map((list) => (
+          <ProfileList key={list.id} list={list} />
+        ))}
       </View>
     </ScrollView>
   );
