@@ -28,7 +28,7 @@ const SignUpScreen = () => {
     // console.log('Password:', password);
     // console.log('ConfPwd: ', confPassword);
     if (password === confPassword) {
-      console.log('pwds match');
+      // console.log('pwds match');
       if (password) setLoading(true);
       const { error } = await supabase.auth.signUp({
         email: email,
