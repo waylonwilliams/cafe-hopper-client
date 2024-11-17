@@ -5,6 +5,7 @@ import { Link, useFocusEffect } from 'expo-router';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import CardComponent from '@/components/Card';
+import ProfileList from './ProfileList';
 
 // setup with props so this can be used for other ppls profiles in the future
 interface Props {
@@ -55,6 +56,15 @@ export default function Profile({ uid, setViewingImages }: Props) {
     },
   ];
 
+  interface UserList {
+    id: string;
+    name: string;
+    cafeCount: number;
+    visibility: boolean;
+  }
+
+  const [userLists, setUserLists] = useState<UserList[]>([]); // State to hold user's lists
+
   useFocusEffect(
     useCallback(() => {
       const fetchProfile = async () => {
@@ -99,6 +109,39 @@ export default function Profile({ uid, setViewingImages }: Props) {
         } catch (error) {
           console.error('Error fetching profile: ', error);
         }
+
+        const { data: userLists, error: listsError } = await supabase
+          .from('cafeList')
+          .select('id, list_name, public')
+          .eq('user_id', uid);
+
+        if (listsError) {
+          console.error('Error fetching lists:', listsError);
+          return;
+        }
+
+        const formattedLists = await Promise.all(
+          (userLists || []).map(async (list) => {
+            // Fetch cafe count for each list
+            const { count: cafeCount, error: countError } = await supabase
+              .from('cafeListEntries')
+              .select('cafe_id', { count: 'exact' })
+              .eq('list_id', list.id);
+
+            if (countError) {
+              console.error(`Error fetching cafe count for list :`, countError);
+            }
+
+            return {
+              id: list.id,
+              name: list.list_name,
+              cafeCount: cafeCount || 0,
+              visibility: list.public,
+            };
+          }),
+        );
+
+        setUserLists(formattedLists);
       };
 
       fetchProfile();
@@ -209,6 +252,15 @@ export default function Profile({ uid, setViewingImages }: Props) {
             style={styles.carousel}
           />
         </View>
+        
+        {/* Lists */}
+        <View style={styles.recent}>
+          <Text style={styles.listText}>Lists</Text>
+          {userLists.map((list) => (
+            <ProfileList key={list.id} list={list} />
+          ))}
+        </View>
+
       </View>
     </ScrollView>
   );
