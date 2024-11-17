@@ -55,7 +55,7 @@ const ListCard: React.FC<ListCardProps> = ({ cafe }) => {
   );
 };
 
-export default memo(ListCard);
+export default ListCard;
 
 const styles = StyleSheet.create({
   card: {

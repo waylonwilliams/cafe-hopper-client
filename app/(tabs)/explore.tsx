@@ -29,9 +29,7 @@ import { addWhitelistedUIProps } from 'react-native-reanimated/lib/typescript/Co
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 // const API_URL = `http://${Constants.expoConfig?.hostUri!.split(':').shift()}:3000`;
-const API_URL = 'https://localhost:3000';
 
-// Mock data
 const mockCafes: CafeType[] = [
   {
     id: '1',
@@ -94,8 +92,7 @@ const mockCafes: CafeType[] = [
     summary: null,
   },
 ];
-
-export default function Explore() {
+export default function NewExplore() {
   const [mapRegion, setMapRegion] = useState({
     latitude: 5.603717,
     longitude: -0.186964,
@@ -104,31 +101,30 @@ export default function Explore() {
   });
 
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list'); // State for switching between views
-  const [showFilters, setShowFilters] = useState(false); // State to toggle the filter dropdown
-  const [emojiTags, setEmojiTags] = useState<string[]>([]); // State to track selected emoji tags
+  //   const [showFilters, setShowFilters] = useState(false); // State to toggle the filter dropdown
+  //   const [emojiTags, setEmojiTags] = useState<string[]>([]); // State to track selected emoji tags
   const mapRef = useRef<MapView>(null); // Reference to the MapView
   const router = useRouter(); // Get the router instance from expo-router
-  const [selectedHours, setSelectedHours] = useState('Any'); // Track selected hours
-  const [selectedRating, setSelectedRating] = useState('Any'); // Track selected rating]
-  const [searchText, setSearchText] = useState(''); // Track search text
+  //   const [selectedHours, setSelectedHours] = useState('Any'); // Track selected hours
+  //   const [selectedRating, setSelectedRating] = useState('Any'); // Track selected rating]
+
+  const [searchQuery, setSearchQuery] = useState(''); // Track search query
+  const [debouncedQuery, setDebouncedQuery] = useState('');
   const [searchedCafes, setSearchedCafes] = useState<CafeType[]>(mockCafes); // Track searched cafes
   const [searchedMarkers, setMarkers] = useState<MarkerType[]>([]);
   const [isNavigating, setIsNavigating] = useState(false);
 
-  // When the search bar is open it makes it not scrollable and closes when you press outside of it
-  // WHen its closed it does nothing, making it scrollable
-  const searchExitWrapper = (children: React.ReactNode) => {
-    if (showFilters) {
-      return (
-        <TouchableWithoutFeedback onPress={dismissDropdown}>{children}</TouchableWithoutFeedback>
-      );
-    } else {
-      return <>{children}</>;
+  const API_URL = `http://${Constants.expoConfig?.hostUri!.split(':').shift()}:3000`;
+
+  const handleMarkerPress = (marker: MarkerType) => {
+    // Navigate to cafe view and pass marker data as parameters
+    console.log('Navigating to cafe', marker.name);
+    if (marker.cafe) {
+      navigateToCafe(marker.cafe);
     }
   };
 
   const navigateToCafe = (cafe: CafeType) => {
-    // Ensure all parameters are properly validated and formatted
     if (isNavigating) {
       return;
     }
@@ -164,80 +160,91 @@ export default function Explore() {
     }
   };
 
-  const searchCafes = async () => {
-    setShowFilters(false); // Hide filters when searching
-    // Filter cafes based on selected filters
-    const requestBody = {
-      query: searchText,
-      geolocation: {
-        lat: mapRegion.latitude,
-        lng: mapRegion.longitude,
-      },
-      openNow: selectedHours === 'Open Now',
-      rating: selectedRating === 'Any' ? 0 : parseFloat(selectedRating) * 2,
-      tags: emojiTags,
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (debouncedQuery !== searchQuery) {
+        setDebouncedQuery(searchQuery);
+      }
+    }, 300); // Adjust debounce delay as needed
+
+    return () => {
+      clearTimeout(handler); // Cleanup previous timeout
     };
+  }, [searchQuery, debouncedQuery]);
 
-    try {
-      const response = await fetch(`${API_URL}/cafes/search`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      if (!response.ok) {
-        console.log('Failed to search');
-        return;
-      }
-
-      const data = await response.json();
-
-      if (!Array.isArray(data)) {
-        console.log('Invalid data');
-        return;
-      }
-
-      const limitedData = data.slice(0, 15); // Limit to 15 cafes
-
-      const cafes = [];
-      const markers: MarkerType[] = [];
-      for (const cafe of limitedData) {
-        const newCafe = {
-          id: cafe.id,
-          name: cafe.title ? cafe.title : '',
-          address: cafe.address ? cafe.address : '',
-          hours: cafe.hours ? cafe.hours : '',
-          tags: cafe.tags ? cafe.tags : [],
-          created_at: cafe.created_at ? cafe.created_at : '',
-          latitude: cafe.latitude ? cafe.latitude : 0,
-          longitude: cafe.longitude ? cafe.longitude : 0,
-          rating: cafe.rating ? cafe.rating : 0,
-          num_reviews: cafe.num_reviews ? cafe.num_reviews : 0,
-          image: cafe.image ? cafe.image : '',
-          summary: cafe.summary ? cafe.summary : '',
+  useEffect(() => {
+    const searchCafes = async (query: string) => {
+      try {
+        const requestBody = {
+          query: query,
+          geolocation: {
+            lat: mapRegion.latitude,
+            lng: mapRegion.longitude,
+          },
         };
-        cafes.push(newCafe);
-
-        markers.push({
-          name: cafe.title,
-          latitude: cafe.latitude,
-          longitude: cafe.longitude,
-          rating: cafe.rating ? cafe.rating : 0,
-          category: 'default',
-          cafe: newCafe,
+        const response = await fetch(`${API_URL}/cafes/search`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
         });
+        if (!response.ok) {
+          throw new Error('Failed to search for cafes');
+        }
+        const data = await response.json();
+        if (!Array.isArray(data)) {
+          console.log('Invalid data format');
+          return;
+        }
+
+        const limitedData = data.slice(0, 15); // Limit to 15 cafes
+
+        const cafes = [];
+        const markers: MarkerType[] = [];
+        for (const cafe of limitedData) {
+          const newCafe = {
+            id: cafe.id,
+            name: cafe.title ? cafe.title : '',
+            address: cafe.address ? cafe.address : '',
+            hours: cafe.hours ? cafe.hours : '',
+            tags: cafe.tags ? cafe.tags : [],
+            created_at: cafe.created_at ? cafe.created_at : '',
+            latitude: cafe.latitude ? cafe.latitude : 0,
+            longitude: cafe.longitude ? cafe.longitude : 0,
+            rating: cafe.rating ? cafe.rating : 0,
+            num_reviews: cafe.num_reviews ? cafe.num_reviews : 0,
+            image: cafe.image ? cafe.image : '',
+            summary: cafe.summary ? cafe.summary : '',
+          };
+          cafes.push(newCafe);
+
+          markers.push({
+            name: cafe.title,
+            latitude: cafe.latitude,
+            longitude: cafe.longitude,
+            rating: cafe.rating ? cafe.rating : 0,
+            category: 'default',
+            cafe: newCafe,
+          });
+        }
+
+        setSearchedCafes(cafes);
+        setMarkers(markers);
+      } catch (error) {
+        console.error('Error searching for cafes:', error);
+      } finally {
+        // Handle cleanup if needed
       }
-
-      setSearchedCafes(cafes);
-      setMarkers(markers);
-
-      console.log('searched successfully');
-    } catch (error) {
-      console.log('error', error);
+    };
+    if (debouncedQuery) {
+      console.log('Searching for:', debouncedQuery);
+      searchCafes(debouncedQuery);
+    } else {
+      console.log('No search query');
+      setSearchedCafes(mockCafes); // Reset cafes if query is empty
     }
-  };
+  }, [debouncedQuery, API_URL, mapRegion]);
 
   const userLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
@@ -262,43 +269,17 @@ export default function Explore() {
     }
   };
 
-  const handleMarkerPress = (marker: MarkerType) => {
-    // Navigate to cafe view and pass marker data as parameters
-    console.log('Navigating to cafe', marker.name);
-    if (marker.cafe) {
-      navigateToCafe(marker.cafe);
-    }
-  };
-
   useEffect(() => {
     userLocation();
   }, []);
 
-  const dismissDropdown = () => {
-    // Hide dropdown when tapping away or outside
-    setShowFilters(false);
-    Keyboard.dismiss(); // Hide keyboard if it's open
+  const handleSearch = (text: string) => {
+    setSearchQuery(text);
   };
 
-  const handleTagClick = (tag: string) => {
-    if (emojiTags.includes(tag)) {
-      setEmojiTags(emojiTags.filter((t) => t !== tag));
-    } else {
-      setEmojiTags([...emojiTags, tag]);
-    }
-  };
-
-  const handleHourClick = (option: string) => {
-    setSelectedHours(option);
-  };
-
-  const handleRatingClick = (option: string) => {
-    setSelectedRating(option);
-  };
-
-  return searchExitWrapper(
+  return (
     <View>
-      {/* Top Bar with Dummy Search Bar */}
+      {/** Top Search Bar */}
       <View style={styles.topBar}>
         <View style={styles.searchBar}>
           <View style={{ marginRight: 5 }}>
@@ -307,11 +288,13 @@ export default function Explore() {
           <TextInput
             placeholder="Search a cafe, characteristic, etc."
             placeholderTextColor="#888"
-            onFocus={() => setShowFilters(true)} // Show filters when search is focused
-            value={searchText}
-            onChangeText={(text) => setSearchText(text)}
+            value={searchQuery}
+            onChangeText={(text) => handleSearch(text)}
+            // onFocus={() => setShowFilters(true)}
             returnKeyType="search"
-            onSubmitEditing={searchCafes}
+            autoCapitalize="none"
+            autoCorrect={false}
+            onSubmitEditing={(text) => handleSearch(text.nativeEvent.text)}
           />
         </View>
         <View style={styles.buttonContainer}>
@@ -328,103 +311,6 @@ export default function Explore() {
         </View>
       </View>
 
-      {/* Filter dropdown */}
-      {showFilters && (
-        <View style={styles.filterDropdown}>
-          <ScrollView>
-            {/* Hours Section */}
-            <View style={styles.filterSection}>
-              <Text style={styles.filterSectionTitle}>
-                {/* idk why the icon is floating weird */}
-                <MaterialIcons name="schedule" size={16} /> Hours
-              </Text>
-              <View style={styles.filterButtonsContainer}>
-                <Pressable
-                  style={[
-                    styles.filterButton,
-                    selectedHours === 'Any' ? styles.activeFilterButton : null,
-                  ]}
-                  onPress={() => handleHourClick('Any')}>
-                  <Text>Any</Text>
-                </Pressable>
-                <Pressable
-                  style={[
-                    styles.filterButton,
-                    selectedHours === 'Open Now' ? styles.activeFilterButton : null,
-                  ]}
-                  onPress={() => handleHourClick('Open Now')}>
-                  <Text>Open now</Text>
-                </Pressable>
-                <Pressable
-                  style={[
-                    styles.filterButton,
-                    selectedHours === 'Custom' ? styles.activeFilterButton : null,
-                  ]}
-                  onPress={() => handleHourClick('Custom')}>
-                  <Text>Custom</Text>
-                </Pressable>
-              </View>
-            </View>
-
-            {/* Ratings Section */}
-            <View style={styles.filterSection}>
-              <View style={styles.ratingContainer}>
-                <MaterialIcons name="star" size={16} />
-                <Text style={styles.filterSectionTitle}> Rating</Text>
-                <Text style={styles.atLeastText}> at least</Text>
-              </View>
-              <View style={styles.filterButtonsContainer}>
-                <Pressable
-                  style={[
-                    styles.filterButton,
-                    selectedRating === 'Any' ? styles.activeFilterButton : null,
-                  ]}
-                  onPress={() => handleRatingClick('Any')}>
-                  <Text>Any</Text>
-                </Pressable>
-                <Pressable
-                  style={[
-                    styles.filterButton,
-                    selectedRating === '3.0' ? styles.activeFilterButton : null,
-                  ]}
-                  onPress={() => handleRatingClick('3.0')}>
-                  <Text>3.0</Text>
-                </Pressable>
-                <Pressable
-                  style={[
-                    styles.filterButton,
-                    selectedRating === '4.0' ? styles.activeFilterButton : null,
-                  ]}
-                  onPress={() => handleRatingClick('4.0')}>
-                  <Text>4.0</Text>
-                </Pressable>
-                <Pressable
-                  style={[
-                    styles.filterButton,
-                    selectedRating === '4.5' ? styles.activeFilterButton : null,
-                  ]}
-                  onPress={() => handleRatingClick('4.5')}>
-                  <Text>4.5</Text>
-                </Pressable>
-              </View>
-
-              {/* Tags Section */}
-              <View style={styles.morefilterContainer}>
-                <Text style={styles.filterSectionTitle}>More Filters</Text>
-                <View style={styles.emojiContainer}>
-                  {cafeTags.map((tag, index) => (
-                    <Pressable onPress={() => handleTagClick(tag)} key={index}>
-                      <EmojiTag key={index} tag={tag} filled={emojiTags.includes(tag)} />
-                    </Pressable>
-                  ))}
-                </View>
-              </View>
-            </View>
-          </ScrollView>
-        </View>
-      )}
-
-      {/* Content based on viewMode */}
       {viewMode === 'map' ? (
         <View style={{ flex: 1 }}>
           <TouchableOpacity style={styles.location} onPress={userLocation}>
@@ -458,44 +344,30 @@ export default function Explore() {
           </MapView>
         </View>
       ) : (
-        // <FlatList
-        //   data={mockCafes}
-        //   keyExtractor={(item, index) => index.toString()}
-        //   renderItem={({ item }) => <ListCard cafe={item} />}
-        //   contentContainerStyle={styles.listView}
-        // />
-        // <FlatList
-        //   data={searchedCafes}
-        //   keyExtractor={(item) => item.id}
-        //   renderItem={({ item }) => (
-        //     <Pressable
-        //       onPress={() => navigateToCafe(item)}
-        //       style={({ pressed }) => [
-        //         {
-        //           opacity: pressed ? 0.5 : 1,
-        //         },
-        //       ]}>
-        //       <ListCard cafe={item} />
-        //     </Pressable>
-        //   )}
-        //   contentContainerStyle={styles.listView}
-        // />
         <ScrollView contentContainerStyle={styles.listView}>
-          {searchedCafes.map((cafe) => (
-            <Pressable
-              key={cafe.id}
-              onPress={() => navigateToCafe(cafe)}
-              style={({ pressed }) => [
-                {
-                  opacity: pressed ? 0.5 : 1,
-                },
-              ]}>
-              <ListCard cafe={cafe} />
-            </Pressable>
-          ))}
+          {searchedCafes ? (
+            searchedCafes.map(
+              (
+                cafe, // if no searched cafes, return text saying no cafes found
+              ) => (
+                <Pressable
+                  key={cafe.id}
+                  onPress={() => navigateToCafe(cafe)}
+                  style={({ pressed }) => [
+                    {
+                      opacity: pressed ? 0.5 : 1,
+                    },
+                  ]}>
+                  <ListCard cafe={cafe} />
+                </Pressable>
+              ),
+            )
+          ) : (
+            <Text>No cafes found</Text>
+          )}
         </ScrollView>
       )}
-    </View>,
+    </View>
   );
 }
 
