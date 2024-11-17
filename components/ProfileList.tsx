@@ -34,8 +34,8 @@ const styles = StyleSheet.create({
     padding: 15,
     borderColor: 'gray',
     borderWidth: 1,
-    borderRadius: 10,
-    marginVertical: 8,
+    borderRadius: 20,
+    marginVertical: 4,
     width: '97%',
   },
   listInfo: {
