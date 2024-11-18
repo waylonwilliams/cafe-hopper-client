@@ -338,10 +338,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap', // Enable wrapping to create a grid
     justifyContent: 'space-between', // Add spacing between items
+    gap: 1,
   },
   listItem: {
-    width: '47%',
+    width: '48%',
     marginBottom: 2,
-    marginRight: 1,
   },
 });
