@@ -156,7 +156,7 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
                 <Text style={{ fontSize: 16 }}>{list.name}</Text>
                 <Text style={{ fontSize: 12, color: 'gray' }}>
                   {list.cafeCount} cafe{list.cafeCount === 1 ? '' : 's'} -{' '}
-                  {list.visibility ? 'public' : 'private'}
+                  {list.visibility ? 'public ' : 'private '}
                   list
                 </Text>
                 {/* Display the cafe count here */}
