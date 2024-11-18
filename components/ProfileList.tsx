@@ -36,7 +36,6 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 20,
     marginVertical: 4,
-    width: '97%',
   },
   listInfo: {
     flexDirection: 'column',

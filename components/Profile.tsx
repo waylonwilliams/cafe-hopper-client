@@ -256,9 +256,13 @@ export default function Profile({ uid, setViewingImages }: Props) {
         {/* Lists */}
         <View style={styles.recent}>
           <Text style={styles.listText}>Lists</Text>
-          {userLists.map((list) => (
-            <ProfileList key={list.id} list={list} />
-          ))}
+          <View style={styles.listContainer}>
+            {userLists.map((list) => (
+              <View key={list.id} style={styles.listItem}>
+                <ProfileList list={list} />
+              </View>
+            ))}
+          </View>
         </View>
       </View>
     </ScrollView>
@@ -322,12 +326,22 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   recent: {
-    padding: 5,
+    padding: 10,
   },
   listText: {
     fontSize: 18,
   },
   carousel: {
     height: 220,
+  },
+  listContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap', // Enable wrapping to create a grid
+    justifyContent: 'space-between', // Add spacing between items
+  },
+  listItem: {
+    width: '47%',
+    marginBottom: 2,
+    marginRight: 1,
   },
 });
