@@ -24,23 +24,23 @@ const SignUpScreen = () => {
   const [loading, setLoading] = useState(false);
 
   async function signUpWithEmail() {
-    // console.log('Email:', email);
-    // console.log('Password:', password);
-    // console.log('ConfPwd: ', confPassword);
     if (password === confPassword) {
-      // console.log('pwds match');
       if (password) setLoading(true);
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: email,
         password: password,
       });
-
       if (error) Alert.alert(error.message);
+
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert({ user_id: data.user?.id });
+      if (profileError) Alert.alert(profileError.message);
       // supabase signup will also log them in, so just send them to tabs
       if (!error) router.replace('/(tabs)');
       setLoading(false);
     } else {
-      Alert.alert('Passwords do not match!');
+      Alert.alert('Passwords do not match');
     }
   }
 
