@@ -32,7 +32,7 @@ describe('Cafe Component', () => {
         logVisit={mockLogVisit}
         setViewingImages={mockSetViewingImages}
         setViewingImageIndex={mockSetViewingImageIndex}
-      />
+      />,
     );
 
     expect(getByText('Test Cafe')).toBeTruthy();
@@ -48,7 +48,7 @@ describe('Cafe Component', () => {
         logVisit={mockLogVisit}
         setViewingImages={mockSetViewingImages}
         setViewingImageIndex={mockSetViewingImageIndex}
-      />
+      />,
     );
 
     const likeButton = getByLabelText('Like');
@@ -67,7 +67,7 @@ describe('Cafe Component', () => {
         logVisit={mockLogVisit}
         setViewingImages={mockSetViewingImages}
         setViewingImageIndex={mockSetViewingImageIndex}
-      />
+      />,
     );
 
     const toGoButton = getByLabelText('To-go');
@@ -78,25 +78,25 @@ describe('Cafe Component', () => {
     expect(getByText('To-go')).toBeTruthy(); // State toggled back
   });
 
-//   test('toggles hours visibility', () => {
-//     const { getByText } = render(
-//       <Cafe
-//         cafe={cafe}
-//         reviews={reviews}
-//         logVisit={mockLogVisit}
-//         setViewingImages={mockSetViewingImages}
-//         setViewingImageIndex={mockSetViewingImageIndex}
-//       />
-//     );
+  //   test('toggles hours visibility', () => {
+  //     const { getByText } = render(
+  //       <Cafe
+  //         cafe={cafe}
+  //         reviews={reviews}
+  //         logVisit={mockLogVisit}
+  //         setViewingImages={mockSetViewingImages}
+  //         setViewingImageIndex={mockSetViewingImageIndex}
+  //       />
+  //     );
 
-//     const seeDetailsButton = getByText('See details');
-//     fireEvent.press(seeDetailsButton);
-//     expect(getByText('Monday: 9 AM - 5 PM')).toBeTruthy(); // Hours are shown
+  //     const seeDetailsButton = getByText('See details');
+  //     fireEvent.press(seeDetailsButton);
+  //     expect(getByText('Monday: 9 AM - 5 PM')).toBeTruthy(); // Hours are shown
 
-//     const hideButton = getByText('Hide');
-//     fireEvent.press(hideButton);
-//     expect(getByText('See details')).toBeTruthy(); // Hours are hidden again
-//   });
+  //     const hideButton = getByText('Hide');
+  //     fireEvent.press(hideButton);
+  //     expect(getByText('See details')).toBeTruthy(); // Hours are hidden again
+  //   });
 
   test('calls logVisit when "Log a visit" is pressed', () => {
     const { getByText } = render(
@@ -106,7 +106,7 @@ describe('Cafe Component', () => {
         logVisit={mockLogVisit}
         setViewingImages={mockSetViewingImages}
         setViewingImageIndex={mockSetViewingImageIndex}
-      />
+      />,
     );
 
     const logVisitButton = getByText('Log a visit');
@@ -114,17 +114,17 @@ describe('Cafe Component', () => {
     expect(mockLogVisit).toHaveBeenCalled();
   });
 
-//   test('renders reviews correctly', () => {
-//     const { getAllByText } = render(
-//       <Cafe
-//         cafe={cafe}
-//         reviews={reviews}
-//         logVisit={mockLogVisit}
-//         setViewingImages={mockSetViewingImages}
-//         setViewingImageIndex={mockSetViewingImageIndex}
-//       />
-//     );
+  //   test('renders reviews correctly', () => {
+  //     const { getAllByText } = render(
+  //       <Cafe
+  //         cafe={cafe}
+  //         reviews={reviews}
+  //         logVisit={mockLogVisit}
+  //         setViewingImages={mockSetViewingImages}
+  //         setViewingImageIndex={mockSetViewingImageIndex}
+  //       />
+  //     );
 
-//     expect(getAllByText('Great place')); // Two reviews rendered
-//   });
+  //     expect(getAllByText('Great place')); // Two reviews rendered
+  //   });
 });

@@ -5,7 +5,6 @@ import { supabase } from '@/lib/supabase';
 import { router } from 'expo-router';
 import { Alert } from 'react-native';
 
-
 jest.mock('@/lib/supabase', () => ({
   supabase: {
     auth: {
