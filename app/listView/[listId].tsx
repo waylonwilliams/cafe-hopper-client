@@ -37,18 +37,8 @@ const ListView = () => {
 
       console.log('Raw data from Supabase:', data);
 
-      // Extract and format data into the correct structure
-      const formattedCafes: Cafe[] = (data || []).map((entry) => ({
-        id: entry.cafes.id,
-        title: entry.cafes.title || 'No Title',
-        image: entry.cafes.image || null,
-        rating: entry.cafes.rating || 0,
-        tags: entry.cafes.tags || [],
-      }));
-
-      console.log('Formatted cafes:', formattedCafes);
-
-      setCafes(formattedCafes);
+      // Set cafes directly
+      setCafes(data?.flatMap((entry) => entry.cafes) || []);
     } catch (error) {
       console.error('Error fetching cafes:', error);
     } finally {
@@ -98,12 +88,12 @@ const ListView = () => {
             <ScrollView contentContainerStyle={styles.cardContainer}>
               {cafes.map((cafe, index) => (
                 <CardComponent
-                  key={index}
+                  key={cafe.id || index}
                   card={{
                     name: cafe.title,
                     imageUri: cafe.image || 'default_image_url',
                     rating: cafe.rating ?? 0,
-                    tags: cafe.tags,
+                    tags: cafe.tags || [],
                   }}
                 />
               ))}
