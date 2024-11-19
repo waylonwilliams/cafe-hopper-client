@@ -1,13 +1,73 @@
-import React from 'react';
-import { View, Text, Pressable, StyleSheet } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, ScrollView, StyleSheet, Pressable } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
+import CardComponent from '@/components/Card';
+import { supabase } from '@/lib/supabase';
 
 const ListView = () => {
   const params = useLocalSearchParams();
   const router = useRouter();
   const { listId, listName, cafeCount, visibility, description } = params;
+  type Cafe = {
+    id: string;
+    title: string;
+    image?: string;
+    rating?: number;
+    tags: string[];
+  };
+
+  const [cafes, setCafes] = useState<Cafe[]>([]); // Explicitly type as Cafe[]
+  const [loading, setLoading] = useState(true);
+
+  // Fetch cafes from the list
+  const fetchCafes = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('cafeListEntries')
+        .select(
+          `
+        cafes (
+          id, title, image, rating, tags
+        )
+      `,
+        )
+        .eq('list_id', listId);
+
+      if (error) {
+        console.error('Error fetching cafes:', error);
+        return;
+      }
+
+      console.log('Fetched data:', data);
+
+      // Extract and format data into the correct structure
+      const formattedCafes = (data || []).map((entry) => {
+        const cafe = entry.cafes; // Access the nested cafes object
+        return {
+          id: cafe.id,
+          title: cafe.title,
+          image: cafe.image || null,
+          rating: cafe.rating || 0,
+          tags: cafe.tags || [],
+        };
+      });
+      console.log('Formatted cafes:', formattedCafes);
+
+      setCafes(formattedCafes as Cafe[]);
+
+      console.log('Updated cafes state:', formattedCafes);
+    } catch (error) {
+      console.error('Error fetching cafes:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCafes();
+  }, [listId]);
 
   return (
     <>
@@ -37,6 +97,27 @@ const ListView = () => {
             </Text>
             {description && <Text style={styles.description}>{description}</Text>}
           </View>
+
+          {/* Cafe Cards */}
+          {loading ? (
+            <Text style={styles.loading}>Loading cafes...</Text>
+          ) : cafes.length === 0 ? (
+            <Text style={styles.empty}>No cafes found in this list.</Text>
+          ) : (
+            <ScrollView contentContainerStyle={styles.cardContainer}>
+              {cafes.map((cafe, index) => (
+                <CardComponent
+                  key={index}
+                  card={{
+                    name: cafe.title,
+                    imageUri: cafe.image,
+                    rating: cafe.rating ?? 0,
+                    tags: cafe.tags,
+                  }}
+                />
+              ))}
+            </ScrollView>
+          )}
         </View>
       </SafeAreaView>
     </>
@@ -89,6 +170,21 @@ const styles = StyleSheet.create({
     lineHeight: 20,
     fontStyle: 'italic',
     marginLeft: 40,
+  },
+  loading: {
+    textAlign: 'center',
+    marginTop: 20,
+    color: 'gray',
+  },
+  empty: {
+    textAlign: 'center',
+    marginTop: 20,
+    color: 'gray',
+  },
+  cardContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-evenly',
   },
 });
 

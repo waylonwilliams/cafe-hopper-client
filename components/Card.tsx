@@ -5,7 +5,7 @@ import Icon from 'react-native-vector-icons/Ionicons';
 type Card = {
   name: string;
   imageUri?: string;
-  localImage?: any; //testing only
+  localImage?: any;
   rating: number;
   tags: string[];
 };
