@@ -83,19 +83,20 @@ const ListView = () => {
           {loading ? (
             <Text style={styles.loading}>Loading cafes...</Text>
           ) : cafes.length === 0 ? (
-            <Text style={styles.empty}>No cafes found in this list.</Text>
+            <Text style={styles.empty}>No cafes in this list.</Text>
           ) : (
             <ScrollView contentContainerStyle={styles.cardContainer}>
               {cafes.map((cafe, index) => (
-                <CardComponent
-                  key={cafe.id || index}
-                  card={{
-                    name: cafe.title,
-                    imageUri: cafe.image || 'default_image_url',
-                    rating: cafe.rating ?? 0,
-                    tags: cafe.tags || [],
-                  }}
-                />
+                <View key={cafe.id || index} style={styles.card}>
+                  <CardComponent
+                    card={{
+                      name: cafe.title,
+                      imageUri: cafe.image || 'default_image_url',
+                      rating: cafe.rating ?? 0,
+                      tags: cafe.tags || [],
+                    }}
+                  />
+                </View>
               ))}
             </ScrollView>
           )}
@@ -165,7 +166,12 @@ const styles = StyleSheet.create({
   cardContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'space-evenly',
+    justifyContent: 'flex-start', // Align cards to the left
+    paddingHorizontal: 5, // Optional padding for better spacing
+  },
+  card: {
+    width: '48%', // Ensures two cards fit in one row with space in between
+    margin: 5, // Adds spacing between cards
   },
 });
 
