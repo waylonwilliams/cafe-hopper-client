@@ -93,14 +93,10 @@ export default function NewExplore() {
     longitudeDelta: 0.005,
   });
 
-  const [viewMode, setViewMode] = useState<'list' | 'map'>('list'); // State for switching between views
-  //   const [showFilters, setShowFilters] = useState(false); // State to toggle the filter dropdown
-  //   const [emojiTags, setEmojiTags] = useState<string[]>([]); // State to track selected emoji tags
   const mapRef = useRef<MapView>(null); // Reference to the MapView
   const router = useRouter(); // Get the router instance from expo-router
-  //   const [selectedHours, setSelectedHours] = useState('Any'); // Track selected hours
-  //   const [selectedRating, setSelectedRating] = useState('Any'); // Track selected rating]
 
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list'); // State for switching between views
   const [searchQuery, setSearchQuery] = useState(''); // Track search query
   const [debouncedQuery, setDebouncedQuery] = useState('');
   const [searchedCafes, setSearchedCafes] = useState<CafeType[]>(mockCafes); // Track searched cafes
@@ -178,6 +174,9 @@ export default function NewExplore() {
             lat: mapRegion.latitude,
             lng: mapRegion.longitude,
           },
+          openNow: selectedHours === 'Open Now',
+          rating: selectedRating === 'Any' ? 0 : parseFloat(selectedRating) * 2,
+          tags: emojiTags,
         };
         const response = await fetch(`${API_URL}/cafes/search`, {
           method: 'POST',
@@ -241,7 +240,7 @@ export default function NewExplore() {
       console.log('No search query');
       setSearchedCafes(mockCafes); // Reset cafes if query is empty
     }
-  }, [debouncedQuery, API_URL, mapRegion]);
+  }, [debouncedQuery, API_URL, mapRegion, selectedHours, selectedRating, emojiTags]);
 
   const userLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
@@ -280,14 +279,17 @@ export default function NewExplore() {
     } else {
       setEmojiTags([...emojiTags, tag]);
     }
+    handleSearch(searchQuery);
   };
 
   const handleHourClick = (option: string) => {
     setSelectedHours(option);
+    handleSearch(searchQuery);
   };
 
   const handleRatingClick = (option: string) => {
     setSelectedRating(option);
+    handleSearch(searchQuery);
   };
 
   return (
