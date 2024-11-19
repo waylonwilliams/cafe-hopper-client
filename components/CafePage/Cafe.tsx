@@ -5,7 +5,12 @@ import EmojiTag from '@/components/EmojiTag';
 import Review from '@/components/Review';
 import { CafeType, NewReviewType } from './CafeTypes';
 import { supabase } from '@/lib/supabase';
-import { addCafeToList, checkCafeInList, removeCafeFromList } from '@/lib/supabase-utils';
+import {
+  addCafeToList,
+  checkCafeInList,
+  getOrCreateList,
+  removeCafeFromList,
+} from '@/lib/supabase-utils';
 
 interface Props {
   cafe: CafeType;
@@ -48,12 +53,14 @@ export default function Cafe({
 
   const handleLike = async () => {
     try {
+      const likedId = await getOrCreateList('liked');
+
       if (liked) {
         // If currently liked, remove it from the "liked" list
-        await removeCafeFromList(cafe.id, 'liked');
+        await removeCafeFromList(cafe.id, likedId);
       } else {
         // Otherwise, add it to the "liked" list
-        await addCafeToList(cafe.id, 'liked');
+        await addCafeToList(cafe.id, likedId);
       }
       setLiked(!liked); // Toggle the liked state
     } catch (error) {
@@ -63,12 +70,14 @@ export default function Cafe({
 
   const handleTogo = async () => {
     try {
+      const togoId = await getOrCreateList('to-go');
+
       if (togo) {
         // If currently marked as to-go, remove it from the "to-go" list
-        await removeCafeFromList(cafe.id, 'to-go');
+        await removeCafeFromList(cafe.id, togoId);
       } else {
         // Otherwise, add it to the "to-go" list
-        await addCafeToList(cafe.id, 'to-go');
+        await addCafeToList(cafe.id, togoId);
       }
       setTogo(!togo); // Toggle the togo state
     } catch (error) {
