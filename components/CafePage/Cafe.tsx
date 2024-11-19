@@ -4,7 +4,6 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import EmojiTag from '@/components/EmojiTag';
 import Review from '@/components/Review';
 import { CafeType, NewReviewType } from './CafeTypes';
-import { supabase } from '@/lib/supabase';
 import {
   addCafeToList,
   checkCafeInList,
