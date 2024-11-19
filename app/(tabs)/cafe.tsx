@@ -9,6 +9,7 @@ import React from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import { CafeType, NewReviewType } from '@/components/CafePage/CafeTypes';
 import { supabase } from '@/lib/supabase';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ImageFullView from '@/components/CafePage/ImageFullView';
 
 /**
@@ -74,6 +75,7 @@ function assertString(v: string | string[] | undefined): string {
  */
 export default function Index() {
   const cafeObj = useLocalSearchParams();
+  const insets = useSafeAreaInsets();
 
   const cafe = useMemo(() => {
     try {
@@ -114,7 +116,6 @@ export default function Index() {
   const [loggingVisit, setLoggingVisit] = useState(false);
   const [reviews, setReviews] = useState<NewReviewType[]>([]);
   const [viewingImages, setViewingImages] = useState<string[] | null>(null);
-  const [viewingImageIndex, setViewingImageIndex] = useState<number | null>(null);
 
   // idk stuff for the bottom sheet
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -188,13 +189,15 @@ export default function Index() {
             source={require('../../assets/images/oshimacafe.png')}
           />
 
-          <Pressable onPress={goBack}>
-            <Ionicons
-              name="chevron-back"
-              size={24}
-              color="white"
-              style={{ padding: 4, position: 'absolute', zIndex: 2 }}
-            />
+          <Pressable
+            onPress={goBack}
+            style={{
+              position: 'absolute',
+              top: insets.top, // Account for the safe area inset
+              left: 10, // Add some padding
+              zIndex: 2,
+            }}>
+            <Ionicons name="chevron-back" size={24} color="white" />
           </Pressable>
         </View>
       </SafeAreaView>
@@ -224,14 +227,14 @@ export default function Index() {
               reviews={reviews}
               logVisit={logVisit}
               setViewingImages={setViewingImages}
-              setViewingImageIndex={setViewingImageIndex}
+              setViewingImageIndex={(arg: number | null) => null}
             />
           )}
         </BottomSheetView>
       </BottomSheet>
 
       {/* Image full view */}
-      {viewingImageIndex !== null && (
+      {viewingImages !== null && (
         <ImageFullView images={viewingImages} setImages={setViewingImages} />
       )}
     </>
