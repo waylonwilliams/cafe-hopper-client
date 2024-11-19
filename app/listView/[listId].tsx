@@ -10,6 +10,7 @@ const ListView = () => {
   const params = useLocalSearchParams();
   const router = useRouter();
   const { listId, listName, cafeCount, visibility, description } = params;
+
   type Cafe = {
     id: string;
     title: string;
@@ -22,17 +23,11 @@ const ListView = () => {
   const [loading, setLoading] = useState(true);
 
   // Fetch cafes from the list
-  const fetchCafes = async () => {
+  const fetchCafes = async (): Promise<void> => {
     try {
       const { data, error } = await supabase
         .from('cafeListEntries')
-        .select(
-          `
-        cafes (
-          id, title, image, rating, tags
-        )
-      `,
-        )
+        .select('cafes(id, title, image, rating, tags)')
         .eq('list_id', listId);
 
       if (error) {
@@ -40,24 +35,20 @@ const ListView = () => {
         return;
       }
 
-      console.log('Fetched data:', data);
+      console.log('Raw data from Supabase:', data);
 
       // Extract and format data into the correct structure
-      const formattedCafes = (data || []).map((entry) => {
-        const cafe = entry.cafes; // Access the nested cafes object
-        return {
-          id: cafe.id,
-          title: cafe.title,
-          image: cafe.image || null,
-          rating: cafe.rating || 0,
-          tags: cafe.tags || [],
-        };
-      });
+      const formattedCafes: Cafe[] = (data || []).map((entry) => ({
+        id: entry.cafes.id,
+        title: entry.cafes.title || 'No Title',
+        image: entry.cafes.image || null,
+        rating: entry.cafes.rating || 0,
+        tags: entry.cafes.tags || [],
+      }));
+
       console.log('Formatted cafes:', formattedCafes);
 
-      setCafes(formattedCafes as Cafe[]);
-
-      console.log('Updated cafes state:', formattedCafes);
+      setCafes(formattedCafes);
     } catch (error) {
       console.error('Error fetching cafes:', error);
     } finally {
@@ -110,7 +101,7 @@ const ListView = () => {
                   key={index}
                   card={{
                     name: cafe.title,
-                    imageUri: cafe.image,
+                    imageUri: cafe.image || 'default_image_url',
                     rating: cafe.rating ?? 0,
                     tags: cafe.tags,
                   }}
