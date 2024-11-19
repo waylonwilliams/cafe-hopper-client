@@ -112,7 +112,7 @@ export default function Profile({ uid, setViewingImages }: Props) {
 
         const { data: userLists, error: listsError } = await supabase
           .from('cafeList')
-          .select('id, list_name, public')
+          .select('id, list_name, description, public') // Ensure description is fetched
           .eq('user_id', uid);
 
         if (listsError) {
@@ -137,6 +137,7 @@ export default function Profile({ uid, setViewingImages }: Props) {
               name: list.list_name,
               cafeCount: cafeCount || 0,
               visibility: list.public,
+              description: list.description, // Include description here
             };
           }),
         );
