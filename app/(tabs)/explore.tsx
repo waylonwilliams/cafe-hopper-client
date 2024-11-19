@@ -6,29 +6,22 @@ import {
   Dimensions,
   TouchableOpacity,
   TextInput,
-  TouchableWithoutFeedback,
-  Keyboard,
   Pressable,
   ScrollView,
-  FlatList,
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { MaterialIcons } from '@expo/vector-icons';
 import Constants from 'expo-constants';
-import { markers } from '../../assets/markers';
 import { MarkerType } from '../../components/CustomMarker';
 import CustomMarker from '../../components/CustomMarker';
-import { Link, useRouter } from 'expo-router';
+import { useRouter } from 'expo-router';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import EmojiTag from '../../components/EmojiTag';
-import { cafeTags } from '../../components/CafePage/CafeTypes';
 import ListCard from '@/components/ListCard';
 import { CafeType } from '@/components/CafePage/CafeTypes';
-import { addWhitelistedUIProps } from 'react-native-reanimated/lib/typescript/ConfigHelper';
+import EmojiTag from '@/components/EmojiTag';
+import { cafeTags } from '@/components/CafePage/CafeTypes';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
-
-// const API_URL = `http://${Constants.expoConfig?.hostUri!.split(':').shift()}:3000`;
 
 const mockCafes: CafeType[] = [
   {
@@ -113,6 +106,10 @@ export default function NewExplore() {
   const [searchedCafes, setSearchedCafes] = useState<CafeType[]>(mockCafes); // Track searched cafes
   const [searchedMarkers, setMarkers] = useState<MarkerType[]>([]);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [selectedHours, setSelectedHours] = useState('Any'); // Track selected hours
+  const [selectedRating, setSelectedRating] = useState('Any'); // Track selected rating
+  const [emojiTags, setEmojiTags] = useState<string[]>([]); // State to track selected emoji tags
+  const [searchIsFocused, setSearchIsFocused] = useState(false);
 
   const API_URL = `http://${Constants.expoConfig?.hostUri!.split(':').shift()}:3000`;
 
@@ -277,6 +274,22 @@ export default function NewExplore() {
     setSearchQuery(text);
   };
 
+  const handleTagClick = (tag: string) => {
+    if (emojiTags.includes(tag)) {
+      setEmojiTags(emojiTags.filter((t) => t !== tag));
+    } else {
+      setEmojiTags([...emojiTags, tag]);
+    }
+  };
+
+  const handleHourClick = (option: string) => {
+    setSelectedHours(option);
+  };
+
+  const handleRatingClick = (option: string) => {
+    setSelectedRating(option);
+  };
+
   return (
     <View>
       {/** Top Search Bar */}
@@ -290,7 +303,10 @@ export default function NewExplore() {
             placeholderTextColor="#888"
             value={searchQuery}
             onChangeText={(text) => handleSearch(text)}
-            // onFocus={() => setShowFilters(true)}
+            // onFocus and onBlur to toggle the filter dropdown whether or not the search bar is open
+            // no need to have it press off because the keyboard is in the way anyway
+            onFocus={() => setSearchIsFocused(true)}
+            onBlur={() => setSearchIsFocused(false)}
             returnKeyType="search"
             autoCapitalize="none"
             autoCorrect={false}
@@ -311,6 +327,101 @@ export default function NewExplore() {
         </View>
       </View>
 
+      {searchIsFocused && (
+        <View style={styles.filterDropdown}>
+          <ScrollView>
+            {/* Hours Section */}
+            <View style={styles.filterSection}>
+              <Text style={styles.filterSectionTitle}>
+                {/* idk why the icon is floating weird */}
+                <MaterialIcons name="schedule" size={16} /> Hours
+              </Text>
+              <View style={styles.filterButtonsContainer}>
+                <Pressable
+                  style={[
+                    styles.filterButton,
+                    selectedHours === 'Any' ? styles.activeFilterButton : null,
+                  ]}
+                  onPress={() => handleHourClick('Any')}>
+                  <Text>Any</Text>
+                </Pressable>
+                <Pressable
+                  style={[
+                    styles.filterButton,
+                    selectedHours === 'Open Now' ? styles.activeFilterButton : null,
+                  ]}
+                  onPress={() => handleHourClick('Open Now')}>
+                  <Text>Open now</Text>
+                </Pressable>
+                <Pressable
+                  style={[
+                    styles.filterButton,
+                    selectedHours === 'Custom' ? styles.activeFilterButton : null,
+                  ]}
+                  onPress={() => handleHourClick('Custom')}>
+                  <Text>Custom</Text>
+                </Pressable>
+              </View>
+            </View>
+
+            {/* Ratings Section */}
+            <View style={styles.filterSection}>
+              <View style={styles.ratingContainer}>
+                <MaterialIcons name="star" size={16} />
+                <Text style={styles.filterSectionTitle}> Rating</Text>
+                <Text style={styles.atLeastText}> at least</Text>
+              </View>
+              <View style={styles.filterButtonsContainer}>
+                <Pressable
+                  style={[
+                    styles.filterButton,
+                    selectedRating === 'Any' ? styles.activeFilterButton : null,
+                  ]}
+                  onPress={() => handleRatingClick('Any')}>
+                  <Text>Any</Text>
+                </Pressable>
+                <Pressable
+                  style={[
+                    styles.filterButton,
+                    selectedRating === '3.0' ? styles.activeFilterButton : null,
+                  ]}
+                  onPress={() => handleRatingClick('3.0')}>
+                  <Text>3.0</Text>
+                </Pressable>
+                <Pressable
+                  style={[
+                    styles.filterButton,
+                    selectedRating === '4.0' ? styles.activeFilterButton : null,
+                  ]}
+                  onPress={() => handleRatingClick('4.0')}>
+                  <Text>4.0</Text>
+                </Pressable>
+                <Pressable
+                  style={[
+                    styles.filterButton,
+                    selectedRating === '4.5' ? styles.activeFilterButton : null,
+                  ]}
+                  onPress={() => handleRatingClick('4.5')}>
+                  <Text>4.5</Text>
+                </Pressable>
+              </View>
+
+              {/* Tags Section */}
+              <View style={styles.morefilterContainer}>
+                <Text style={styles.filterSectionTitle}>More Filters</Text>
+                <View style={styles.emojiContainer}>
+                  {cafeTags.map((tag, index) => (
+                    <Pressable onPress={() => handleTagClick(tag)} key={index}>
+                      <EmojiTag key={index} tag={tag} filled={emojiTags.includes(tag)} />
+                    </Pressable>
+                  ))}
+                </View>
+              </View>
+            </View>
+          </ScrollView>
+        </View>
+      )}
+
       {viewMode === 'map' ? (
         <View style={{ flex: 1 }}>
           <TouchableOpacity style={styles.location} onPress={userLocation}>
@@ -324,7 +435,6 @@ export default function NewExplore() {
             initialRegion={mapRegion}
             region={mapRegion}
             showsUserLocation={true} // Show the default blue dot for user location
-            followsUserLocation={true}
             showsMyLocationButton={true}
             mapType="standard">
             {searchedMarkers.map((marker, index) => {
