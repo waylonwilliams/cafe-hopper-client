@@ -22,7 +22,7 @@ export default function NewList({ visible, onClose, userId, onListCreated }: New
     }
 
     try {
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('cafeList')
         .insert([{ user_id: userId, list_name: listName, description, public: isPublic }])
         .select()

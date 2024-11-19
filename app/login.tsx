@@ -69,7 +69,7 @@ const LoginScreen = () => {
           color="#aaa"
           // style={styles.icon}
           onPress={toggleShowPassword}
-          testID='toggle-password-visibility'
+          testID="toggle-password-visibility"
         />
       </View>
 
