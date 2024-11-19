@@ -12,25 +12,9 @@ const getUserId = async () => {
 export const getOrCreateList = async (listName: string) => {
   const userId = await getUserId();
   try {
-    // Gonna use upsert instead, it won't replace data from the list if it already exists
-    // and ideally will return the existing data
-
-    // const { data: existingList, error } = await supabase
-    //   .from('cafeList')
-    //   .select('id')
-    //   .eq('user_id', userId)
-    //   .eq('list_name', listName)
-    //   .single(); // Expecting only one row
-
-    // if (error && error.code !== 'PGRST116') {
-    //   // Only throw if the error isn't about no rows being returned
-    //   throw error;
-    // }
-
-    // if (existingList) {
-    //   // Return the existing list if found
-    //   return existingList.id;
-    // }
+    // Instead of querying supabase and checking if the entry exists,
+    // use upsert wtih a supabase rule about duplicate values
+    // when there is conflict below just acts as select, when there isn't it creates and selects
 
     // Create the list if it does not exist
     const { data, error: insertError } = await supabase
@@ -74,26 +58,7 @@ export const checkCafeInList = async (cafeId: string, listName: string) => {
 export const addCafeToList = async (cafeId: string, listId: string) => {
   const userId = await getUserId();
 
-  // I added something on supabase to prevent duplicate entries in the same list
-  // so I'll comment this just assuming supabase is working
-
-  // Check if the cafe is already in the list to avoid duplicates
-  // const { data: existingEntry, error: checkError } = await supabase
-  //   .from('cafeListEntries')
-  //   .select('id')
-  //   .eq('cafe_id', cafeId)
-  //   .eq('list_id', listId)
-  //   .eq('user_id', userId)
-  //   .single();
-
-  // if (checkError && checkError.code !== 'PGRST116') {
-  //   throw checkError;
-  // }
-
-  // if (existingEntry) {
-  //   // If entry already exists, do nothing to prevent duplicates
-  //   return;
-  // }
+  // Same as above, use upsert + supabase default values rules
 
   // Insert the cafe into the list if not already present
   const { data, error } = await supabase
