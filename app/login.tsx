@@ -21,8 +21,8 @@ const LoginScreen = () => {
   const [loading, setLoading] = useState(false);
 
   async function signInWithEmail() {
-    console.log('Email:', email);
-    console.log('Password:', password);
+    // console.log('Email:', email);
+    // console.log('Password:', password);
     setLoading(true);
     const { error } = await supabase.auth.signInWithPassword({
       email: email,
@@ -69,6 +69,7 @@ const LoginScreen = () => {
           color="#aaa"
           // style={styles.icon}
           onPress={toggleShowPassword}
+          testID='toggle-password-visibility'
         />
       </View>
 
@@ -83,7 +84,7 @@ const LoginScreen = () => {
           <Image source={require('@/assets/images/arrow.png')} />
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => router.replace('/signUp')}>
+        <TouchableOpacity onPress={() => router.replace('@/app/signUp')}>
           <Text>Already have an account? Sign Up</Text>
         </TouchableOpacity>
       </View>

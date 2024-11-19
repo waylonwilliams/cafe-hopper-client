@@ -87,14 +87,14 @@ export default function Cafe({
           <Text style={{ color: '#808080', paddingTop: 4 }}>269 reviews</Text>
         </View>
 
-        <Pressable onPress={() => setLiked(!liked)}>
+        <Pressable onPress={() => setLiked(!liked)} accessibilityLabel='Like'>
           <View style={{ alignItems: 'center', gap: 2 }}>
             <Ionicons name={liked ? 'heart' : 'heart-outline'} size={32} color="black" />
             <Text style={{ color: '#808080' }}>Like</Text>
           </View>
         </Pressable>
 
-        <Pressable onPress={() => setTogo(!togo)}>
+        <Pressable onPress={() => setTogo(!togo)} accessibilityLabel='To-go'>
           <View style={{ alignItems: 'center', gap: 2 }}>
             <Ionicons name={togo ? 'bookmark' : 'bookmark-outline'} size={32} color="black" />
             <Text style={{ color: '#808080' }}>To-go</Text>
