@@ -25,23 +25,9 @@ const API_URL = `http://localhost:3000`;
 const { width } = Dimensions.get('window');
 
 //Dummy Cafes
-const mockCafes: CafeType[] = [
-  {
-    id: '1',
-    name: "Cafe Oshima's",
-    address: '2/37 Cao Thang, Ward 5, District 3, Ho Chi Minh City, Vietnam',
-    hours: `8:00AM - 10:00PM`,
-    tags: ['🍵', '🛜', '🌱', '🌳', '🐶'],
-    created_at: '',
-    latitude: 10.7757,
-    longitude: 106.686,
-    rating: 4.5,
-    num_reviews: 10,
-    image: null,
-    summary: null,
-  },
-];
-//Dummy Feed Posts
+const mockCafes: CafeType[] = [];
+
+//Dummy Feed Posts TESTING ONLY
 const mockFeed = [
   {
     id: 1,
@@ -95,7 +81,7 @@ export default function Home() {
 
   //For review carousel
   const [reviews, setReviews] = useState<NewReviewType[]>([]);
-  const [currentIndex, setCurrentIndex] = useState(0)
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [, setViewingImages] = useState<string[]>([]);
   const [, setViewingImageIndex] = useState<number | null>(null);
 
@@ -227,7 +213,6 @@ export default function Home() {
       setCurrentIndex(currentIndex - 1);
     }
   };
-  
 
   // Fetch user details (name, pfp) for feed posts
   const fetchUserInfo = async (userIds: string[]) => {
@@ -269,7 +254,6 @@ export default function Home() {
       console.log('No cafe found with the given cafe_id');
       return null;
     }
-
   };
 
   const fetchFeed = async () => {
@@ -453,7 +437,7 @@ export default function Home() {
           {/* Popular Reviews */}
           <View style={styles.reviewContainer}>
             <Text style={styles.popularHeader}>Popular Reviews this Week</Text>
-          </View> 
+          </View>
 
           <View style={styles.reviewCarousel}>
             {/* Left Arrow */}
@@ -464,13 +448,16 @@ export default function Home() {
             )}
 
             {/* Review Content */}
-            <View style={styles.reviewContainer}>
-              <Review 
+            {reviews[currentIndex] && (
+              <View style={styles.reviewContainer}>
+              <Review
                 review={reviews[currentIndex]}
                 setViewingImages={setViewingImages}
-                setViewingImageIndex={setViewingImageIndex} />
+                setViewingImageIndex={setViewingImageIndex}
+              />
             </View>
-
+            )}
+            
             {/* Right Arrow */}
             {currentIndex < reviews.length - 1 && (
               <TouchableOpacity onPress={handleNext} style={styles.arrow}>

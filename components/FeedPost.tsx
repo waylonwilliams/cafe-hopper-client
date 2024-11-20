@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Image, Text, FlatList } from 'react-native';
+import { View, StyleSheet, Image, Text } from 'react-native';
 import { NewReviewType } from './CafePage/CafeTypes';
 import EmojiTag from './EmojiTag';
 import Ionicons from '@expo/vector-icons/Ionicons';
