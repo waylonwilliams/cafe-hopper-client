@@ -24,23 +24,30 @@ const SignUpScreen = () => {
   const [loading, setLoading] = useState(false);
 
   async function signUpWithEmail() {
-    // console.log('Email:', email);
-    // console.log('Password:', password);
-    // console.log('ConfPwd: ', confPassword);
     if (password === confPassword) {
-      console.log('pwds match');
       if (password) setLoading(true);
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: email,
         password: password,
       });
-
       if (error) Alert.alert(error.message);
+
+      // create corresponding profile on signup
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .upsert({ user_id: data.user?.id });
+      if (profileError) Alert.alert(profileError.message);
+
+      // add two default lists to the users account on creation
+      const { error: listError } = await supabase
+        .from('cafeList')
+        .upsert([{ list_name: 'liked' }, { list_name: 'to-go' }]);
+      if (listError) Alert.alert(listError.message);
       // supabase signup will also log them in, so just send them to tabs
       if (!error) router.replace('/(tabs)');
       setLoading(false);
     } else {
-      Alert.alert('Passwords do not match!');
+      Alert.alert('Passwords do not match');
     }
   }
 
@@ -53,7 +60,7 @@ const SignUpScreen = () => {
         <Icon name="user" size={20} color="black" />
         <TextInput
           style={styles.input}
-          placeholder="Username or Email"
+          placeholder="Email"
           placeholderTextColor="black"
           value={email}
           onChangeText={setEmail}

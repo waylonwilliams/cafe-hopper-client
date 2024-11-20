@@ -9,9 +9,10 @@ import {
   Image,
   ScrollView,
   SafeAreaView,
+  Alert,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import { router } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
@@ -19,10 +20,21 @@ import { v4 as uuidv4 } from 'uuid';
 
 const baseUrl = 'https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/pfps/';
 
+function assertString(v: string | string[] | undefined) {
+  if (typeof v !== 'string') {
+    return '';
+  }
+  return v;
+}
+
 export default function Index() {
-  const [name, setName] = useState('');
-  const [loc, setLoc] = useState('');
-  const [bio, setBio] = useState('');
+  const profileObj = useLocalSearchParams();
+
+  const [name, setName] = useState<string>(assertString(profileObj.name));
+  const [loc, setLoc] = useState<string>(assertString(profileObj.location));
+  const [bio, setBio] = useState<string>(assertString(profileObj.bio));
+  const initialPfp = assertString(profileObj.pfp);
+  const [pfpChanged, setPfpChanged] = useState(initialPfp === ''); // set to true when its been changed or there isn't one to begin with
   const [image, setImage] = useState<ImagePicker.ImagePickerAsset | null>(null);
 
   async function addPfp() {
@@ -36,73 +48,50 @@ export default function Index() {
 
     if (!result.canceled) {
       setImage(result.assets[0]);
+      setPfpChanged(true);
     }
   }
 
   async function saveChanges() {
-    // Get user id
-    const uid = (await supabase.auth.getSession())?.data.session?.user.id;
-    let imageUrl = '';
+    try {
+      // Get user id
+      const uid = (await supabase.auth.getSession())?.data.session?.user.id;
+      let imageUrl = '';
 
-    // Handle images
-    if (image) {
-      const response = await fetch(image.uri);
-      const blob = await response.blob();
-      const arrBuffer = await new Response(blob).arrayBuffer();
+      // Handle images
+      if (image) {
+        const response = await fetch(image.uri);
+        const blob = await response.blob();
+        const arrBuffer = await new Response(blob).arrayBuffer();
 
-      const fileName = `public/${uuidv4()}`;
+        const fileName = `public/${uuidv4()}`;
 
-      const { error: uploadError } = await supabase.storage
-        .from('pfps') // Replace with your bucket name
-        .upload(fileName, arrBuffer, { contentType: image.mimeType });
+        const { error: uploadError } = await supabase.storage
+          .from('pfps') // Replace with your bucket name
+          .upload(fileName, arrBuffer, { contentType: image.mimeType });
 
-      if (uploadError) {
-        console.error('Error uploading image: ', uploadError);
-        return;
+        if (uploadError) {
+          console.error('Error uploading image: ', uploadError);
+          return;
+        }
+
+        imageUrl = `${baseUrl}${fileName}`;
       }
 
-      imageUrl = `${baseUrl}${fileName}`;
-    }
+      // change to upsert, supabase will automatically get user id
+      const { error } = await supabase.from('profiles').upsert({
+        user_id: uid,
+        name,
+        location: loc,
+        bio,
+        ...(imageUrl !== '' && { pfp: imageUrl }), // only upload new image if it exists
+      });
+      if (error) throw error;
 
-    // Check profile exists
-    const { data: existingProfile, error: fetchError } = await supabase
-      .from('profiles')
-      .select('*')
-      .eq('user_id', uid)
-      .single();
-    if (fetchError) {
-      console.error('Error fetching profile:', fetchError);
-    }
-
-    // Update profile or create new one
-    if (existingProfile) {
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .update({
-          name,
-          location: loc,
-          bio,
-          pfp: imageUrl,
-        })
-        .eq('user_id', uid);
-
-      if (profileError) {
-        console.error('Error in updating profile:', profileError);
-      }
-    } else {
-      const { error: insertError } = await supabase.from('profiles').insert([
-        {
-          user_id: uid,
-          name,
-          location: loc,
-          bio,
-          pfp: imageUrl,
-        },
-      ]);
-
-      if (insertError) {
-        console.error('Error in inserting profile:', insertError);
-      }
+      Alert.alert('Changes saved!');
+      router.back();
+    } catch (error) {
+      console.error('Error saving changes: ', error);
     }
   }
 
@@ -123,7 +112,13 @@ export default function Index() {
           {/* PLACEHOLDER --  ADD IMAGE UPLOAD*/}
           <Image
             style={styles.pfp}
-            source={image ? { uri: image.uri } : require('@/assets/images/default.jpg')}
+            source={
+              !pfpChanged
+                ? { uri: initialPfp }
+                : image
+                  ? { uri: image.uri }
+                  : require('../assets/images/default.jpg')
+            }
           />
           <Pressable style={styles.edit} onPress={addPfp}>
             <Icon name="edit" size={16}></Icon>

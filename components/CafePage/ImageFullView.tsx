@@ -50,9 +50,7 @@ export default function ImageFullView({ images, setImages }: Props) {
           alignItems: 'center',
           top: insets.top,
         }}>
-        <Text style={{ color: 'white' }}>
-          {images.length} {images.length === 1 ? 'image' : 'images'}
-        </Text>
+        {images.length > 1 && <Text style={{ color: 'white' }}>{images.length} images</Text>}
 
         <Pressable
           onPress={() => setImages(null)}
