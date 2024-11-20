@@ -16,7 +16,6 @@ import { supabase } from '@/lib/supabase';
 import * as Location from 'expo-location';
 import { Link, useRouter, useFocusEffect } from 'expo-router';
 import Card from '@/components/Card';
-import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 import FeedComponent from '@/components/FeedPost';
 
 //const API_URL = `http://${Constants.expoConfig?.hostUri!.split(':').shift()}:3000`;
@@ -38,54 +37,28 @@ const mockCafes: CafeType[] = [
     image: null,
     summary: null,
   },
-  {
-    id: '2',
-    name: 'Verve',
-    address: '123 Brew St., Coffee City, CA',
-    hours: '7:00AM - 9:00PM',
-    tags: ['☕', '🪴', '🎶'],
-    created_at: '',
-    latitude: 10.7757,
-    longitude: 106.686,
-    rating: 4.5,
-    num_reviews: 10,
-    image: null,
-    summary: null,
-  },
-  {
-    id: '3',
-    name: 'Blackbird',
-    address: '123 Brew St., Coffee City, CA',
-    hours: '7:00AM - 9:00PM',
-    tags: ['🌳', '🐶', '🎶'],
-    created_at: '',
-    latitude: 10.7757,
-    longitude: 106.686,
-    rating: 4.5,
-    num_reviews: 10,
-    image: null,
-    summary: null,
-  },
 ];
 //Dummy Feed Posts
 const mockFeed = [
   {
     id: 1,
     name: 'Jane',
-    action: "reviewed",
+    action: 'reviewed',
     location: 'Kyoto, Japan',
     cafe: 'Maccha House',
     date: 'Oct 6',
     review: {
-      images: ['https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/posts/public/mockMatcha.jpg'],
+      images: [
+        'https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/posts/public/mockMatcha.jpg',
+      ],
       tags: ['🍵 Matcha', '🪴 Ambiance'],
-      rating: 9,
-    }
+      rating: 7,
+    },
   },
   {
     id: 2,
     name: 'Nana',
-    action: "rated",
+    action: 'rated',
     location: 'Santa Cruz, California',
     cafe: 'Cat and Cloud',
     date: 'Oct 3',
@@ -93,24 +66,27 @@ const mockFeed = [
       description: 'Amazing coffee, loved the ambiance!',
       images: [],
       tags: ['☕ Coffee', '🪴 Ambiance'],
-      rating: 8,
     },
   },
   {
     id: 1,
     name: 'John',
-    action: "saved",
+    action: 'revisited',
     location: 'Seoul, Korea',
     cafe: 'Dotopda',
     date: 'Sep 28',
+    review: {
+      tags: ['🎶 Good music'],
+      rating: 10,
+    },
   },
 ];
 
 export default function Home() {
-  const [userRegion, setUserRegion] = useState({
-    latitude: 5.603717,
-    longitude: -0.186964,
-  });
+  const [userRegion, setUserRegion] = useState<{
+    latitude: number;
+    longitude: number;
+  } | null>(null);
   const [reviews, setReviews] = useState<NewReviewType[]>([]);
   const [loc, setLoc] = useState<string | null>(null);
   const [, setViewingImages] = useState<string[]>([]);
@@ -118,9 +94,13 @@ export default function Home() {
   const [popCafes, setPopCafes] = useState<CafeType[]>(mockCafes);
   const router = useRouter();
 
-  const [loggedIn, setLoggedIn] = useState<string | false>(false);
+  //for user greeting
   const [name, setName] = useState<string>('');
-  const [owner, setOwner] = useState(false);
+
+  //for feed posts
+  const [feed, setFeed] = useState<NewReviewType[]>([]);
+  const [feedUsers, setFeedUsers] = useState<Map<string, string>>(new Map());
+  const [feedPfps, setFeedPfps] = useState<Map<string, string>>(new Map());
 
   // Get Name
   useFocusEffect(
@@ -142,28 +122,28 @@ export default function Home() {
           }
 
           const uid = data.session.user.id;
-          setLoggedIn(uid);
 
           const { data: profileData, error: profileError } = await supabase
             .from('profiles')
             .select('name') // Only fetch the 'name' field
             .eq('user_id', uid)
             .single();
-  
+
           if (profileError || !profileData?.name) {
-            console.warn('Error fetching name or no profile found. Setting default name as "Guest".');
+            console.warn(
+              'Error fetching name or no profile found. Setting default name as "Guest".',
+            );
             setName('Guest'); // Set to 'Guest' if no profile or error
             return;
           }
-  
+
           setName(profileData.name); // Directly set the name
-  
         } catch (error) {
           console.error('Error fetching name: ', error);
           setName('Guest'); // Fallback to 'Guest' on error
         }
       };
-  
+
       fetchName();
     }, []),
   );
@@ -226,61 +206,144 @@ export default function Home() {
     }
   };
 
+  // Fetch user details (name, pfp) for feed posts
+  const fetchUserInfo = async (userIds: string[]) => {
+    const { data: users, error } = await supabase
+      .from('profiles')
+      .select('user_id, name, pfp')
+      .eq('user_id', userIds);
+
+    if (error) {
+      console.error('Error fetching user details for feed: ', error);
+      return;
+    }
+
+    const nameMap = new Map<string, string>();
+    const pfpMap = new Map<string, string>();
+
+    users.forEach((user) => {
+      nameMap.set(user.user_id, user.name);
+      pfpMap.set(user.user_id, user.pfp);
+    });
+
+    setFeedUsers(nameMap);
+    setFeedPfps(pfpMap);
+  };
+
+  const fetchCafeInfo = async (cafeId: string) => {
+    const { data: cafe, error } = await supabase
+      .from('cafes')
+      .select('title, address')
+      .eq('id', cafeId)
+      .single();
+
+    if (error) {
+      console.error('Error fetching cafe details:', error);
+      return null;
+    }
+
+    if (!cafe) {
+      console.log('No cafe found with the given cafe_id');
+      return null;
+    }
+
+    //Extract city, state
+  };
+
+  const fetchFeed = async () => {
+    // Fetch list of top reviews in database from past week
+    const { data, error } = await supabase
+      .from('reviews')
+      .select('*')
+      .order('created_at', { ascending: false })
+      .limit(3);
+
+    if (error) {
+      console.error('Error fetching reviews: ', error);
+      return;
+    } else {
+      //fetch names, pfps
+      const userIds = [...new Set(reviews.map((review) => review.user_id))];
+      if (userIds.length > 0) {
+        await fetchUserInfo(userIds);
+      }
+
+      const formattedFeed = data.map((item) => ({
+        id: item.id,
+        name: feedUsers.get(item.user_id),
+        pfp: feedPfps.get(item.user_id) ?? null,
+        action: item.description ? 'reviewed' : 'rated', // Replace or customize based on your logic
+        cafe: item.cafe_id,
+        location: item.cafe.location,
+        date: item.created_at,
+        review: {
+          description: item.description,
+          images: item.images,
+          tags: item.tags,
+          rating: item.rating,
+        },
+      }));
+    }
+
+    // Create formatted list of Feed objects
+  };
+
   const getCafes = async () => {
-    try {
-      const requestBody = {
-        geolocation: {
-          lat: userRegion.latitude,
-          lng: userRegion.longitude,
-        },
-        sortBy: 'distance',
-        radius: 500,
-      };
-      console.log('Req body: ', requestBody);
-      const response = await fetch(`${API_URL}/cafes/search`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error(`Failed to search: ${response.status} - ${errorText}`);
-        return;
-      }
-
-      const data = await response.json();
-      if (!Array.isArray(data)) {
-        console.log('Invalid data');
-        return;
-      }
-
-      const limitData = data.slice(0, 4);
-      const cafes = [];
-      for (const cafe of limitData) {
-        cafes.push({
-          id: cafe.id,
-          name: cafe.title ? cafe.title : '',
-          address: cafe.address ? cafe.address : '',
-          hours: cafe.hours ? cafe.hours : '',
-          tags: cafe.tags ? cafe.tags : [],
-          created_at: cafe.created_at ? cafe.created_at : '',
-          latitude: cafe.latitude ? cafe.latitude : 0,
-          longitude: cafe.longitude ? cafe.longitude : 0,
-          rating: cafe.rating ? cafe.rating : 0,
-          num_reviews: cafe.num_reviews ? cafe.num_reviews : 0,
-          image: cafe.image ? cafe.image : '',
-          summary: cafe.summary ? cafe.summary : '',
+    if (userRegion) {
+      try {
+        const requestBody = {
+          geolocation: {
+            lat: userRegion.latitude,
+            lng: userRegion.longitude,
+          },
+          sortBy: 'distance',
+        };
+        console.log('Req body: ', requestBody);
+        const response = await fetch(`${API_URL}/cafes/search`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
         });
+
+        if (!response.ok) {
+          const errorText = await response.text();
+          console.error(`Failed to search: ${response.status} - ${errorText}`);
+          return;
+        }
+
+        const data = await response.json();
+        if (!Array.isArray(data)) {
+          console.log('Invalid data');
+          return;
+        }
+
+        const limitData = data.slice(0, 6);
+        const cafes = [];
+        for (const cafe of limitData) {
+          cafes.push({
+            id: cafe.id,
+            name: cafe.title ? cafe.title : '',
+            address: cafe.address ? cafe.address : '',
+            hours: cafe.hours ? cafe.hours : '',
+            tags: cafe.tags ? cafe.tags : [],
+            created_at: cafe.created_at ? cafe.created_at : '',
+            latitude: cafe.latitude ? cafe.latitude : 0,
+            longitude: cafe.longitude ? cafe.longitude : 0,
+            rating: cafe.rating ? cafe.rating : 0,
+            num_reviews: cafe.num_reviews ? cafe.num_reviews : 0,
+            image: cafe.image ? cafe.image : '',
+            summary: cafe.summary ? cafe.summary : '',
+          });
+        }
+
+        setPopCafes(cafes);
+
+        console.log('searched successfully');
+      } catch (error) {
+        console.log('error searching', error);
       }
-
-      setPopCafes(cafes);
-
-      console.log('searched successfully');
-    } catch (error) {
-      console.log('error searching', error);
     }
   };
 
@@ -290,8 +353,10 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    getCafes();
-  }, [userRegion])
+    if (userRegion) {
+      getCafes();
+    }
+  }, [userRegion]);
 
   return (
     <SafeAreaView>
@@ -366,9 +431,6 @@ export default function Home() {
           {/* Popular Reviews */}
           <View style={styles.reviewContainer}>
             <Text style={styles.popularHeader}>Popular Reviews this Week</Text>
-
-            {/* Turn into button later */}
-            <Text style={{ color: '#8a8888' }}>Browse all</Text>
           </View>
           {/* MAP REVIEWS */}
           <View style={styles.placeholder}>
@@ -400,11 +462,11 @@ export default function Home() {
           {/* Feed */}
           <Text style={styles.feedHeader}>New from friends</Text>
           <View>
-              {mockFeed.map((feed, index) => (
-                <View key={index}>
+            {mockFeed.map((feed, index) => (
+              <View key={index}>
                 <FeedComponent feed={feed} />
                 {index < mockFeed.length - 1 && <View style={styles.separator} />}
-                </View>
+              </View>
             ))}
           </View>
         </View>
@@ -496,7 +558,7 @@ const styles = StyleSheet.create({
     marginLeft: 10,
   },
 
-  feedHeader:{
+  feedHeader: {
     fontFamily: 'SF-Pro-Display-Semibold',
     fontSize: 20,
     marginBottom: 10,
@@ -506,5 +568,5 @@ const styles = StyleSheet.create({
     height: 1,
     backgroundColor: '#ccc',
     marginVertical: 8,
-  }
+  },
 });
