@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet } from 'react-native';
+import React, { memo } from 'react';
+import { View, Text, Image, StyleSheet, Pressable } from 'react-native';
 import { CafeType } from '@/components/CafePage/CafeTypes';
 import EmojiTag from '@/components/EmojiTag';
 
@@ -7,29 +7,41 @@ interface ListCardProps {
   cafe: CafeType;
 }
 
-export default function ListCard({ cafe }: ListCardProps) {
+const ListCard: React.FC<ListCardProps> = ({ cafe }) => {
   const mockImageUrl =
     'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12';
 
+  const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  const today = days[new Date().getDay()];
+
+  const entries = cafe.hours ? cafe.hours.split('\n') : [];
+  const scheduleDict: { [key: string]: string } = {};
+  entries.forEach((entry) => {
+    const [day, ...timeParts] = entry.split(':'); // Split on the first colon
+    const time = timeParts.join(':').trim(); // Join the remaining parts and trim
+    scheduleDict[day.trim()] = time;
+  });
+
   return (
     <View style={styles.card}>
-      {/* <Image source={{ uri: mockImageUrl }} style={{ height: 100 }} resizeMode="contain" /> */}
-
       <View style={{ flex: 1, height: 170, paddingBottom: 8 }}>
-        <Image source={{ uri: mockImageUrl }} style={{ width: '100%', height: '100%' }} />
+        <Image
+          source={{ uri: cafe.image ? cafe.image : mockImageUrl }}
+          style={{ width: '100%', height: '100%' }}
+        />
       </View>
 
       <View style={styles.body}>
         <View style={styles.header}>
           <Text style={styles.name}>{cafe.name}</Text>
           <View style={styles.ratingContainer}>
-            <Text style={styles.ratingText}>⭐️4.2</Text>
+            <Text style={styles.ratingText}>⭐️{cafe.rating || '4.2'}</Text>
           </View>
         </View>
-        <Text style={styles.hours}>{cafe.hours}</Text>
+        <Text style={styles.hours}>{scheduleDict[today]}</Text>
         <Text style={styles.location}>{cafe.address}</Text>
 
-        {cafe.tags !== null && (
+        {cafe.tags && (
           <View style={styles.tagsContainer}>
             {cafe.tags.map((tag, index) => (
               <View key={index} style={styles.tagWrapper}>
@@ -41,7 +53,9 @@ export default function ListCard({ cafe }: ListCardProps) {
       </View>
     </View>
   );
-}
+};
+
+export default ListCard;
 
 const styles = StyleSheet.create({
   card: {
@@ -50,7 +64,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#000000',
     marginVertical: 8,
-    width: '94%', // Adjust width here
+    // marginHorizontal: 8,
+    width: '100%', // Adjust width here
+    minWidth: '100%', // Adjust width here
     overflow: 'hidden',
     position: 'relative',
   },

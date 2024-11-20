@@ -1,6 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { Dimensions, Image, Pressable, SafeAreaView, ScrollView, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 interface Props {
   images: string[] | null;
@@ -13,6 +14,8 @@ interface Props {
  * @param setImages function to set images array to null when closed
  */
 export default function ImageFullView({ images, setImages }: Props) {
+  const insets = useSafeAreaInsets();
+
   if (!images) return null;
 
   // currently using this for image size, would be better to do something else
@@ -45,6 +48,7 @@ export default function ImageFullView({ images, setImages }: Props) {
           position: 'relative',
           justifyContent: 'center',
           alignItems: 'center',
+          top: insets.top,
         }}>
         {images.length > 1 && <Text style={{ color: 'white' }}>{images.length} images</Text>}
 
@@ -54,6 +58,7 @@ export default function ImageFullView({ images, setImages }: Props) {
             position: 'absolute',
             right: 10,
             top: 12.5, // 12.5 + 25 + 12.5 is middle of the view bar
+            zIndex: 2,
           }}>
           <Ionicons name="close" size={25} color="white" />
         </Pressable>
