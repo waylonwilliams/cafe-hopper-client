@@ -6,6 +6,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import CardComponent from '@/components/Card';
 import ProfileList from './ProfileList';
+import { CafeType } from './CafePage/CafeTypes';
 
 // setup with props so this can be used for other ppls profiles in the future
 interface Props {
@@ -37,24 +38,102 @@ export default function Profile({ uid, setViewingImages }: Props) {
   }
   const cafes = [
     {
-      name: '11th Hour Coffee',
-      localImage: require('../assets/images/11th-hour.png'),
-      rating: 4.6,
-      tags: ['🛜', '🪴', '🥐'],
+      id: 'alo',
+      created_at: '2021-08-01T00:00:00.000Z',
+      name: "Cafe Oshima's",
+      address: '2/37 Cao Thang, Ward 5, District 3, Ho Chi Minh City, Vietnam',
+      tags: [
+        '🍵 Matcha',
+        '🛜 Free Wifi',
+        '🌱 Vegan',
+        '🌳 Outdoor',
+        '🐶 Pet Friendly',
+        '🏠 Indoor',
+        '🚗 Parking',
+      ],
+      hours: `8:00AM - 10:00PM Monday
+                    8:00AM - 10:00PM Tuesday
+                    8:00AM - 10:00PM Wednesday
+                    8:00AM - 10:00PM Thursday
+                    8:00AM - 10:00PM Friday
+                    8:00AM - 10:00PM Saturday
+                    8:00AM - 10:00PM Sunday`,
+      latitude: 10.7743,
+      longitude: 106.686,
+      image: require('../assets/images/11th-hour.png'),
+      summary: 'A cozy cafe',
+      rating: 9.4,
+      num_reviews: 100,
     },
     {
-      name: 'The Abbey',
-      localImage: require('../assets/images/abbey.png'),
-      rating: 4.7,
-      tags: ['📚', '☕', '🛜'],
+      id: 'jalo',
+      created_at: '2021-08-01T00:00:00.000Z',
+      name: "Cafe Oshima's",
+      address: '2/37 Cao Thang, Ward 5, District 3, Ho Chi Minh City, Vietnam',
+      tags: [
+        '🍵 Matcha',
+        '🛜 Free Wifi',
+        '🌱 Vegan',
+        '🌳 Outdoor',
+        '🐶 Pet Friendly',
+        '🏠 Indoor',
+        '🚗 Parking',
+      ],
+      hours: `8:00AM - 10:00PM Monday
+                    8:00AM - 10:00PM Tuesday
+                    8:00AM - 10:00PM Wednesday
+                    8:00AM - 10:00PM Thursday
+                    8:00AM - 10:00PM Friday
+                    8:00AM - 10:00PM Saturday
+                    8:00AM - 10:00PM Sunday`,
+      latitude: 10.7743,
+      longitude: 106.686,
+      image: require('../assets/images/11th-hour.png'),
+      summary: 'A cozy cafe',
+      rating: 9.4,
+      num_reviews: 100,
     },
     {
-      name: 'Verve',
-      localImage: require('../assets/images/verve.png'),
-      rating: 4.4,
-      tags: ['🪴', '☕', '📚'],
+      id: 'bloom',
+      created_at: '2021-09-15T00:00:00.000Z',
+      name: 'Bloom Cafe',
+      address: '123 Flower St, Garden City, NY, USA',
+      tags: ['🌸 Floral', '☕ Coffee', '🍰 Desserts', '📚 Books'],
+      hours: `7:00AM - 8:00PM Monday
+                    7:00AM - 8:00PM Tuesday
+                    7:00AM - 8:00PM Wednesday
+                    7:00AM - 8:00PM Thursday
+                    7:00AM - 8:00PM Friday
+                    8:00AM - 9:00PM Saturday
+                    8:00AM - 9:00PM Sunday`,
+      latitude: 40.7128,
+      longitude: -74.006,
+      image: require('../assets/images/11th-hour.png'),
+      summary: 'A floral-themed cafe',
+      rating: 8.7,
+      num_reviews: 85,
     },
-  ];
+    {
+      id: 'java',
+      created_at: '2021-10-20T00:00:00.000Z',
+      name: 'Java House',
+      address: '456 Coffee Ln, Brewtown, CA, USA',
+      tags: ['☕ Coffee', '💻 Work Friendly', '📶 Free Wifi', '🍪 Snacks'],
+      hours: `6:00AM - 6:00PM Monday
+                    6:00AM - 6:00PM Tuesday
+                    6:00AM - 6:00PM Wednesday
+                    6:00AM - 6:00PM Thursday
+                    6:00AM - 6:00PM Friday
+                    7:00AM - 7:00PM Saturday
+                    7:00AM - 7:00PM Sunday`,
+      latitude: 34.0522,
+      longitude: -118.2437,
+      image: require('../assets/images/11th-hour.png'),
+      summary: 'A perfect place for coffee lovers',
+      rating: 9.1,
+      num_reviews: 120,
+    },
+  ] as CafeType[];
 
   interface UserList {
     id: string;
@@ -234,8 +313,8 @@ export default function Profile({ uid, setViewingImages }: Props) {
           <FlatList
             horizontal
             data={cafes}
-            renderItem={({ item }) => <CardComponent card={item} />}
-            keyExtractor={(item) => item.name}
+            renderItem={({ item }) => <CardComponent cafe={item} />}
+            keyExtractor={(item) => item.id}
             style={styles.carousel}
           />
         </View>
@@ -248,8 +327,8 @@ export default function Profile({ uid, setViewingImages }: Props) {
           <FlatList
             horizontal
             data={cafes}
-            renderItem={({ item }) => <CardComponent card={item} />}
-            keyExtractor={(item) => item.name}
+            renderItem={({ item }) => <CardComponent cafe={item} />}
+            keyExtractor={(item) => item.id}
             style={styles.carousel}
           />
         </View>

@@ -221,8 +221,8 @@ export default function Index() {
               // there are changes to safeareaview in new version of expo
               // if on newest version, use insets.top to be at the top of safe area
               // else just use 0
-              // top: insets.top, // Account for the safe area inset
-              top: 0,
+              top: insets.top, // Account for the safe area inset
+              // top: 0,
               left: 10, // Add some padding
               zIndex: 2,
             }}>

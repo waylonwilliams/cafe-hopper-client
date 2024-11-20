@@ -5,21 +5,14 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import CardComponent from '@/components/Card';
 import { supabase } from '@/lib/supabase';
+import { CafeType } from '@/components/CafePage/CafeTypes';
 
 const ListView = () => {
   const params = useLocalSearchParams();
   const router = useRouter();
   const { listId, listName, cafeCount, visibility, description } = params;
 
-  type Cafe = {
-    id: string;
-    title: string;
-    image?: string;
-    rating?: number;
-    tags: string[];
-  };
-
-  const [cafes, setCafes] = useState<Cafe[]>([]); // Explicitly type as Cafe[]
+  const [cafes, setCafes] = useState<CafeType[]>([]);
   const [loading, setLoading] = useState(true);
 
   // Fetch cafes from the list
@@ -27,7 +20,7 @@ const ListView = () => {
     try {
       const { data, error } = await supabase
         .from('cafeListEntries')
-        .select('cafes(id, title, image, rating, tags)')
+        .select('cafes(*)')
         .eq('list_id', listId);
 
       if (error) {
@@ -35,7 +28,7 @@ const ListView = () => {
         return;
       }
 
-      console.log('Raw data from Supabase:', data);
+      // console.log('Raw data from Supabase:', data);
 
       // Set cafes directly
       setCafes(data?.flatMap((entry) => entry.cafes) || []);
@@ -88,14 +81,7 @@ const ListView = () => {
             <ScrollView contentContainerStyle={styles.cardContainer}>
               {cafes.map((cafe, index) => (
                 <View key={cafe.id || index} style={styles.card}>
-                  <CardComponent
-                    card={{
-                      name: cafe.title,
-                      imageUri: cafe.image || 'default_image_url',
-                      rating: cafe.rating ?? 0,
-                      tags: cafe.tags || [],
-                    }}
-                  />
+                  <CardComponent cafe={cafe} />
                 </View>
               ))}
             </ScrollView>
