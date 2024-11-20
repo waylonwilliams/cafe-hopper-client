@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { MaterialIcons, FontAwesome } from '@expo/vector-icons'; // Import icon libraries
+import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
+import { CafeType } from './CafePage/CafeTypes'; // Import icon libraries
 
 // Define the type for marker prop
 export interface MarkerType {
@@ -9,6 +10,7 @@ export interface MarkerType {
   latitude: number;
   longitude: number;
   category?: 'liked' | 'saved' | 'default';
+  cafe: CafeType;
 }
 
 // CustomMarker component

@@ -6,27 +6,23 @@ import {
   Dimensions,
   TouchableOpacity,
   TextInput,
-  TouchableWithoutFeedback,
-  Keyboard,
   Pressable,
   ScrollView,
-  FlatList,
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { MaterialIcons } from '@expo/vector-icons';
-import { markers } from '../../assets/markers';
+import Constants from 'expo-constants';
 import { MarkerType } from '../../components/CustomMarker';
 import CustomMarker from '../../components/CustomMarker';
 import { useRouter } from 'expo-router';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import EmojiTag from '../../components/EmojiTag';
-import { cafeTags } from '../../components/CafePage/CafeTypes';
 import ListCard from '@/components/ListCard';
 import { CafeType } from '@/components/CafePage/CafeTypes';
+import EmojiTag from '@/components/EmojiTag';
+import { cafeTags } from '@/components/CafePage/CafeTypes';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
-// Mock data
 const mockCafes: CafeType[] = [
   {
     id: '1',
@@ -89,8 +85,7 @@ const mockCafes: CafeType[] = [
     summary: null,
   },
 ];
-
-export default function Explore() {
+export default function NewExplore() {
   const [mapRegion, setMapRegion] = useState({
     latitude: 5.603717,
     longitude: -0.186964,
@@ -98,25 +93,154 @@ export default function Explore() {
     longitudeDelta: 0.005,
   });
 
-  const [viewMode, setViewMode] = useState<'list' | 'map'>('map'); // State for switching between views
-  const [showFilters, setShowFilters] = useState(false); // State to toggle the filter dropdown
-  const [emojiTags, setEmojiTags] = useState<string[]>([]); // State to track selected emoji tags
   const mapRef = useRef<MapView>(null); // Reference to the MapView
   const router = useRouter(); // Get the router instance from expo-router
-  const [selectedHours, setSelectedHours] = useState('Any'); // Track selected hours
-  const [selectedRating, setSelectedRating] = useState('Any'); // Track selected rating]
 
-  // When the search bar is open it makes it not scrollable and closes when you press outside of it
-  // WHen its closed it does nothing, making it scrollable
-  const searchExitWrapper = (children: React.ReactNode) => {
-    if (showFilters) {
-      return (
-        <TouchableWithoutFeedback onPress={dismissDropdown}>{children}</TouchableWithoutFeedback>
-      );
-    } else {
-      return <>{children}</>;
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list'); // State for switching between views
+  const [searchQuery, setSearchQuery] = useState(''); // Track search query
+  const [debouncedQuery, setDebouncedQuery] = useState('');
+  const [searchedCafes, setSearchedCafes] = useState<CafeType[]>(mockCafes); // Track searched cafes
+  const [searchedMarkers, setMarkers] = useState<MarkerType[]>([]);
+  const [isNavigating, setIsNavigating] = useState(false);
+  const [selectedHours, setSelectedHours] = useState('Any'); // Track selected hours
+  const [selectedRating, setSelectedRating] = useState('Any'); // Track selected rating
+  const [emojiTags, setEmojiTags] = useState<string[]>([]); // State to track selected emoji tags
+  const [searchIsFocused, setSearchIsFocused] = useState(false);
+
+  const API_URL = `http://${Constants.expoConfig?.hostUri!.split(':').shift()}:3000`;
+
+  const handleMarkerPress = (marker: MarkerType) => {
+    // Navigate to cafe view and pass marker data as parameters
+    console.log('Navigating to cafe', marker.name);
+    if (marker.cafe) {
+      navigateToCafe(marker.cafe);
     }
   };
+
+  const navigateToCafe = (cafe: CafeType) => {
+    if (isNavigating) {
+      return;
+    }
+    setIsNavigating(true);
+
+    try {
+      const cafeParams = {
+        id: cafe?.id ?? '',
+        created_at: cafe?.created_at ?? '',
+        name: cafe?.name ?? '',
+        address: cafe?.address ?? '',
+        hours: cafe?.hours ?? '',
+        latitude: cafe?.latitude ?? 0,
+        longitude: cafe?.longitude ?? 0,
+        tags: Array.isArray(cafe?.tags) ? cafe?.tags.join(',') : '',
+        image: cafe?.image ?? '',
+        summary: cafe?.summary ?? '',
+        rating: cafe?.rating ?? 0,
+        num_reviews: cafe?.num_reviews ?? 0,
+      };
+
+      // Add a small delay to ensure state updates are complete
+      setTimeout(() => {
+        router.push({
+          pathname: '/cafe',
+          params: cafeParams,
+        });
+      }, 100);
+    } catch (error) {
+      console.log('Failed to navigate to cafe', error);
+    } finally {
+      setIsNavigating(false);
+    }
+  };
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (debouncedQuery !== searchQuery) {
+        setDebouncedQuery(searchQuery);
+      }
+    }, 300); // Adjust debounce delay as needed
+
+    return () => {
+      clearTimeout(handler); // Cleanup previous timeout
+    };
+  }, [searchQuery, debouncedQuery]);
+
+  useEffect(() => {
+    const searchCafes = async (query: string) => {
+      try {
+        const requestBody = {
+          query: query,
+          geolocation: {
+            lat: mapRegion.latitude,
+            lng: mapRegion.longitude,
+          },
+          openNow: selectedHours === 'Open Now',
+          rating: selectedRating === 'Any' ? 0 : parseFloat(selectedRating) * 2,
+          tags: emojiTags,
+        };
+        const response = await fetch(`${API_URL}/cafes/search`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+        });
+        if (!response.ok) {
+          throw new Error('Failed to search for cafes');
+        }
+        const data = await response.json();
+        if (!Array.isArray(data)) {
+          console.log('Invalid data format');
+          return;
+        }
+
+        const limitedData = data.slice(0, 15); // Limit to 15 cafes
+
+        const cafes = [];
+        const markers: MarkerType[] = [];
+        for (const cafe of limitedData) {
+          const newCafe = {
+            id: cafe.id,
+            name: cafe.title ? cafe.title : '',
+            address: cafe.address ? cafe.address : '',
+            hours: cafe.hours ? cafe.hours : '',
+            tags: cafe.tags ? cafe.tags : [],
+            created_at: cafe.created_at ? cafe.created_at : '',
+            latitude: cafe.latitude ? cafe.latitude : 0,
+            longitude: cafe.longitude ? cafe.longitude : 0,
+            rating: cafe.rating ? cafe.rating : 0,
+            num_reviews: cafe.num_reviews ? cafe.num_reviews : 0,
+            image: cafe.image ? cafe.image : '',
+            summary: cafe.summary ? cafe.summary : '',
+          };
+          cafes.push(newCafe);
+
+          markers.push({
+            name: cafe.title,
+            latitude: cafe.latitude,
+            longitude: cafe.longitude,
+            rating: cafe.rating ? cafe.rating : 0,
+            category: 'default',
+            cafe: newCafe,
+          });
+        }
+
+        setSearchedCafes(cafes);
+        setMarkers(markers);
+      } catch (error) {
+        console.error('Error searching for cafes:', error);
+      } finally {
+        // Handle cleanup if needed
+      }
+    };
+    if (debouncedQuery) {
+      console.log('Searching for:', debouncedQuery);
+      searchCafes(debouncedQuery);
+    } else {
+      console.log('No search query');
+      setSearchedCafes(mockCafes); // Reset cafes if query is empty
+    }
+  }, [debouncedQuery, API_URL, mapRegion, selectedHours, selectedRating, emojiTags]);
 
   const userLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
@@ -141,43 +265,12 @@ export default function Explore() {
     }
   };
 
-  const handleMarkerPress = (marker: MarkerType) => {
-    // Navigate to cafe view and pass marker data as parameters
-    console.log(`Navigating to cafe view for: ${marker.name}`);
-    router.push({
-      pathname: '/cafe',
-      params: {
-        id: 'ChIJ1USNsRYVjoARsVMJfrLeXqg',
-        created_at: '2021-06-21T18:00:00.000Z',
-        name: 'Verve Coffee Roasters',
-        address: '816 41st Ave, Santa Cruz, CA 95062, USA',
-        hours: `Monday:7:00AM–6:00PM
-Tuesday:7:00AM–6:00PM
-Wednesday:7:00AM–6:00PM
-Thursday:7:00AM–6:00PM
-Friday:7:00AM–6:00PM
-Saturday:7:00AM–6:00PM
-Sunday:7:00AM–6:00PM`,
-        latitude: 36.9641309,
-        longitude: -121.9647378,
-        tags: ['☕ Excellent coffee', '🪴 Ambiance', '🎶 Good music'],
-        image:
-          'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12',
-        summary: 'A cozy cafe',
-        rating: 9.5,
-        num_reviews: 100,
-      },
-    });
-  };
-
   useEffect(() => {
     userLocation();
   }, []);
 
-  const dismissDropdown = () => {
-    // Hide dropdown when tapping away or outside
-    setShowFilters(false);
-    Keyboard.dismiss(); // Hide keyboard if it's open
+  const handleSearch = (text: string) => {
+    setSearchQuery(text);
   };
 
   const handleTagClick = (tag: string) => {
@@ -186,19 +279,22 @@ Sunday:7:00AM–6:00PM`,
     } else {
       setEmojiTags([...emojiTags, tag]);
     }
+    handleSearch(searchQuery);
   };
 
   const handleHourClick = (option: string) => {
     setSelectedHours(option);
+    handleSearch(searchQuery);
   };
 
   const handleRatingClick = (option: string) => {
     setSelectedRating(option);
+    handleSearch(searchQuery);
   };
 
-  return searchExitWrapper(
+  return (
     <View>
-      {/* Top Bar with Dummy Search Bar */}
+      {/** Top Search Bar */}
       <View style={styles.topBar}>
         <View style={styles.searchBar}>
           <View style={{ marginRight: 5 }}>
@@ -207,7 +303,16 @@ Sunday:7:00AM–6:00PM`,
           <TextInput
             placeholder="Search a cafe, characteristic, etc."
             placeholderTextColor="#888"
-            onFocus={() => setShowFilters(true)} // Show filters when search is focused
+            value={searchQuery}
+            onChangeText={(text) => handleSearch(text)}
+            // onFocus and onBlur to toggle the filter dropdown whether or not the search bar is open
+            // no need to have it press off because the keyboard is in the way anyway
+            onFocus={() => setSearchIsFocused(true)}
+            onBlur={() => setSearchIsFocused(false)}
+            returnKeyType="search"
+            autoCapitalize="none"
+            autoCorrect={false}
+            onSubmitEditing={(text) => handleSearch(text.nativeEvent.text)}
           />
         </View>
         <View style={styles.buttonContainer}>
@@ -224,8 +329,7 @@ Sunday:7:00AM–6:00PM`,
         </View>
       </View>
 
-      {/* Filter dropdown */}
-      {showFilters && (
+      {searchIsFocused && (
         <View style={styles.filterDropdown}>
           <ScrollView>
             {/* Hours Section */}
@@ -320,7 +424,6 @@ Sunday:7:00AM–6:00PM`,
         </View>
       )}
 
-      {/* Content based on viewMode */}
       {viewMode === 'map' ? (
         <View style={{ flex: 1 }}>
           <TouchableOpacity style={styles.location} onPress={userLocation}>
@@ -334,10 +437,9 @@ Sunday:7:00AM–6:00PM`,
             initialRegion={mapRegion}
             region={mapRegion}
             showsUserLocation={true} // Show the default blue dot for user location
-            followsUserLocation={true}
             showsMyLocationButton={true}
             mapType="standard">
-            {markers.map((marker, index) => {
+            {searchedMarkers.map((marker, index) => {
               const validMarker: MarkerType = {
                 ...marker,
                 category: marker.category as 'liked' | 'saved' | 'default' | undefined,
@@ -354,14 +456,30 @@ Sunday:7:00AM–6:00PM`,
           </MapView>
         </View>
       ) : (
-        <FlatList
-          data={mockCafes}
-          keyExtractor={(item, index) => index.toString()}
-          renderItem={({ item }) => <ListCard cafe={item} />}
-          contentContainerStyle={styles.listView}
-        />
+        <ScrollView contentContainerStyle={styles.listView}>
+          {searchedCafes ? (
+            searchedCafes.map(
+              (
+                cafe, // if no searched cafes, return text saying no cafes found
+              ) => (
+                <Pressable
+                  key={cafe.id}
+                  onPress={() => navigateToCafe(cafe)}
+                  style={({ pressed }) => [
+                    {
+                      opacity: pressed ? 0.5 : 1,
+                    },
+                  ]}>
+                  <ListCard cafe={cafe} />
+                </Pressable>
+              ),
+            )
+          ) : (
+            <Text>No cafes found</Text>
+          )}
+        </ScrollView>
       )}
-    </View>,
+    </View>
   );
 }
 
@@ -429,9 +547,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     paddingBottom: 90, // a bit of room for the navbar
+    flexGrow: 1,
+    paddingHorizontal: 10,
   },
   filterDropdown: {
     position: 'absolute',
+    padding: 10,
     top: 120, // Position below the top bar
     left: 11,
     zIndex: 200, // Ensure it's on top of other elements

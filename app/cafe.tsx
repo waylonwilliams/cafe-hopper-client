@@ -10,6 +10,7 @@ import React from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import { CafeType, NewReviewType } from '@/components/CafePage/CafeTypes';
 import { supabase } from '@/lib/supabase';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ImageFullView from '@/components/CafePage/ImageFullView';
 
 /**
@@ -57,11 +58,14 @@ import ImageFullView from '@/components/CafePage/ImageFullView';
       </Link>
  */
 
-function assertString(v: string | string[] | undefined) {
-  if (typeof v !== 'string') {
-    throw new Error(
-      'Something went wrong passing parameters to cafe page, probably not passing all required',
-    );
+function assertString(v: string | string[] | undefined): string {
+  if (v === undefined) {
+    console.warn('Parameter is undefined, using default value');
+    return '';
+  }
+  if (Array.isArray(v)) {
+    console.warn('Parameter is array, joining with commas');
+    return v.join(',');
   }
   return v;
 }
@@ -72,29 +76,53 @@ function assertString(v: string | string[] | undefined) {
  */
 export default function Index() {
   const cafeObj = useLocalSearchParams();
+  const insets = useSafeAreaInsets();
 
-  const cafe = {
-    id: assertString(cafeObj.id),
-    created_at: assertString(cafeObj.created_at),
-    name: assertString(cafeObj.name),
-    hours: assertString(cafeObj.hours),
-    latitude: parseFloat(assertString(cafeObj.latitude)),
-    longitude: parseFloat(assertString(cafeObj.longitude)),
-    address: assertString(cafeObj.address),
-    tags: assertString(cafeObj.tags).split(','),
-    image: assertString(cafeObj.image),
-    summary: assertString(cafeObj.summary),
-    rating: parseFloat(assertString(cafeObj.rating)),
-    num_reviews: parseFloat(assertString(cafeObj.num_reviews)),
-  } as CafeType;
+  const cafe = useMemo(() => {
+    try {
+      return {
+        id: assertString(cafeObj.id),
+        created_at: assertString(cafeObj.created_at),
+        name: assertString(cafeObj.name),
+        hours: assertString(cafeObj.hours),
+        latitude: parseFloat(assertString(cafeObj.latitude)) || 0,
+        longitude: parseFloat(assertString(cafeObj.longitude)) || 0,
+        address: assertString(cafeObj.address),
+        tags: assertString(cafeObj.tags).split(',').filter(Boolean),
+        image: assertString(cafeObj.image),
+        summary: assertString(cafeObj.summary),
+        rating: parseFloat(assertString(cafeObj.rating)) || 0,
+        num_reviews: parseFloat(assertString(cafeObj.num_reviews)) || 0,
+      } as CafeType;
+    } catch (error) {
+      console.error('Error parsing cafe parameters:', error);
+      // Return a default cafe object
+      return {
+        id: '',
+        created_at: '',
+        name: 'Unknown Cafe',
+        hours: '',
+        latitude: 0,
+        longitude: 0,
+        address: '',
+        tags: [],
+        image: '',
+        summary: '',
+        rating: 0,
+        num_reviews: 0,
+      } as CafeType;
+    }
+  }, [cafeObj]);
 
   const [userId, setUserId] = useState<string | null>(null);
   const [loggingVisit, setLoggingVisit] = useState(false);
   const [reviews, setReviews] = useState<NewReviewType[]>([]);
   const [viewingImages, setViewingImages] = useState<string[] | null>(null);
-  const [viewingImageIndex, setViewingImageIndex] = useState<number | null>(null);
 
   const [addingToList, setAddingToList] = useState(false);
+
+  // remove this later
+  const [viewingImageIndex, setViewingImageIndex] = useState<number | null>(null);
 
   // idk stuff for the bottom sheet
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -147,17 +175,26 @@ export default function Index() {
   }
 
   // fetch reviews assosicated with this cafe on load
-  async function fetchReviews() {
-    const { data, error } = await supabase.from('reviews').select('*, profiles ( user_id, bio )');
-    if (error) {
-      console.log('Error fetching reviews', error);
-    } else {
-      setReviews(data);
-    }
-  }
+
   useEffect(() => {
-    fetchReviews();
-  }, []);
+    setReviews([]);
+    async function fetchReviews() {
+      try {
+        const { data, error } = await supabase.from('reviews').select('*').eq('cafe_id', cafe.id);
+        if (error) {
+          console.log('Error fetching reviews', error);
+        } else {
+          setReviews(data);
+        }
+      } catch (error) {
+        console.log('Unexpected error fetching reviews', error);
+      }
+    }
+    if (cafe.id) {
+      console.log('fetching reviews');
+      fetchReviews();
+    }
+  }, [cafe.id]);
 
   return (
     <>
@@ -173,16 +210,23 @@ export default function Index() {
         <View style={{ backgroundColor: '#f0f0f0', height: '100%', width: '100%' }}>
           <Image
             style={{ top: -70, width: '100%', position: 'absolute' }}
-            source={require('../../assets/images/oshimacafe.png')}
+            source={require('../assets/images/oshimacafe.png')}
           />
 
-          <Pressable onPress={goBack}>
-            <Ionicons
-              name="chevron-back"
-              size={24}
-              color="white"
-              style={{ padding: 4, position: 'absolute', zIndex: 2 }}
-            />
+          <Pressable
+            onPress={goBack}
+            style={{
+              position: 'absolute',
+              // IF THE BUTTON PLACEMENT IS OFF
+              // there are changes to safeareaview in new version of expo
+              // if on newest version, use insets.top to be at the top of safe area
+              // else just use 0
+              // top: insets.top, // Account for the safe area inset
+              top: 0,
+              left: 10, // Add some padding
+              zIndex: 2,
+            }}>
+            <Ionicons name="chevron-back" size={24} color="white" />
           </Pressable>
         </View>
       </SafeAreaView>
@@ -230,7 +274,7 @@ export default function Index() {
       </BottomSheet>
 
       {/* Image full view */}
-      {viewingImageIndex !== null && (
+      {viewingImages !== null && (
         <ImageFullView images={viewingImages} setImages={setViewingImages} />
       )}
     </>
