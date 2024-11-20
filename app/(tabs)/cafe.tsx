@@ -5,6 +5,7 @@ import BottomSheet, { BottomSheetHandleProps, BottomSheetView } from '@gorhom/bo
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Cafe from '@/components/CafePage/Cafe';
 import Log from '@/components/CafePage/Log';
+import AddToList from '@/components/CafePage/AddToList';
 import React from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import { CafeType, NewReviewType } from '@/components/CafePage/CafeTypes';
@@ -87,10 +88,13 @@ export default function Index() {
     num_reviews: parseFloat(assertString(cafeObj.num_reviews)),
   } as CafeType;
 
+  const [userId, setUserId] = useState<string | null>(null);
   const [loggingVisit, setLoggingVisit] = useState(false);
   const [reviews, setReviews] = useState<NewReviewType[]>([]);
   const [viewingImages, setViewingImages] = useState<string[] | null>(null);
   const [viewingImageIndex, setViewingImageIndex] = useState<number | null>(null);
+
+  const [addingToList, setAddingToList] = useState(false);
 
   // idk stuff for the bottom sheet
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -114,9 +118,26 @@ export default function Index() {
       </View>
     );
   };
+  // Fetch user ID when component mounts
+  useEffect(() => {
+    const fetchUserId = async () => {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+      }
+    };
+    fetchUserId();
+  }, []);
 
   function logVisit() {
     setLoggingVisit(true);
+    bottomSheetRef.current?.snapToIndex(1);
+  }
+
+  function addToList() {
+    setAddingToList(true);
     bottomSheetRef.current?.snapToIndex(1);
   }
 
@@ -185,6 +206,15 @@ export default function Index() {
               reviews={reviews}
               setReviews={setReviews}
             />
+          ) : addingToList ? (
+            <AddToList
+              setAddingToList={setAddingToList}
+              cafe={cafe}
+              userId={userId ?? ''}
+              updateCafeView={(listName, selected) => {
+                /* implement the callback function here */
+              }}
+            />
           ) : (
             <Cafe
               cafe={cafe}
@@ -192,6 +222,8 @@ export default function Index() {
               logVisit={logVisit}
               setViewingImages={setViewingImages}
               setViewingImageIndex={setViewingImageIndex}
+              userId={userId ?? ''}
+              addToList={addToList}
             />
           )}
         </BottomSheetView>

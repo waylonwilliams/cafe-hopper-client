@@ -32,10 +32,17 @@ const SignUpScreen = () => {
       });
       if (error) Alert.alert(error.message);
 
+      // create corresponding profile on signup
       const { error: profileError } = await supabase
         .from('profiles')
         .upsert({ user_id: data.user?.id });
       if (profileError) Alert.alert(profileError.message);
+
+      // add two default lists to the users account on creation
+      const { error: listError } = await supabase
+        .from('cafeList')
+        .upsert([{ list_name: 'liked' }, { list_name: 'to-go' }]);
+      if (listError) Alert.alert(listError.message);
       // supabase signup will also log them in, so just send them to tabs
       if (!error) router.replace('/(tabs)');
       setLoading(false);
@@ -53,7 +60,7 @@ const SignUpScreen = () => {
         <Icon name="user" size={20} color="black" />
         <TextInput
           style={styles.input}
-          placeholder="Username or Email"
+          placeholder="Email"
           placeholderTextColor="black"
           value={email}
           onChangeText={setEmail}

@@ -1,9 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import EmojiTag from '@/components/EmojiTag';
 import Review from '@/components/Review';
 import { CafeType, NewReviewType } from './CafeTypes';
+import {
+  addCafeToList,
+  checkCafeInList,
+  getOrCreateList,
+  removeCafeFromList,
+} from '@/lib/supabase-utils';
 
 interface Props {
   cafe: CafeType;
@@ -11,6 +17,8 @@ interface Props {
   logVisit: () => void;
   setViewingImages: (arg: string[]) => void;
   setViewingImageIndex: (arg: number | null) => void;
+  userId: string; // Add userId here
+  addToList: () => void;
 }
 
 export default function Cafe({
@@ -19,10 +27,62 @@ export default function Cafe({
   logVisit,
   setViewingImages,
   setViewingImageIndex,
+  userId, // Destructure userId here
+  addToList,
 }: Props) {
   const [liked, setLiked] = useState(false);
   const [togo, setTogo] = useState(false);
   const [showHours, setShowHours] = useState(false);
+
+  // Load initial "liked" and "to-go" states
+  useEffect(() => {
+    const loadInitialState = async () => {
+      try {
+        const isLiked = await checkCafeInList(cafe.id, 'liked');
+        const isTogo = await checkCafeInList(cafe.id, 'to-go');
+        setLiked(isLiked);
+        setTogo(isTogo);
+      } catch (error) {
+        console.error('Error loading initial state:', error);
+      }
+    };
+
+    loadInitialState();
+  }, [cafe.id, userId]);
+
+  const handleLike = async () => {
+    try {
+      const likedId = await getOrCreateList('liked');
+
+      if (liked) {
+        // If currently liked, remove it from the "liked" list
+        await removeCafeFromList(cafe.id, likedId);
+      } else {
+        // Otherwise, add it to the "liked" list
+        await addCafeToList(cafe.id, likedId);
+      }
+      setLiked(!liked); // Toggle the liked state
+    } catch (error) {
+      console.error('Error toggling like:', error);
+    }
+  };
+
+  const handleTogo = async () => {
+    try {
+      const togoId = await getOrCreateList('to-go');
+
+      if (togo) {
+        // If currently marked as to-go, remove it from the "to-go" list
+        await removeCafeFromList(cafe.id, togoId);
+      } else {
+        // Otherwise, add it to the "to-go" list
+        await addCafeToList(cafe.id, togoId);
+      }
+      setTogo(!togo); // Toggle the togo state
+    } catch (error) {
+      console.error('Error toggling to-go:', error);
+    }
+  };
 
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -71,33 +131,25 @@ export default function Cafe({
           alignContent: 'center',
           alignItems: 'center',
         }}>
-        <View>
-          <View
-            style={{
-              borderColor: '#000000',
-              borderRadius: 20,
-              borderWidth: 2,
-              padding: 7,
-              paddingHorizontal: 9,
-            }}>
-            <Text style={{ fontSize: 16, fontWeight: 700 }}>
-              ⭐️ {(cafe.rating / 2).toFixed(1)}
-            </Text>
-          </View>
-          <Text style={{ color: '#808080', paddingTop: 4 }}>269 reviews</Text>
-        </View>
-
-        <Pressable onPress={() => setLiked(!liked)}>
+        <Pressable onPress={handleLike}>
           <View style={{ alignItems: 'center', gap: 2 }}>
             <Ionicons name={liked ? 'heart' : 'heart-outline'} size={32} color="black" />
             <Text style={{ color: '#808080' }}>Like</Text>
           </View>
         </Pressable>
 
-        <Pressable onPress={() => setTogo(!togo)}>
+        <Pressable onPress={handleTogo}>
           <View style={{ alignItems: 'center', gap: 2 }}>
-            <Ionicons name={togo ? 'bookmark' : 'bookmark-outline'} size={32} color="black" />
+            <Ionicons name={togo ? 'bookmark' : 'bookmark-outline'} size={30} color="black" />
             <Text style={{ color: '#808080' }}>To-go</Text>
+          </View>
+        </Pressable>
+
+        {/* fix this logic */}
+        <Pressable onPress={addToList}>
+          <View style={{ alignItems: 'center', gap: 2 }}>
+            <Ionicons name="add-circle-outline" size={32} color="black" />
+            <Text style={{ color: '#808080' }}>Add to List</Text>
           </View>
         </Pressable>
 
