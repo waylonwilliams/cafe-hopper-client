@@ -210,14 +210,19 @@ export default function Index() {
         <View style={{ backgroundColor: '#f0f0f0', height: '100%', width: '100%' }}>
           <Image
             style={{ top: -70, width: '100%', position: 'absolute' }}
-            source={require('../../assets/images/oshimacafe.png')}
+            source={require('../assets/images/oshimacafe.png')}
           />
 
           <Pressable
             onPress={goBack}
             style={{
               position: 'absolute',
-              top: insets.top, // Account for the safe area inset
+              // IF THE BUTTON PLACEMENT IS OFF
+              // there are changes to safeareaview in new version of expo
+              // if on newest version, use insets.top to be at the top of safe area
+              // else just use 0
+              // top: insets.top, // Account for the safe area inset
+              top: 0,
               left: 10, // Add some padding
               zIndex: 2,
             }}>
