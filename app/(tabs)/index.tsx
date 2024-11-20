@@ -8,6 +8,7 @@ import {
   FlatList,
   ScrollView,
   Pressable,
+  Dimensions,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import Review from '@/components/Review';
@@ -20,6 +21,8 @@ import FeedComponent from '@/components/FeedPost';
 
 //const API_URL = `http://${Constants.expoConfig?.hostUri!.split(':').shift()}:3000`;
 const API_URL = `http://localhost:3000`;
+
+const { width } = Dimensions.get('window');
 
 //Dummy Cafes
 const mockCafes: CafeType[] = [
@@ -66,6 +69,7 @@ const mockFeed = [
       description: 'Amazing coffee, loved the ambiance!',
       images: [],
       tags: ['☕ Coffee', '🪴 Ambiance'],
+      rating: 8,
     },
   },
   {
@@ -87,10 +91,15 @@ export default function Home() {
     latitude: number;
     longitude: number;
   } | null>(null);
-  const [reviews, setReviews] = useState<NewReviewType[]>([]);
   const [loc, setLoc] = useState<string | null>(null);
+
+  //For review carousel
+  const [reviews, setReviews] = useState<NewReviewType[]>([]);
+  const [currentIndex, setCurrentIndex] = useState(0)
   const [, setViewingImages] = useState<string[]>([]);
   const [, setViewingImageIndex] = useState<number | null>(null);
+
+  // For popular cafe carousel
   const [popCafes, setPopCafes] = useState<CafeType[]>(mockCafes);
   const router = useRouter();
 
@@ -189,7 +198,7 @@ export default function Home() {
   const fetchReviews = async () => {
     // Fetch date to only display top reviews from this past week
     const pastWeek = new Date();
-    pastWeek.setDate(pastWeek.getDate() - 7);
+    pastWeek.setDate(pastWeek.getDate() - 9);
 
     // Fetch list of top reviews in database from past week
     const { data, error } = await supabase
@@ -205,6 +214,20 @@ export default function Home() {
       setReviews(data);
     }
   };
+
+  // Formatting and handling review carousel
+  const handleNext = () => {
+    if (currentIndex < reviews.length - 1) {
+      setCurrentIndex(currentIndex + 1);
+    }
+  };
+
+  const handlePrevious = () => {
+    if (currentIndex > 0) {
+      setCurrentIndex(currentIndex - 1);
+    }
+  };
+  
 
   // Fetch user details (name, pfp) for feed posts
   const fetchUserInfo = async (userIds: string[]) => {
@@ -247,7 +270,6 @@ export default function Home() {
       return null;
     }
 
-    //Extract city, state
   };
 
   const fetchFeed = async () => {
@@ -431,32 +453,30 @@ export default function Home() {
           {/* Popular Reviews */}
           <View style={styles.reviewContainer}>
             <Text style={styles.popularHeader}>Popular Reviews this Week</Text>
-          </View>
-          {/* MAP REVIEWS */}
-          <View style={styles.placeholder}>
-            <FlatList
-              data={reviews}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => (
-                <View
-                  style={{
-                    maxWidth: 350,
-                    width: '100%',
-                    flex: 1,
-                    flexDirection: 'row',
-                    padding: 10,
-                  }}>
-                  <Review
-                    review={item}
-                    setViewingImages={setViewingImages}
-                    setViewingImageIndex={setViewingImageIndex}
-                  />
-                </View>
-              )}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 10 }}
-            />
+          </View> 
+
+          <View style={styles.reviewCarousel}>
+            {/* Left Arrow */}
+            {currentIndex > 0 && (
+              <TouchableOpacity onPress={handlePrevious} style={styles.arrow}>
+                <Text style={styles.arrowText}>{'<'}</Text>
+              </TouchableOpacity>
+            )}
+
+            {/* Review Content */}
+            <View style={styles.reviewContainer}>
+              <Review 
+                review={reviews[currentIndex]}
+                setViewingImages={setViewingImages}
+                setViewingImageIndex={setViewingImageIndex} />
+            </View>
+
+            {/* Right Arrow */}
+            {currentIndex < reviews.length - 1 && (
+              <TouchableOpacity onPress={handleNext} style={styles.arrow}>
+                <Text style={styles.arrowText}>{'>'}</Text>
+              </TouchableOpacity>
+            )}
           </View>
 
           {/* Feed */}
@@ -513,6 +533,7 @@ const styles = StyleSheet.create({
   popularHeader: {
     fontFamily: 'SF-Pro-Display-Semibold',
     fontSize: 20,
+    marginTop: 8,
   },
   popInfo: {
     flexDirection: 'row',
@@ -539,23 +560,29 @@ const styles = StyleSheet.create({
     height: 230,
     flex: 1,
   },
+
   reviewContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    paddingTop: 20,
+    width: width - 70,
+    padding: 5,
   },
-  placeholder: {
+
+  reviewCarousel: {
     flex: 1,
     marginTop: 15,
     marginBottom: 20,
     justifyContent: 'center',
     alignItems: 'center',
+    flexDirection: 'row',
   },
-
-  reviewList: {
-    paddingHorizontal: 8,
-    width: 350,
-    marginLeft: 10,
+  arrow: {
+    padding: 8,
+  },
+  arrowText: {
+    fontSize: 24,
+    color: '#000',
+  },
+  disabledArrow: {
+    color: '#ccc',
   },
 
   feedHeader: {
