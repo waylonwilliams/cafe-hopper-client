@@ -1,47 +1,42 @@
 import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
-
-type Card = {
-  name: string;
-  imageUri?: string;
-  localImage?: any; //testing only
-  rating: number;
-  tags: string[];
-};
+import { CafeType } from '@/components/CafePage/CafeTypes';
+//import EmojiTag from '@/components/EmojiTag';
 
 interface CardProps {
-  card: Card;
+  cafe: CafeType;
 }
 
-export default function CardComponent({ card }: CardProps) {
+export default function CardComponent({ cafe }: CardProps) {
+  const mockImageUrl =
+    'https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/posts/public/mockCafe.jpg';
+
   return (
     <View style={styles.card}>
-      {/* Preview Image*/}
-      {card.localImage ? (
-        <Image source={card.localImage} style={styles.image}></Image>
-      ) : (
-        <Image source={{ uri: card.imageUri }} style={styles.image}></Image>
-      )}
+      {/*TESTING ONLY, FETCH CAFE IMAGE */}
+      <Image source={{ uri: mockImageUrl }} style={styles.image}></Image>
 
       <View style={styles.content}>
         {/* Cafe Name */}
-        <Text style={styles.name}>{card.name}</Text>
+        <Text style={styles.name}>{cafe.name}</Text>
         {/* Rating */}
         <View style={styles.ratingContainer}>
           <Icon name="star" size={11} color="gold"></Icon>
-          <Text style={styles.rating}>{card.rating}</Text>
+          <Text style={styles.rating}>{cafe.rating}</Text>
         </View>
       </View>
 
       {/* Tags */}
-      <View style={styles.tagContainer}>
-        {card.tags.map((item, index) => (
-          <Text key={index} style={styles.tag}>
-            {item}
-          </Text>
-        ))}
-      </View>
+      {cafe.tags !== null && (
+        <View style={styles.tagContainer}>
+          {cafe.tags.map((tag, index) => (
+            <Text key={index} style={styles.tag}>
+              {tag}
+            </Text>
+          ))}
+        </View>
+      )}
     </View>
   );
 }
@@ -92,5 +87,6 @@ const styles = StyleSheet.create({
 
   tag: {
     fontSize: 11,
+    padding: 1,
   },
 });
