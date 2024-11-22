@@ -91,7 +91,6 @@ const ListView = () => {
     </>
   );
 };
-
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -99,7 +98,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    paddingHorizontal: 15,
+    paddingHorizontal: 20, // Slightly reduce padding for better spacing
     paddingTop: 10,
     backgroundColor: '#fff',
   },
@@ -124,12 +123,12 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   details: {
+    marginLeft: 40,
     marginTop: 0,
   },
   cafeCount: {
     fontSize: 16,
     color: '#666',
-    marginLeft: 40,
     marginBottom: 10,
   },
   description: {
@@ -137,7 +136,6 @@ const styles = StyleSheet.create({
     color: '#c9c9c9',
     lineHeight: 20,
     fontStyle: 'italic',
-    marginLeft: 40,
   },
   loading: {
     textAlign: 'center',
@@ -151,13 +149,14 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'flex-start', // Align cards to the left
-    paddingHorizontal: 5, // Optional padding for better spacing
+    flexWrap: 'wrap', // Wrap cards to create rows
+    justifyContent: 'space-between', // Spread cards evenly in the row
+    paddingHorizontal: 20, // Optional padding for better spacing
+    paddingTop: 10, // Add space above the cards
   },
   card: {
-    width: '48%', // Ensures two cards fit in one row with space in between
-    margin: 5, // Adds spacing between cards
+    width: '48%', // Two cards per row with space
+    marginBottom: 10, // Add space below each card
   },
 });
 
