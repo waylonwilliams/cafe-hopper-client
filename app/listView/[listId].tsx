@@ -58,7 +58,7 @@ const ListView = () => {
         setIsOwner(true); // Set ownership flag
       }
 
-      console.log('Raw data from Supabase:', data);
+      // console.log('Raw data from Supabase:', data);
 
       // Map the fetched cafes to match the CafeType structure
       const mappedCafes: CafeType[] =
@@ -76,7 +76,7 @@ const ListView = () => {
               tags: cafe.tags || [], // Default to an empty array if null
               image: cafe.image, // Single top image
               summary: cafe.summary || null,
-              rating: cafe.rating / 2, // Convert rating for display
+              rating: cafe.rating, // Convert rating for display
               num_reviews: cafe.num_reviews,
             };
           }
