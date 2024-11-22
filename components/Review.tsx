@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Image, Pressable, Text, View } from 'react-native';
+import { Alert, Image, Pressable, Text, View } from 'react-native';
 import EmojiTag from './EmojiTag';
 import { NewReviewType } from './CafePage/CafeTypes';
 import { supabase } from '@/lib/supabase';
@@ -20,16 +20,39 @@ interface Props {
 
 export default function ReviewComponent({ review, setViewingImages, setViewingImageIndex }: Props) {
   const [liked, setLiked] = useState(false);
-  const [numLikes, setNumLikes] = useState(5);
+  const [numLikes, setNumLikes] = useState(review.likes);
 
   const numStars = Math.floor(review.rating / 2);
   const halfStar = review.rating % 2 !== 0;
 
-  function handleLike() {
+  async function handleLike() {
+    const { data: userData, error: userError } = await supabase.auth.getSession();
+    if (userError || !userData || !userData.session?.user.id) {
+      router.push('/signUp');
+    }
+    const uid = userData.session?.user.id;
+
+    // delete not working
+    // handle total likes on supabase side
+    // will need to figure out how to fetch if you have liked a review with another review join
     if (liked) {
+      console.log('unliked', review.id, uid);
       setNumLikes(numLikes - 1);
+
+      const { error } = await supabase
+        .from('reviewLikes')
+        .delete()
+        .eq('review_id', review.id)
+        .eq('user_id', uid);
+      if (error) console.error('Error unliking review', error);
     } else {
       setNumLikes(numLikes + 1);
+
+      const { error } = await supabase.from('reviewLikes').insert({
+        user_id: uid,
+        review_id: review.id,
+      });
+      if (error) console.error('Error liking review', error);
     }
 
     setLiked(!liked);

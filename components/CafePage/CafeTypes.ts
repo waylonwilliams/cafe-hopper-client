@@ -28,6 +28,7 @@ export type NewReviewType = {
   rating: number; // reviews are on a scale of 1-10 for db, but div 2 for displaying
   tags: string[];
   user_id: string;
+  likes: number;
   profiles: {
     name: string;
     pfp: string;
