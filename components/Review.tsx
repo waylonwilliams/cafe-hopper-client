@@ -32,13 +32,13 @@ export default function ReviewComponent({ review, setViewingImages, setViewingIm
     }
     const uid = userData.session?.user.id;
 
-    // delete not working
     // handle total likes on supabase side
     // will need to figure out how to fetch if you have liked a review with another review join
     if (liked) {
       console.log('unliked', review.id, uid);
       setNumLikes(numLikes - 1);
 
+      // for some reason delete requires a select RLS policy
       const { error } = await supabase
         .from('reviewLikes')
         .delete()
