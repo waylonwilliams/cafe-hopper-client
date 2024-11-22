@@ -20,7 +20,7 @@ export default function CardComponent({ cafe }: CardProps) {
       <View style={styles.content}>
         {/* Cafe Name */}
         <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
-          {cafe.title}
+          {cafe.name}
         </Text>
         {/* Rating */}
         <View style={styles.ratingContainer}>

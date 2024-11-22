@@ -40,7 +40,7 @@ export default function Profile({ uid, setViewingImages }: Props) {
     {
       id: 'alo',
       created_at: '2021-08-01T00:00:00.000Z',
-      title: "Cafe Oshima's",
+      name: "Cafe Oshima's",
       address: '2/37 Cao Thang, Ward 5, District 3, Ho Chi Minh City, Vietnam',
       tags: [
         '🍵 Matcha',
@@ -68,7 +68,7 @@ export default function Profile({ uid, setViewingImages }: Props) {
     {
       id: 'jalo',
       created_at: '2021-08-01T00:00:00.000Z',
-      title: "Cafe Oshima's",
+      name: "Cafe Oshima's",
       address: '2/37 Cao Thang, Ward 5, District 3, Ho Chi Minh City, Vietnam',
       tags: [
         '🍵 Matcha',
@@ -96,7 +96,7 @@ export default function Profile({ uid, setViewingImages }: Props) {
     {
       id: 'bloom',
       created_at: '2021-09-15T00:00:00.000Z',
-      title: 'Bloom Cafe',
+      name: 'Bloom Cafe',
       address: '123 Flower St, Garden City, NY, USA',
       tags: ['🌸 Floral', '☕ Coffee', '🍰 Desserts', '📚 Books'],
       hours: `7:00AM - 8:00PM Monday
@@ -116,7 +116,7 @@ export default function Profile({ uid, setViewingImages }: Props) {
     {
       id: 'java',
       created_at: '2021-10-20T00:00:00.000Z',
-      title: 'Java House',
+      name: 'Java House',
       address: '456 Coffee Ln, Brewtown, CA, USA',
       tags: ['☕ Coffee', '💻 Work Friendly', '📶 Free Wifi', '🍪 Snacks'],
       hours: `6:00AM - 6:00PM Monday
