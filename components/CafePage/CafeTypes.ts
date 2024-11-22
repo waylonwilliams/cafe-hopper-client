@@ -6,7 +6,7 @@
 export type CafeType = {
   id: string;
   created_at: string;
-  name: string;
+  title: string;
   hours: string;
   latitude: number;
   longitude: number;

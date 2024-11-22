@@ -19,7 +19,7 @@ export default function CardComponent({ cafe }: CardProps) {
 
       <View style={styles.content}>
         {/* Cafe Name */}
-        <Text style={styles.name}>{cafe.name}</Text>
+        <Text style={styles.name}>{cafe.title}</Text>
         {/* Rating */}
         <View style={styles.ratingContainer}>
           <Icon name="star" size={11} color="gold"></Icon>
