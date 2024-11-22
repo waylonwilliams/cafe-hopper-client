@@ -19,7 +19,9 @@ export default function CardComponent({ cafe }: CardProps) {
 
       <View style={styles.content}>
         {/* Cafe Name */}
-        <Text style={styles.name}>{cafe.title}</Text>
+        <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
+          {cafe.title}
+        </Text>
         {/* Rating */}
         <View style={styles.ratingContainer}>
           <Icon name="star" size={11} color="gold"></Icon>
@@ -60,14 +62,17 @@ const styles = StyleSheet.create({
   content: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center', // Align the name and rating vertically centered
+    marginHorizontal: 7, // Adjust horizontal margin to align well
+    paddingTop: 8, // Add padding above the content
   },
 
   name: {
     fontSize: 11,
     fontFamily: 'SF-Pro-Display-Regular',
-    margin: 7,
+    flexShrink: 1, // Allow name to shrink if necessary
+    maxWidth: 85, // Limit the name's width to prevent overflow
   },
-
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',

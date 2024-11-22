@@ -28,7 +28,7 @@ const ListView = () => {
         return;
       }
 
-      console.log('Raw data from Supabase:', data);
+      // console.log('Raw data from Supabase:', data);
 
       // Set cafes directly
       setCafes(data?.flatMap((entry) => entry.cafes) || []);
