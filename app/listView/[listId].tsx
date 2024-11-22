@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, Pressable } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Pressable, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -20,6 +20,10 @@ const ListView = () => {
   const fetchCafes = async (): Promise<void> => {
     try {
       const { data: user } = await supabase.auth.getUser(); // Get logged-in user
+      if (!user) {
+        console.error('User not logged in');
+        return;
+      }
 
       const { data, error } = await supabase
         .from('cafeListEntries')
@@ -29,6 +33,10 @@ const ListView = () => {
       if (error) {
         console.error('Error fetching cafes:', error);
         return;
+      }
+      // Check ownership
+      if (data && data.length > 0 && user.user?.id === data[0].user_id) {
+        setIsOwner(true); // Set ownership flag
       }
 
       // console.log('Raw data from Supabase:', data);
@@ -65,6 +73,15 @@ const ListView = () => {
                 style={styles.visibilityIcon}
               />
             </View>
+            {/* Edit Button */}
+            {isOwner && (
+              <TouchableOpacity
+                style={styles.editButton}
+                onPress={() => alert('Edit List functionality here')}>
+                <Text style={styles.editButtonText}>Edit List</Text>
+                <Ionicons name="pencil-outline" size={16} color="#000" />
+              </TouchableOpacity>
+            )}
           </View>
 
           {/* Cafe Count and Description */}
@@ -128,6 +145,21 @@ const styles = StyleSheet.create({
   details: {
     marginLeft: 40,
     marginTop: 0,
+  },
+  editButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#000',
+    borderRadius: 20,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    marginRight: 15,
+  },
+  editButtonText: {
+    marginRight: 5,
+    fontSize: 14,
+    fontWeight: '600',
   },
   cafeCount: {
     fontSize: 16,
