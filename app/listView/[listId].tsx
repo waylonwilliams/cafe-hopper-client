@@ -27,22 +27,63 @@ const ListView = () => {
 
       const { data, error } = await supabase
         .from('cafeListEntries')
-        .select('cafes(*), user_id') // Replace with uuid if that's the actual column name
+        .select(
+          `
+        cafes(
+          id, 
+          created_at, 
+          title, 
+          hours, 
+          latitude, 
+          longitude, 
+          address, 
+          tags, 
+          image, 
+          summary, 
+          rating, 
+          num_reviews
+        ), 
+        user_id
+        `,
+        ) // Ensure this matches your actual database schema
         .eq('list_id', listId);
 
       if (error) {
         console.error('Error fetching cafes:', error);
         return;
       }
+
       // Check ownership
       if (data && data.length > 0 && user.user?.id === data[0].user_id) {
         setIsOwner(true); // Set ownership flag
       }
 
-      // console.log('Raw data from Supabase:', data);
+      console.log('Raw data from Supabase:', data);
 
-      // Set cafes directly
-      setCafes(data?.flatMap((entry) => entry.cafes) || []);
+      // Map the fetched cafes to match the CafeType structure
+      const mappedCafes: CafeType[] =
+        data?.flatMap((entry: { cafes: any }) => {
+          if (entry.cafes) {
+            const cafe = entry.cafes;
+            return {
+              id: cafe.id,
+              created_at: cafe.created_at,
+              name: cafe.title, // Map 'title' to 'name'
+              hours: cafe.hours,
+              latitude: cafe.latitude,
+              longitude: cafe.longitude,
+              address: cafe.address,
+              tags: cafe.tags || [], // Default to an empty array if null
+              image: cafe.image, // Single top image
+              summary: cafe.summary || null,
+              rating: cafe.rating / 2, // Convert rating for display
+              num_reviews: cafe.num_reviews,
+            };
+          }
+          return [];
+        }) || [];
+
+      setCafes(mappedCafes);
     } catch (error) {
       console.error('Error fetching cafes:', error);
     } finally {
