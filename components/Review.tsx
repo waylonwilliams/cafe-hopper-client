@@ -58,13 +58,16 @@ export default function ReviewComponent({ review, setViewingImages, setViewingIm
         position: 'relative',
       }}>
       {/* Pfp */}
-      <View
+      <Image
         style={{
           width: 30,
           height: 30,
           backgroundColor: 'purple',
           borderRadius: 999,
         }}
+        source={
+          review.profiles.pfp ? { uri: review.profiles.pfp } : require('../assets/images/cup.png')
+        }
       />
 
       <View style={{ flex: 1, gap: 8, position: 'relative' }}>
