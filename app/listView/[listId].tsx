@@ -14,13 +14,16 @@ const ListView = () => {
 
   const [cafes, setCafes] = useState<CafeType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isOwner, setIsOwner] = useState(false);
 
   // Fetch cafes from the list
   const fetchCafes = async (): Promise<void> => {
     try {
+      const { data: user } = await supabase.auth.getUser(); // Get logged-in user
+
       const { data, error } = await supabase
         .from('cafeListEntries')
-        .select('cafes(*)')
+        .select('cafes(*), user_id') // Replace with uuid if that's the actual column name
         .eq('list_id', listId);
 
       if (error) {

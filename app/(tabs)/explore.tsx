@@ -26,7 +26,7 @@ const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 const mockCafes: CafeType[] = [
   {
     id: '1',
-    name: "Cafe Oshima's",
+    title: "Cafe Oshima's",
     address: '2/37 Cao Thang, Ward 5, District 3, Ho Chi Minh City, Vietnam',
     hours: `8:00AM - 10:00PM`,
     tags: ['🍵 Matcha', '🛜 Free Wifi', '🌱 Vegan', '🌳 Outdoor', '🐶 Pet Friendly'],
@@ -41,7 +41,7 @@ const mockCafes: CafeType[] = [
   },
   {
     id: '2',
-    name: 'Blackbird',
+    title: 'Blackbird',
     address: '123 Brew St., Coffee City, CA',
     hours: '7:00AM - 9:00PM',
     tags: ['☕ Excellent coffee', '🪴 Ambiance', '🎶 Good music'],
@@ -56,7 +56,7 @@ const mockCafes: CafeType[] = [
   },
   {
     id: '3',
-    name: 'Blackbird',
+    title: 'Blackbird',
     address: '123 Brew St., Coffee City, CA',
     hours: '7:00AM - 9:00PM',
     tags: ['☕ Excellent coffee', '🪴 Ambiance', '🎶 Good music'],
@@ -71,7 +71,7 @@ const mockCafes: CafeType[] = [
   },
   {
     id: '4',
-    name: 'Blackbird',
+    title: 'Blackbird',
     address: '123 Brew St., Coffee City, CA',
     hours: '7:00AM - 9:00PM',
     tags: ['☕ Excellent coffee', '🪴 Ambiance', '🎶 Good music'],
@@ -127,7 +127,7 @@ export default function NewExplore() {
       const cafeParams = {
         id: cafe?.id ?? '',
         created_at: cafe?.created_at ?? '',
-        name: cafe?.name ?? '',
+        title: cafe?.title ?? '',
         address: cafe?.address ?? '',
         hours: cafe?.hours ?? '',
         latitude: cafe?.latitude ?? 0,
@@ -201,7 +201,7 @@ export default function NewExplore() {
         for (const cafe of limitedData) {
           const newCafe = {
             id: cafe.id,
-            name: cafe.title ? cafe.title : '',
+            title: cafe.title ? cafe.title : '',
             address: cafe.address ? cafe.address : '',
             hours: cafe.hours ? cafe.hours : '',
             tags: cafe.tags ? cafe.tags : [],
