@@ -18,23 +18,20 @@ export type CafeType = {
   num_reviews: number;
 };
 
-type ProfileJoinReview = {
-  bio: string;
-  id: number;
-};
-
 export type NewReviewType = {
   cafe_id: string;
   created_at: string;
   description: string;
   id: number;
   images: string[] | null;
-  profile_id: number;
-  profiles: ProfileJoinReview;
   public: boolean;
   rating: number; // reviews are on a scale of 1-10 for db, but div 2 for displaying
   tags: string[];
   user_id: string;
+  profiles: {
+    name: string;
+    pfp: string;
+  };
 };
 
 export const cafeTags = [

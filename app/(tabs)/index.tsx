@@ -189,7 +189,7 @@ export default function Home() {
     // Fetch list of top reviews in database from past week
     const { data, error } = await supabase
       .from('reviews')
-      .select('*')
+      .select('*, profiles(name, pfp)')
       .gt('created_at', pastWeek.toISOString())
       .order('likes', { ascending: false })
       .limit(3);
@@ -450,14 +450,14 @@ export default function Home() {
             {/* Review Content */}
             {reviews[currentIndex] && (
               <View style={styles.reviewContainer}>
-              <Review
-                review={reviews[currentIndex]}
-                setViewingImages={setViewingImages}
-                setViewingImageIndex={setViewingImageIndex}
-              />
-            </View>
+                <Review
+                  review={reviews[currentIndex]}
+                  setViewingImages={setViewingImages}
+                  setViewingImageIndex={setViewingImageIndex}
+                />
+              </View>
             )}
-            
+
             {/* Right Arrow */}
             {currentIndex < reviews.length - 1 && (
               <TouchableOpacity onPress={handleNext} style={styles.arrow}>

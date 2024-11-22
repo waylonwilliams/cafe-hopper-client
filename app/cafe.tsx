@@ -180,10 +180,14 @@ export default function Index() {
     setReviews([]);
     async function fetchReviews() {
       try {
-        const { data, error } = await supabase.from('reviews').select('*').eq('cafe_id', cafe.id);
+        const { data, error } = await supabase
+          .from('reviews')
+          .select('*, profiles (name, pfp)')
+          .eq('cafe_id', cafe.id);
         if (error) {
           console.log('Error fetching reviews', error);
         } else {
+          console.log('Fetched reviews', data);
           setReviews(data);
         }
       } catch (error) {
@@ -191,7 +195,6 @@ export default function Index() {
       }
     }
     if (cafe.id) {
-      console.log('fetching reviews');
       fetchReviews();
     }
   }, [cafe.id]);

@@ -10,6 +10,12 @@ interface Props {
   setViewingImageIndex: (arg: number | null) => void;
 }
 
+// Example of how to fetch reviews to pass to this component
+// const { data, error } = await supabase
+// .from('reviews')
+// .select('*, profiles (id, name, pfp)')
+// .eq('cafe_id', cafe.id);
+
 export default function ReviewComponent({ review, setViewingImages, setViewingImageIndex }: Props) {
   const [liked, setLiked] = useState(false);
   const [numLikes, setNumLikes] = useState(5);
@@ -73,7 +79,7 @@ export default function ReviewComponent({ review, setViewingImages, setViewingIm
           }}>
           <View style={{ flexShrink: 1, flexGrow: 1 }}>
             <Text style={{ color: '#808080', fontWeight: 700, paddingRight: 4 }}>
-              {review.user_id}
+              {review.profiles.name}
             </Text>
           </View>
 
