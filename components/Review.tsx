@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Ionicons from '@expo/vector-icons/Ionicons';
-import { Alert, Image, Pressable, Text, View } from 'react-native';
+import { Image, Pressable, Text, View } from 'react-native';
 import EmojiTag from './EmojiTag';
 import { NewReviewType } from './CafePage/CafeTypes';
 import { supabase } from '@/lib/supabase';
@@ -9,7 +9,6 @@ import { router } from 'expo-router';
 interface Props {
   review: NewReviewType;
   setViewingImages: (arg: string[]) => void;
-  setViewingImageIndex: (arg: number | null) => void;
 }
 
 // Example of how to fetch reviews to pass to this component
@@ -19,7 +18,7 @@ interface Props {
 // .eq('cafe_id', cafe.id);
 // This gets the review content, the corresponding profile content, and corresponding like entry if there is one
 
-export default function ReviewComponent({ review, setViewingImages, setViewingImageIndex }: Props) {
+export default function ReviewComponent({ review, setViewingImages }: Props) {
   const [liked, setLiked] = useState(review.reviewLikes.length > 0);
   const [numLikes, setNumLikes] = useState(review.likes);
 
@@ -58,10 +57,9 @@ export default function ReviewComponent({ review, setViewingImages, setViewingIm
     setLiked(!liked);
   }
 
-  function handleImagePress(index: number) {
+  function handleImagePress() {
     // to press on an image there should always be images, so just for ts
     if (review.images) setViewingImages(review.images);
-    setViewingImageIndex(index);
   }
 
   async function handleProfileClick() {
@@ -154,7 +152,7 @@ export default function ReviewComponent({ review, setViewingImages, setViewingIm
               <Pressable
                 key={index}
                 style={{ width: '34%', height: 96, position: 'relative' }}
-                onPress={() => handleImagePress(index)}>
+                onPress={handleImagePress}>
                 <Image
                   source={{ uri: image }}
                   style={{
@@ -174,7 +172,7 @@ export default function ReviewComponent({ review, setViewingImages, setViewingIm
                   borderRadius: 10,
                   justifyContent: 'center',
                 }}
-                onPress={() => setViewingImageIndex(2)}>
+                onPress={handleImagePress}>
                 <Text style={{ textAlign: 'center', fontSize: 24, color: '#808080' }}>
                   +{review.images.length - 2}
                 </Text>

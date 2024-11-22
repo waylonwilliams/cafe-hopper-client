@@ -110,9 +110,6 @@ export default function Index() {
 
   const [addingToList, setAddingToList] = useState(false);
 
-  // remove this later
-  const [viewingImageIndex, setViewingImageIndex] = useState<number | null>(null);
-
   // idk stuff for the bottom sheet
   const bottomSheetRef = useRef<BottomSheet>(null);
   //   const handleSheetChanges = useCallback((index: number) => {}, []);
@@ -256,7 +253,6 @@ export default function Index() {
               reviews={reviews}
               logVisit={logVisit}
               setViewingImages={setViewingImages}
-              setViewingImageIndex={setViewingImageIndex}
               userId={userId ?? ''}
               addToList={addToList}
             />

@@ -16,7 +16,6 @@ interface Props {
   reviews: NewReviewType[];
   logVisit: () => void;
   setViewingImages: (arg: string[]) => void;
-  setViewingImageIndex: (arg: number | null) => void;
   userId: string; // Add userId here
   addToList: () => void;
 }
@@ -26,7 +25,6 @@ export default function Cafe({
   reviews,
   logVisit,
   setViewingImages,
-  setViewingImageIndex,
   userId, // Destructure userId here
   addToList,
 }: Props) {
@@ -282,12 +280,7 @@ export default function Cafe({
 
       {/* Should map them */}
       {reviews.map((review, index) => (
-        <Review
-          review={review}
-          key={index}
-          setViewingImages={setViewingImages}
-          setViewingImageIndex={setViewingImageIndex}
-        />
+        <Review review={review} key={index} setViewingImages={setViewingImages} />
       ))}
     </ScrollView>
   );

@@ -11,7 +11,7 @@ import { Ionicons } from '@expo/vector-icons';
 // This is just used when they click on a review and it is not their profile
 // Profile component still has some admin checks
 
-export default function anotherUserProfile() {
+export default function AnotherUserProfile() {
   const uidObj = useLocalSearchParams();
   const uid = assertString(uidObj.uid);
 

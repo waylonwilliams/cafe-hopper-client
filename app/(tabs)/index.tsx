@@ -83,7 +83,6 @@ export default function Home() {
   const [reviews, setReviews] = useState<NewReviewType[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [, setViewingImages] = useState<string[]>([]);
-  const [, setViewingImageIndex] = useState<number | null>(null);
 
   // For popular cafe carousel
   const [popCafes, setPopCafes] = useState<CafeType[]>(mockCafes);
@@ -450,11 +449,7 @@ export default function Home() {
             {/* Review Content */}
             {reviews[currentIndex] && (
               <View style={styles.reviewContainer}>
-                <Review
-                  review={reviews[currentIndex]}
-                  setViewingImages={setViewingImages}
-                  setViewingImageIndex={setViewingImageIndex}
-                />
+                <Review review={reviews[currentIndex]} setViewingImages={setViewingImages} />
               </View>
             )}
 
