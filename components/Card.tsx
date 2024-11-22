@@ -11,6 +11,7 @@ interface CardProps {
 export default function CardComponent({ cafe }: CardProps) {
   const mockImageUrl =
     'https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/posts/public/mockCafe.jpg';
+  const displayRating = cafe.rating / 2;
 
   return (
     <View style={styles.card}>
@@ -25,7 +26,7 @@ export default function CardComponent({ cafe }: CardProps) {
         {/* Rating */}
         <View style={styles.ratingContainer}>
           <Icon name="star" size={11} color="gold"></Icon>
-          <Text style={styles.rating}>{cafe.rating}</Text>
+          <Text style={styles.rating}>{displayRating.toFixed(1)}</Text>
         </View>
       </View>
 
