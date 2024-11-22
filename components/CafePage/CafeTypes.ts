@@ -33,6 +33,7 @@ export type NewReviewType = {
     name: string;
     pfp: string;
   };
+  reviewLikes: { id: number }[]; // will only ever use the length of this to get the initial state
 };
 
 export const cafeTags = [

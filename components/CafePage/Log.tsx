@@ -111,7 +111,7 @@ export default function Log({ setLoggingVisit, cafe, reviews, setReviews }: Prop
           tags: emojiTags,
           public: publicPost,
         })
-        .select('*, profiles(name, pfp)')
+        .select('*, profiles(name, pfp), reviewLikes(id)')
         .single();
       if (error) throw error;
 

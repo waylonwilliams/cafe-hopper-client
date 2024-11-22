@@ -189,7 +189,7 @@ export default function Home() {
     // Fetch list of top reviews in database from past week
     const { data, error } = await supabase
       .from('reviews')
-      .select('*, profiles(name, pfp)')
+      .select('*, profiles(name, pfp), reviewLikes(id)')
       .gt('created_at', pastWeek.toISOString())
       .order('likes', { ascending: false })
       .limit(3);

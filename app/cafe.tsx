@@ -171,12 +171,11 @@ export default function Index() {
       try {
         const { data, error } = await supabase
           .from('reviews')
-          .select('*, profiles (name, pfp)')
+          .select('*, profiles (name, pfp), reviewLikes (id)')
           .eq('cafe_id', cafe.id);
         if (error) {
           console.log('Error fetching reviews', error);
         } else {
-          console.log('Fetched reviews', data);
           setReviews(data);
         }
       } catch (error) {

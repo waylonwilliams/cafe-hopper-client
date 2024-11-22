@@ -15,11 +15,12 @@ interface Props {
 // Example of how to fetch reviews to pass to this component
 // const { data, error } = await supabase
 // .from('reviews')
-// .select('*, profiles (id, name, pfp)')
+// .select('*, profiles (name, pfp), reviewLikes (id)')
 // .eq('cafe_id', cafe.id);
+// This gets the review content, the corresponding profile content, and corresponding like entry if there is one
 
 export default function ReviewComponent({ review, setViewingImages, setViewingImageIndex }: Props) {
-  const [liked, setLiked] = useState(false);
+  const [liked, setLiked] = useState(review.reviewLikes.length > 0);
   const [numLikes, setNumLikes] = useState(review.likes);
 
   const numStars = Math.floor(review.rating / 2);
