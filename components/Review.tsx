@@ -3,6 +3,8 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Image, Pressable, Text, View } from 'react-native';
 import EmojiTag from './EmojiTag';
 import { NewReviewType } from './CafePage/CafeTypes';
+import { supabase } from '@/lib/supabase';
+import { router } from 'expo-router';
 
 interface Props {
   review: NewReviewType;
@@ -39,6 +41,27 @@ export default function ReviewComponent({ review, setViewingImages, setViewingIm
     setViewingImageIndex(index);
   }
 
+  async function handleProfileClick() {
+    console.log('Clicked profile');
+    const { data, error } = await supabase.auth.getSession();
+    if (error) {
+      console.error('Error fetching session', error);
+      return;
+    }
+
+    if (data && data.session?.user.id === review.user_id) {
+      // It's their review, go to their profile
+      router.replace('/profile');
+    } else {
+      router.push({
+        pathname: '/anotherUserProfile',
+        params: {
+          uid: review.user_id,
+        },
+      });
+    }
+  }
+
   const date = new Date(review.created_at).toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
@@ -58,17 +81,19 @@ export default function ReviewComponent({ review, setViewingImages, setViewingIm
         position: 'relative',
       }}>
       {/* Pfp */}
-      <Image
-        style={{
-          width: 30,
-          height: 30,
-          backgroundColor: 'purple',
-          borderRadius: 999,
-        }}
-        source={
-          review.profiles.pfp ? { uri: review.profiles.pfp } : require('../assets/images/cup.png')
-        }
-      />
+      <Pressable onPress={handleProfileClick}>
+        <Image
+          style={{
+            width: 30,
+            height: 30,
+            backgroundColor: 'purple',
+            borderRadius: 999,
+          }}
+          source={
+            review.profiles.pfp ? { uri: review.profiles.pfp } : require('../assets/images/cup.png')
+          }
+        />
+      </Pressable>
 
       <View style={{ flex: 1, gap: 8, position: 'relative' }}>
         <View

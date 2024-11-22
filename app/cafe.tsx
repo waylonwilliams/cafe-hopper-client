@@ -12,6 +12,7 @@ import { CafeType, NewReviewType } from '@/components/CafePage/CafeTypes';
 import { supabase } from '@/lib/supabase';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ImageFullView from '@/components/CafePage/ImageFullView';
+import assertString from '@/components/assertString';
 
 /**
  * An example of how you can open this page
@@ -57,18 +58,6 @@ import ImageFullView from '@/components/CafePage/ImageFullView';
         </Pressable>
       </Link>
  */
-
-function assertString(v: string | string[] | undefined): string {
-  if (v === undefined) {
-    console.warn('Parameter is undefined, using default value');
-    return '';
-  }
-  if (Array.isArray(v)) {
-    console.warn('Parameter is array, joining with commas');
-    return v.join(',');
-  }
-  return v;
-}
 
 /**
  * When you click on a cafe card / pin on map this page will be shown
