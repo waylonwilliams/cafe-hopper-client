@@ -198,7 +198,8 @@ export default function Index() {
         <View style={{ backgroundColor: '#f0f0f0', height: '100%', width: '100%' }}>
           <Image
             style={{ top: -70, width: '100%', position: 'absolute' }}
-            source={require('../assets/images/oshimacafe.png')}
+            // Why is the uri not showing?
+            source={cafe.image ? { uri: cafe.image } : require('../assets/images/oshimacafe.png')}
           />
 
           <Pressable
