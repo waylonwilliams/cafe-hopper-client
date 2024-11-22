@@ -32,7 +32,7 @@ export default function CardComponent({ cafe }: CardProps) {
         <View style={styles.tagContainer}>
           {cafe.tags.map((tag, index) => (
             <Text key={index} style={styles.tag}>
-              {tag}
+              {tag.split(' ')[0]} {/* Extract only the emoji */}
             </Text>
           ))}
         </View>
