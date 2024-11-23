@@ -329,7 +329,7 @@ export default function Home() {
         for (const cafe of limitData) {
           cafes.push({
             id: cafe.id,
-            name: cafe.title ? cafe.title : '',
+            name: cafe.name ? cafe.name : '',
             address: cafe.address ? cafe.address : '',
             hours: cafe.hours ? cafe.hours : '',
             tags: cafe.tags ? cafe.tags : [],
