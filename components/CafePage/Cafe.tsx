@@ -16,7 +16,7 @@ interface Props {
   reviews: NewReviewType[];
   logVisit: () => void;
   setViewingImages: (arg: string[]) => void;
-  userId: string; // Add userId here
+  userId: string;
   addToList: () => void;
 }
 
@@ -25,12 +25,18 @@ export default function Cafe({
   reviews,
   logVisit,
   setViewingImages,
-  userId, // Destructure userId here
+  userId,
   addToList,
 }: Props) {
   const [liked, setLiked] = useState(false);
   const [togo, setTogo] = useState(false);
   const [showHours, setShowHours] = useState(false);
+  const [loadingReviews, setLoadingReviews] = useState(true);
+
+  const [totalReviews, setTotalReviews] = useState(0);
+  const [averageRating, setAverageRating] = useState(0);
+  const [reviewScales, setReviewScales] = useState([0, 0, 0, 0, 0]);
+  const [noReviews, setNoReviews] = useState(true);
 
   // Load initial "liked" and "to-go" states
   useEffect(() => {
@@ -93,19 +99,22 @@ export default function Cafe({
     scheduleDict[day.trim()] = time;
   });
 
-  // How you could calculate width of bar and such
-  // const maxReviewValue = Math.max(...Object.values(cafe.reviews));
-  // const totalReviews = Object.values(cafe.reviews).reduce(
-  //   (acc, review) => acc + review,
-  //   0
-  // );
-  // const averageReview =
-  //   totalReviews === 0
-  //     ? 0
-  //     : Object.entries(cafe.reviews).reduce(
-  //         (acc, [key, value]) => acc + keyToNumber[key] * value,
-  //         0
-  //       ) / totalReviews;
+  useEffect(() => {
+    setLoadingReviews(true);
+
+    setTotalReviews(reviews.length);
+    if (reviews.length > 0) setNoReviews(false);
+    else setNoReviews(true);
+
+    setAverageRating(reviews.reduce((acc, review) => acc + review.rating, 0) / totalReviews / 2);
+
+    const counts = [5, 4, 3, 2, 1].map(
+      (rating) => reviews.filter((review) => Math.ceil(review.rating / 2) === rating).length,
+    );
+    setReviewScales(counts.map((count) => (count / totalReviews) * 100));
+
+    setLoadingReviews(false);
+  }, [reviews]);
 
   return (
     <ScrollView
@@ -193,95 +202,107 @@ export default function Cafe({
         <Text style={{ color: '#808080' }}>{cafe.address}</Text>
       </View>
 
-      <View
-        style={{
-          flexDirection: 'row',
-          gap: 5,
-          flexWrap: 'wrap',
-          paddingTop: 5,
-        }}>
-        <EmojiTag tag="🍵 Matcha" />
-        <EmojiTag tag="🛜 Free Wifi" />
-        <EmojiTag tag="🌱 Vegan" />
-        <EmojiTag tag="🌳 Outdoor" />
-        <EmojiTag tag="🐶 Pet Friendly" />
-        <EmojiTag tag="🏠 Indoor" />
-        <EmojiTag tag="🚗 Parking" />
-        <EmojiTag tag="❄️ Air Conditioned" />
-        <EmojiTag tag="♿️ Wheelchair Accessible" />
-      </View>
-
-      {/* Reviews scales here */}
-      <View style={{ gap: 10 }}>
-        <Text style={{ fontSize: 24, fontWeight: 600, paddingTop: 5 }}>Reviews</Text>
-
+      {cafe.tags !== null && (
         <View
           style={{
             flexDirection: 'row',
-            justifyContent: 'space-between',
+            gap: 5,
+            flexWrap: 'wrap',
+            paddingTop: 5,
           }}>
-          <View style={{ width: '65%', gap: 10, position: 'relative' }}>
-            {[5, 4, 3, 2, 1].map((review, index) => (
+          {cafe.tags.map((tag, index) => (
+            <EmojiTag key={index} tag={tag} />
+          ))}
+        </View>
+      )}
+
+      {!loadingReviews &&
+        (noReviews ? (
+          <View style={{ width: '100%', alignItems: 'center', gap: 4 }}>
+            <Text style={{ color: '#808080' }}>No reviews yet</Text>
+            <Pressable onPress={logVisit}>
+              <Text style={{ color: '#808080', fontWeight: 600, textDecorationLine: 'underline' }}>
+                Be the first to log a visit!
+              </Text>
+            </Pressable>
+          </View>
+        ) : (
+          <>
+            {/* Reviews scales here */}
+            <View style={{ gap: 10 }}>
+              <Text style={{ fontSize: 24, fontWeight: 600, paddingTop: 5 }}>Reviews</Text>
+
               <View
                 style={{
                   flexDirection: 'row',
-                  gap: 4,
-                  alignItems: 'center',
-                }}
-                key={index}>
-                <Text style={{ color: '#808080' }}>{review}</Text>
+                  justifyContent: 'space-between',
+                }}>
+                <View style={{ width: '65%', gap: 10, position: 'relative' }}>
+                  {[5, 4, 3, 2, 1].map((rating, index) => (
+                    <View
+                      style={{
+                        flexDirection: 'row',
+                        gap: 4,
+                        alignItems: 'center',
+                      }}
+                      key={index}>
+                      <Text style={{ color: '#808080' }}>{rating}</Text>
+                      <View
+                        style={{
+                          width: '100%',
+                          backgroundColor: '#C9C9C9',
+                          borderRadius: 3,
+                          margin: 2,
+                          position: 'relative',
+                          height: 7,
+                        }}>
+                        <View
+                          style={{
+                            width: `${reviewScales[5 - rating]}%`,
+                            backgroundColor: '#FFB400',
+                            borderRadius: 3,
+                            padding: 2,
+                            height: 7,
+                          }}
+                        />
+                      </View>
+                    </View>
+                  ))}
+                </View>
+
                 <View
                   style={{
-                    width: '100%',
-                    backgroundColor: '#C9C9C9',
-                    borderRadius: 3,
-                    margin: 2,
-                    position: 'relative',
-                    height: 7,
+                    width: '25%',
+                    paddingLeft: 10,
+                    paddingTop: 5,
+                    gap: 5,
                   }}>
                   <View
                     style={{
-                      width: `${'80'}%`,
-                      backgroundColor: '#FFB400',
-                      borderRadius: 3,
-                      padding: 2,
-                      height: 7,
-                    }}
-                  />
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: 5,
+                    }}>
+                    <Ionicons name="star" size={24} color="#FFB400" />
+                    <Text style={{ fontSize: 24, fontWeight: 600 }}>
+                      {averageRating.toFixed(1)}
+                    </Text>
+                  </View>
+
+                  <Text style={{ color: '#808080' }}>{totalReviews} reviews</Text>
                 </View>
               </View>
-            ))}
-          </View>
-
-          <View
-            style={{
-              width: '25%',
-              paddingLeft: 10,
-              paddingTop: 5,
-              gap: 5,
-            }}>
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 5,
-              }}>
-              <Ionicons name="star" size={24} color="#FFB400" />
-              <Text style={{ fontSize: 24, fontWeight: 600 }}>{(4.358).toFixed(1)}</Text>
             </View>
 
-            <Text style={{ color: '#808080' }}>{51} reviews</Text>
-          </View>
-        </View>
-      </View>
+            {/* Reviews */}
+            <Text style={{ paddingTop: 10, fontSize: 18, fontWeight: 600 }}>Popular reviews</Text>
 
-      {/* Reviews */}
-      <Text style={{ paddingTop: 10, fontSize: 18, fontWeight: 600 }}>Popular reviews</Text>
-
-      {/* Should map them */}
-      {reviews.map((review, index) => (
-        <Review review={review} key={index} setViewingImages={setViewingImages} />
-      ))}
+            {/* Should map them */}
+            {reviews.map((review, index) => (
+              <Review review={review} key={index} setViewingImages={setViewingImages} />
+            ))}
+          </>
+        ))}
     </ScrollView>
   );
 }
