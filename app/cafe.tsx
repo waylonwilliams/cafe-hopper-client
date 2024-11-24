@@ -197,8 +197,14 @@ export default function Index() {
         {/* The actual cafe here */}
         <View style={{ backgroundColor: '#f0f0f0', height: '100%', width: '100%' }}>
           <Image
-            style={{ top: -70, width: '100%', position: 'absolute' }}
-            // Why is the uri not showing?
+            style={{
+              top: 0,
+              width: '100%',
+              height: undefined,
+              aspectRatio: 1,
+              position: 'absolute',
+            }}
+            resizeMode="cover"
             source={cafe.image ? { uri: cafe.image } : require('../assets/images/oshimacafe.png')}
           />
 
@@ -215,7 +221,7 @@ export default function Index() {
               left: 10, // Add some padding
               zIndex: 2,
             }}>
-            <Ionicons name="chevron-back" size={24} color="white" />
+            <Ionicons name="chevron-back" size={28} color="white" />
           </Pressable>
         </View>
       </SafeAreaView>
