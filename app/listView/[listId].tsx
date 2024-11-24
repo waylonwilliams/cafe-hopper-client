@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, Pressable } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, Pressable, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -14,13 +14,25 @@ const ListView = () => {
 
   const [cafes, setCafes] = useState<CafeType[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isOwner, setIsOwner] = useState(false);
 
   // Fetch cafes from the list
   const fetchCafes = async (): Promise<void> => {
     try {
+      const { data: user } = await supabase.auth.getUser(); // Get logged-in user
+      if (!user) {
+        console.error('User not logged in');
+        return;
+      }
+
       const { data, error } = await supabase
         .from('cafeListEntries')
-        .select('cafes(*)')
+        .select(
+          `
+        cafes(*), 
+        user_id
+        `,
+        ) // Ensure this matches your actual database schema
         .eq('list_id', listId);
 
       if (error) {
@@ -28,10 +40,37 @@ const ListView = () => {
         return;
       }
 
+      // Check ownership
+      if (data && data.length > 0 && user.user?.id === data[0].user_id) {
+        setIsOwner(true); // Set ownership flag
+      }
+
       // console.log('Raw data from Supabase:', data);
 
-      // Set cafes directly
-      setCafes(data?.flatMap((entry) => entry.cafes) || []);
+      // Map the fetched cafes to match the CafeType structure
+      const mappedCafes: CafeType[] =
+        data?.flatMap((entry: { cafes: any }) => {
+          if (entry.cafes) {
+            const cafe = entry.cafes;
+            return {
+              id: cafe.id,
+              created_at: cafe.created_at,
+              name: cafe.title, // Map 'title' to 'name'
+              hours: cafe.hours,
+              latitude: cafe.latitude,
+              longitude: cafe.longitude,
+              address: cafe.address,
+              tags: cafe.tags || [], // Default to an empty array if null
+              image: cafe.image, // Single top image
+              summary: cafe.summary || null,
+              rating: cafe.rating, // Convert rating for display
+              num_reviews: cafe.num_reviews,
+            };
+          }
+          return [];
+        }) || [];
+
+      setCafes(mappedCafes);
     } catch (error) {
       console.error('Error fetching cafes:', error);
     } finally {
@@ -41,7 +80,7 @@ const ListView = () => {
 
   useEffect(() => {
     fetchCafes();
-  }, [listId]);
+  }, [listId, fetchCafes]);
 
   return (
     <>
@@ -62,6 +101,15 @@ const ListView = () => {
                 style={styles.visibilityIcon}
               />
             </View>
+            {/* Edit Button */}
+            {isOwner && (
+              <TouchableOpacity
+                style={styles.editButton}
+                onPress={() => alert('Edit List functionality here')}>
+                <Text style={styles.editButtonText}>Edit List</Text>
+                <Ionicons name="pencil-outline" size={16} color="#000" />
+              </TouchableOpacity>
+            )}
           </View>
 
           {/* Cafe Count and Description */}
@@ -91,7 +139,6 @@ const ListView = () => {
     </>
   );
 };
-
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -99,7 +146,7 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    paddingHorizontal: 15,
+    paddingHorizontal: 20, // Slightly reduce padding for better spacing
     paddingTop: 10,
     backgroundColor: '#fff',
   },
@@ -124,12 +171,27 @@ const styles = StyleSheet.create({
     marginLeft: 8,
   },
   details: {
+    marginLeft: 40,
     marginTop: 0,
+  },
+  editButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#000',
+    borderRadius: 20,
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    marginRight: 15,
+  },
+  editButtonText: {
+    marginRight: 5,
+    fontSize: 14,
+    fontWeight: '600',
   },
   cafeCount: {
     fontSize: 16,
     color: '#666',
-    marginLeft: 40,
     marginBottom: 10,
   },
   description: {
@@ -137,7 +199,6 @@ const styles = StyleSheet.create({
     color: '#c9c9c9',
     lineHeight: 20,
     fontStyle: 'italic',
-    marginLeft: 40,
   },
   loading: {
     textAlign: 'center',
@@ -151,13 +212,14 @@ const styles = StyleSheet.create({
   },
   cardContainer: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'flex-start', // Align cards to the left
-    paddingHorizontal: 5, // Optional padding for better spacing
+    flexWrap: 'wrap', // Wrap cards to create rows
+    justifyContent: 'space-between', // Spread cards evenly in the row
+    paddingHorizontal: 20, // Optional padding for better spacing
+    paddingTop: 10, // Add space above the cards
   },
   card: {
-    width: '48%', // Ensures two cards fit in one row with space in between
-    margin: 5, // Adds spacing between cards
+    width: '48%', // Two cards per row with space
+    marginBottom: 10, // Add space below each card
   },
 });
 

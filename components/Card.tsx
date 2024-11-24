@@ -11,6 +11,7 @@ interface CardProps {
 export default function CardComponent({ cafe }: CardProps) {
   const mockImageUrl =
     'https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/posts/public/mockCafe.jpg';
+  const displayRating = cafe.rating / 2;
 
   return (
     <View style={styles.card}>
@@ -19,11 +20,13 @@ export default function CardComponent({ cafe }: CardProps) {
 
       <View style={styles.content}>
         {/* Cafe Name */}
-        <Text style={styles.name}>{cafe.name}</Text>
+        <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
+          {cafe.name}
+        </Text>
         {/* Rating */}
         <View style={styles.ratingContainer}>
           <Icon name="star" size={11} color="gold"></Icon>
-          <Text style={styles.rating}>{cafe.rating}</Text>
+          <Text style={styles.rating}>{displayRating.toFixed(1)}</Text>
         </View>
       </View>
 
@@ -32,7 +35,7 @@ export default function CardComponent({ cafe }: CardProps) {
         <View style={styles.tagContainer}>
           {cafe.tags.map((tag, index) => (
             <Text key={index} style={styles.tag}>
-              {tag}
+              {tag.split(' ')[0]} {/* Extract only the emoji */}
             </Text>
           ))}
         </View>
@@ -60,14 +63,17 @@ const styles = StyleSheet.create({
   content: {
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center', // Align the name and rating vertically centered
+    marginHorizontal: 7, // Adjust horizontal margin to align well
+    paddingTop: 8, // Add padding above the content
   },
 
   name: {
     fontSize: 11,
     fontFamily: 'SF-Pro-Display-Regular',
-    margin: 7,
+    flexShrink: 1, // Allow name to shrink if necessary
+    maxWidth: 85, // Limit the name's width to prevent overflow
   },
-
   ratingContainer: {
     flexDirection: 'row',
     alignItems: 'center',
