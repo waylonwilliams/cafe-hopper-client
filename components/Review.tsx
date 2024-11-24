@@ -3,34 +3,84 @@ import Ionicons from '@expo/vector-icons/Ionicons';
 import { Image, Pressable, Text, View } from 'react-native';
 import EmojiTag from './EmojiTag';
 import { NewReviewType } from './CafePage/CafeTypes';
+import { supabase } from '@/lib/supabase';
+import { router } from 'expo-router';
 
 interface Props {
   review: NewReviewType;
   setViewingImages: (arg: string[]) => void;
-  setViewingImageIndex: (arg: number | null) => void;
 }
 
-export default function ReviewComponent({ review, setViewingImages, setViewingImageIndex }: Props) {
-  const [liked, setLiked] = useState(false);
-  const [numLikes, setNumLikes] = useState(5);
+// Example of how to fetch reviews to pass to this component
+// const { data, error } = await supabase
+// .from('reviews')
+// .select('*, profiles (name, pfp), reviewLikes (id)')
+// .eq('cafe_id', cafe.id);
+// This gets the review content, the corresponding profile content, and corresponding like entry if there is one
+
+export default function ReviewComponent({ review, setViewingImages }: Props) {
+  const [liked, setLiked] = useState(review.reviewLikes.length > 0);
+  const [numLikes, setNumLikes] = useState(review.likes);
 
   const numStars = Math.floor(review.rating / 2);
   const halfStar = review.rating % 2 !== 0;
 
-  function handleLike() {
+  async function handleLike() {
+    const { data: userData, error: userError } = await supabase.auth.getSession();
+    if (userError || !userData || !userData.session?.user.id) {
+      router.push('/signUp');
+    }
+    const uid = userData.session?.user.id;
+
+    // handle total likes on supabase side
+    // will need to figure out how to fetch if you have liked a review with another review join
     if (liked) {
       setNumLikes(numLikes - 1);
+
+      // for some reason delete requires a select RLS policy
+      const { error } = await supabase
+        .from('reviewLikes')
+        .delete()
+        .eq('review_id', review.id)
+        .eq('user_id', uid);
+      if (error) console.error('Error unliking review', error);
     } else {
       setNumLikes(numLikes + 1);
+
+      const { error } = await supabase.from('reviewLikes').insert({
+        user_id: uid,
+        review_id: review.id,
+      });
+      if (error) console.error('Error liking review', error);
     }
 
     setLiked(!liked);
   }
 
-  function handleImagePress(index: number) {
+  function handleImagePress() {
     // to press on an image there should always be images, so just for ts
     if (review.images) setViewingImages(review.images);
-    setViewingImageIndex(index);
+  }
+
+  async function handleProfileClick() {
+    console.log('Clicked profile');
+    const { data, error } = await supabase.auth.getSession();
+    if (error) {
+      console.error('Error fetching session', error);
+      return;
+    }
+
+    if (data && data.session?.user.id === review.user_id) {
+      // It's their review, go to their profile
+      router.replace('/profile');
+    } else {
+      router.push({
+        pathname: '/anotherUserProfile',
+        params: {
+          uid: review.user_id,
+        },
+      });
+    }
   }
 
   const date = new Date(review.created_at).toLocaleDateString('en-US', {
@@ -52,14 +102,19 @@ export default function ReviewComponent({ review, setViewingImages, setViewingIm
         position: 'relative',
       }}>
       {/* Pfp */}
-      <View
-        style={{
-          width: 30,
-          height: 30,
-          backgroundColor: 'purple',
-          borderRadius: 999,
-        }}
-      />
+      <Pressable onPress={handleProfileClick}>
+        <Image
+          style={{
+            width: 30,
+            height: 30,
+            backgroundColor: 'purple',
+            borderRadius: 999,
+          }}
+          source={
+            review.profiles.pfp ? { uri: review.profiles.pfp } : require('../assets/images/cup.png')
+          }
+        />
+      </Pressable>
 
       <View style={{ flex: 1, gap: 8, position: 'relative' }}>
         <View
@@ -73,7 +128,7 @@ export default function ReviewComponent({ review, setViewingImages, setViewingIm
           }}>
           <View style={{ flexShrink: 1, flexGrow: 1 }}>
             <Text style={{ color: '#808080', fontWeight: 700, paddingRight: 4 }}>
-              {review.user_id}
+              {review.profiles.name}
             </Text>
           </View>
 
@@ -97,7 +152,7 @@ export default function ReviewComponent({ review, setViewingImages, setViewingIm
               <Pressable
                 key={index}
                 style={{ width: '34%', height: 96, position: 'relative' }}
-                onPress={() => handleImagePress(index)}>
+                onPress={handleImagePress}>
                 <Image
                   source={{ uri: image }}
                   style={{
@@ -117,7 +172,7 @@ export default function ReviewComponent({ review, setViewingImages, setViewingIm
                   borderRadius: 10,
                   justifyContent: 'center',
                 }}
-                onPress={() => setViewingImageIndex(2)}>
+                onPress={handleImagePress}>
                 <Text style={{ textAlign: 'center', fontSize: 24, color: '#808080' }}>
                   +{review.images.length - 2}
                 </Text>

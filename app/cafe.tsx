@@ -12,6 +12,7 @@ import { CafeType, NewReviewType } from '@/components/CafePage/CafeTypes';
 import { supabase } from '@/lib/supabase';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import ImageFullView from '@/components/CafePage/ImageFullView';
+import assertString from '@/components/assertString';
 
 /**
  * An example of how you can open this page
@@ -57,18 +58,6 @@ import ImageFullView from '@/components/CafePage/ImageFullView';
         </Pressable>
       </Link>
  */
-
-function assertString(v: string | string[] | undefined): string {
-  if (v === undefined) {
-    console.warn('Parameter is undefined, using default value');
-    return '';
-  }
-  if (Array.isArray(v)) {
-    console.warn('Parameter is array, joining with commas');
-    return v.join(',');
-  }
-  return v;
-}
 
 /**
  * When you click on a cafe card / pin on map this page will be shown
@@ -120,9 +109,6 @@ export default function Index() {
   const [viewingImages, setViewingImages] = useState<string[] | null>(null);
 
   const [addingToList, setAddingToList] = useState(false);
-
-  // remove this later
-  const [viewingImageIndex, setViewingImageIndex] = useState<number | null>(null);
 
   // idk stuff for the bottom sheet
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -180,7 +166,10 @@ export default function Index() {
     setReviews([]);
     async function fetchReviews() {
       try {
-        const { data, error } = await supabase.from('reviews').select('*').eq('cafe_id', cafe.id);
+        const { data, error } = await supabase
+          .from('reviews')
+          .select('*, profiles (name, pfp), reviewLikes (id)')
+          .eq('cafe_id', cafe.id);
         if (error) {
           console.log('Error fetching reviews', error);
         } else {
@@ -191,7 +180,6 @@ export default function Index() {
       }
     }
     if (cafe.id) {
-      console.log('fetching reviews');
       fetchReviews();
     }
   }, [cafe.id]);
@@ -209,8 +197,15 @@ export default function Index() {
         {/* The actual cafe here */}
         <View style={{ backgroundColor: '#f0f0f0', height: '100%', width: '100%' }}>
           <Image
-            style={{ top: -70, width: '100%', position: 'absolute' }}
-            source={require('../assets/images/oshimacafe.png')}
+            style={{
+              top: 0,
+              width: '100%',
+              height: undefined,
+              aspectRatio: 1,
+              position: 'absolute',
+            }}
+            resizeMode="cover"
+            source={cafe.image ? { uri: cafe.image } : require('../assets/images/oshimacafe.png')}
           />
 
           <Pressable
@@ -226,7 +221,7 @@ export default function Index() {
               left: 10, // Add some padding
               zIndex: 2,
             }}>
-            <Ionicons name="chevron-back" size={24} color="white" />
+            <Ionicons name="chevron-back" size={28} color="white" />
           </Pressable>
         </View>
       </SafeAreaView>
@@ -265,7 +260,6 @@ export default function Index() {
               reviews={reviews}
               logVisit={logVisit}
               setViewingImages={setViewingImages}
-              setViewingImageIndex={setViewingImageIndex}
               userId={userId ?? ''}
               addToList={addToList}
             />

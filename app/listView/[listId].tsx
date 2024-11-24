@@ -16,71 +16,71 @@ const ListView = () => {
   const [loading, setLoading] = useState(true);
   const [isOwner, setIsOwner] = useState(false);
 
-  // Fetch cafes from the list
-  const fetchCafes = async (): Promise<void> => {
-    try {
-      const { data: user } = await supabase.auth.getUser(); // Get logged-in user
-      if (!user) {
-        console.error('User not logged in');
-        return;
-      }
+  useEffect(() => {
+    // Fetch cafes from the list
+    const fetchCafes = async (): Promise<void> => {
+      try {
+        const { data: user } = await supabase.auth.getUser(); // Get logged-in user
+        if (!user) {
+          console.error('User not logged in');
+          return;
+        }
 
-      const { data, error } = await supabase
-        .from('cafeListEntries')
-        .select(
-          `
+        const { data, error } = await supabase
+          .from('cafeListEntries')
+          .select(
+            `
         cafes(*), 
         user_id
         `,
-        ) // Ensure this matches your actual database schema
-        .eq('list_id', listId);
+          ) // Ensure this matches your actual database schema
+          .eq('list_id', listId);
 
-      if (error) {
+        if (error) {
+          console.error('Error fetching cafes:', error);
+          return;
+        }
+
+        // Check ownership
+        if (data && data.length > 0 && user.user?.id === data[0].user_id) {
+          setIsOwner(true); // Set ownership flag
+        }
+
+        // console.log('Raw data from Supabase:', data);
+
+        // Map the fetched cafes to match the CafeType structure
+        const mappedCafes: CafeType[] =
+          data?.flatMap((entry: { cafes: any }) => {
+            if (entry.cafes) {
+              const cafe = entry.cafes;
+              return {
+                id: cafe.id,
+                created_at: cafe.created_at,
+                name: cafe.title, // Map 'title' to 'name'
+                hours: cafe.hours,
+                latitude: cafe.latitude,
+                longitude: cafe.longitude,
+                address: cafe.address,
+                tags: cafe.tags || [], // Default to an empty array if null
+                image: cafe.image, // Single top image
+                summary: cafe.summary || null,
+                rating: cafe.rating, // Convert rating for display
+                num_reviews: cafe.num_reviews,
+              };
+            }
+            return [];
+          }) || [];
+
+        setCafes(mappedCafes);
+      } catch (error) {
         console.error('Error fetching cafes:', error);
-        return;
+      } finally {
+        setLoading(false);
       }
+    };
 
-      // Check ownership
-      if (data && data.length > 0 && user.user?.id === data[0].user_id) {
-        setIsOwner(true); // Set ownership flag
-      }
-
-      // console.log('Raw data from Supabase:', data);
-
-      // Map the fetched cafes to match the CafeType structure
-      const mappedCafes: CafeType[] =
-        data?.flatMap((entry: { cafes: any }) => {
-          if (entry.cafes) {
-            const cafe = entry.cafes;
-            return {
-              id: cafe.id,
-              created_at: cafe.created_at,
-              name: cafe.title, // Map 'title' to 'name'
-              hours: cafe.hours,
-              latitude: cafe.latitude,
-              longitude: cafe.longitude,
-              address: cafe.address,
-              tags: cafe.tags || [], // Default to an empty array if null
-              image: cafe.image, // Single top image
-              summary: cafe.summary || null,
-              rating: cafe.rating, // Convert rating for display
-              num_reviews: cafe.num_reviews,
-            };
-          }
-          return [];
-        }) || [];
-
-      setCafes(mappedCafes);
-    } catch (error) {
-      console.error('Error fetching cafes:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
     fetchCafes();
-  }, [listId, fetchCafes]);
+  }, [listId]);
 
   return (
     <>

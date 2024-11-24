@@ -26,20 +26,8 @@ export default function ImageFullView({ images, setImages }: Props) {
       style={{
         position: 'relative',
         height: '100%',
+        backgroundColor: 'rgba(50, 50, 50, .85)',
       }}>
-      {/* Dark overlay on the screen
-        Rn it is just 200% so it will hopefully be big enough for everythign
-      */}
-      <View
-        style={{
-          position: 'absolute',
-          width: '100%',
-          height: '200%',
-          top: -200,
-          backgroundColor: 'rgba(50, 50, 50, .85)',
-        }}
-      />
-
       {/* top bar */}
       <View
         style={{
@@ -68,15 +56,16 @@ export default function ImageFullView({ images, setImages }: Props) {
       <ScrollView
         horizontal
         pagingEnabled
+        showsHorizontalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
         contentContainerStyle={{
-          position: 'relative',
+          marginTop: insets.top, // Not sure if this is ideal
         }}>
         {images.map((image, index) => (
           <Image
             key={index}
             source={{ uri: image }}
-            // This is a bit jank, height may exceed depending on screen size
-            style={{ width, height: '86%' }}
+            style={{ width, height: '90%' }}
             resizeMode="contain"
           />
         ))}

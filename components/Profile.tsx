@@ -229,7 +229,7 @@ export default function Profile({ uid, setViewingImages }: Props) {
   );
 
   return (
-    <ScrollView>
+    <ScrollView contentContainerStyle={{ paddingBottom: 50 }}>
       {/* Profile */}
       <View style={styles.pfpContainer}>
         {/* Profile Picture */}

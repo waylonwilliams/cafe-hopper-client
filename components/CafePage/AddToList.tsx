@@ -56,7 +56,7 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
 
   useEffect(() => {
     fetchUserLists();
-  }, [userId, cafe.id]);
+  }, [userId, cafe.id, fetchUserLists]);
 
   const handleNewListCreated = () => {
     setIsNewListVisible(false);

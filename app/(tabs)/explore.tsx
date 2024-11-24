@@ -201,7 +201,7 @@ export default function NewExplore() {
         for (const cafe of limitedData) {
           const newCafe = {
             id: cafe.id,
-            name: cafe.name ? cafe.name : '',
+            name: cafe.name ? cafe.name : cafe.title ? cafe.title : '', // accounts for both names
             address: cafe.address ? cafe.address : '',
             hours: cafe.hours ? cafe.hours : '',
             tags: cafe.tags ? cafe.tags : [],
@@ -216,7 +216,7 @@ export default function NewExplore() {
           cafes.push(newCafe);
 
           markers.push({
-            name: cafe.title,
+            name: cafe.name ? cafe.name : cafe.title ? cafe.title : '', // accounts for both names
             latitude: cafe.latitude,
             longitude: cafe.longitude,
             rating: cafe.rating ? cafe.rating : 0,

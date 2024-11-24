@@ -83,7 +83,6 @@ export default function Home() {
   const [reviews, setReviews] = useState<NewReviewType[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [, setViewingImages] = useState<string[]>([]);
-  const [, setViewingImageIndex] = useState<number | null>(null);
 
   // For popular cafe carousel
   const [popCafes, setPopCafes] = useState<CafeType[]>(mockCafes);
@@ -189,7 +188,7 @@ export default function Home() {
     // Fetch list of top reviews in database from past week
     const { data, error } = await supabase
       .from('reviews')
-      .select('*')
+      .select('*, profiles(name, pfp), reviewLikes(id)')
       .gt('created_at', pastWeek.toISOString())
       .order('likes', { ascending: false })
       .limit(3);
@@ -330,7 +329,7 @@ export default function Home() {
         for (const cafe of limitData) {
           cafes.push({
             id: cafe.id,
-            name: cafe.title ? cafe.title : '',
+            name: cafe.name ? cafe.name : '',
             address: cafe.address ? cafe.address : '',
             hours: cafe.hours ? cafe.hours : '',
             tags: cafe.tags ? cafe.tags : [],
@@ -450,11 +449,7 @@ export default function Home() {
             {/* Review Content */}
             {reviews[currentIndex] && (
               <View style={styles.reviewContainer}>
-                <Review
-                  review={reviews[currentIndex]}
-                  setViewingImages={setViewingImages}
-                  setViewingImageIndex={setViewingImageIndex}
-                />
+                <Review review={reviews[currentIndex]} setViewingImages={setViewingImages} />
               </View>
             )}
 
