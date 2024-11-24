@@ -29,20 +29,7 @@ const ListView = () => {
         .from('cafeListEntries')
         .select(
           `
-        cafes(
-          id, 
-          created_at, 
-          title, 
-          hours, 
-          latitude, 
-          longitude, 
-          address, 
-          tags, 
-          image, 
-          summary, 
-          rating, 
-          num_reviews
-        ), 
+        cafes(*), 
         user_id
         `,
         ) // Ensure this matches your actual database schema
