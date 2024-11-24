@@ -125,7 +125,7 @@ export default function Cafe({
       }}
       contentContainerStyle={{
         gap: 10,
-        paddingBottom: 110,
+        paddingBottom: 50,
       }}>
       {/* Name of cafe header */}
       <Text style={{ fontSize: 36, fontWeight: 500 }}>{cafe.name}</Text>
