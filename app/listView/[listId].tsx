@@ -80,7 +80,7 @@ const ListView = () => {
 
   useEffect(() => {
     fetchCafes();
-  }, [listId]);
+  }, [listId, fetchCafes]);
 
   return (
     <>

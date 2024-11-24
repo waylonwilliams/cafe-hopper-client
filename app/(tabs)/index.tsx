@@ -450,14 +450,14 @@ export default function Home() {
             {/* Review Content */}
             {reviews[currentIndex] && (
               <View style={styles.reviewContainer}>
-              <Review
-                review={reviews[currentIndex]}
-                setViewingImages={setViewingImages}
-                setViewingImageIndex={setViewingImageIndex}
-              />
-            </View>
+                <Review
+                  review={reviews[currentIndex]}
+                  setViewingImages={setViewingImages}
+                  setViewingImageIndex={setViewingImageIndex}
+                />
+              </View>
             )}
-            
+
             {/* Right Arrow */}
             {currentIndex < reviews.length - 1 && (
               <TouchableOpacity onPress={handleNext} style={styles.arrow}>
