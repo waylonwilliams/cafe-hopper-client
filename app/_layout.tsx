@@ -5,6 +5,13 @@ import { useEffect } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import 'react-native-reanimated';
 
+// Temporarily disable the reanimated logger
+import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
+configureReanimatedLogger({
+  level: ReanimatedLogLevel.warn,
+  strict: false, // remove strict mode
+});
+
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 

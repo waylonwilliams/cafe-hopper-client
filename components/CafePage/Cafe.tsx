@@ -100,18 +100,19 @@ export default function Cafe({
   });
 
   useEffect(() => {
+    const numReviews = reviews.length;
     setLoadingReviews(true);
 
-    setTotalReviews(reviews.length);
-    if (reviews.length > 0) setNoReviews(false);
+    setTotalReviews(numReviews);
+    if (numReviews > 0) setNoReviews(false);
     else setNoReviews(true);
 
-    setAverageRating(reviews.reduce((acc, review) => acc + review.rating, 0) / totalReviews / 2);
+    setAverageRating(reviews.reduce((acc, review) => acc + review.rating, 0) / numReviews / 2);
 
     const counts = [5, 4, 3, 2, 1].map(
       (rating) => reviews.filter((review) => Math.ceil(review.rating / 2) === rating).length,
     );
-    setReviewScales(counts.map((count) => (count / totalReviews) * 100));
+    setReviewScales(counts.map((count) => (count / numReviews) * 100));
 
     setLoadingReviews(false);
   }, [reviews]);
