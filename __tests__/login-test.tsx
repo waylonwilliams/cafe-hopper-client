@@ -21,6 +21,19 @@ jest.mock('expo-router', () => ({
   },
 }));
 
+jest.mock('expo-font', () => ({
+  loadAsync: jest.fn(),
+  isLoaded: jest.fn(() => true), // Mock that fonts are loaded
+}));
+
+jest.mock('@expo/vector-icons', () => {
+  const { Text } = require('react-native');
+  return {
+    ...jest.requireActual('@expo/vector-icons'),
+    Ionicons: Text, // Replace icons with plain Text for tests
+  };
+});
+
 describe('LoginScreen', () => {
   beforeEach(() => {
     jest.clearAllMocks();
