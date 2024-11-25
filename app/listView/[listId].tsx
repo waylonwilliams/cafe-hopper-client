@@ -56,7 +56,7 @@ const ListView = () => {
               return {
                 id: cafe.id,
                 created_at: cafe.created_at,
-                name: cafe.title, // Map 'title' to 'name'
+                name: cafe.name, // Map 'title' to 'name'
                 hours: cafe.hours,
                 latitude: cafe.latitude,
                 longitude: cafe.longitude,
