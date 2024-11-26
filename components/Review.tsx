@@ -11,12 +11,16 @@ interface Props {
   setViewingImages: (arg: string[]) => void;
 }
 
-// Example of how to fetch reviews to pass to this component
-// const { data, error } = await supabase
-// .from('reviews')
-// .select('*, profiles (name, pfp), reviewLikes (id)')
-// .eq('cafe_id', cafe.id);
-// This gets the review content, the corresponding profile content, and corresponding like entry if there is one
+/**
+Example of how to fetch reviews to pass to this component
+This fetches review, corresponding profile, and the current user's corresponding like
+
+ const { data, error } = await supabase
+ .from('reviews')
+ .select('*, profiles (name, pfp), reviewLikes (id)')
+ .eq('cafe_id', cafe.id);
+
+ */
 
 export default function ReviewComponent({ review, setViewingImages }: Props) {
   const [liked, setLiked] = useState(review.reviewLikes.length > 0);
@@ -25,6 +29,9 @@ export default function ReviewComponent({ review, setViewingImages }: Props) {
   const numStars = Math.floor(review.rating / 2);
   const halfStar = review.rating % 2 !== 0;
 
+  // Like or unlike a review, store that in the database
+  // I wrote a SQL function to handle total likes on the actual review row
+  // So all we have to do is add the current user's like and it will be handled
   async function handleLike() {
     const { data: userData, error: userError } = await supabase.auth.getSession();
     if (userError || !userData || !userData.session?.user.id) {
@@ -32,12 +39,9 @@ export default function ReviewComponent({ review, setViewingImages }: Props) {
     }
     const uid = userData.session?.user.id;
 
-    // handle total likes on supabase side
-    // will need to figure out how to fetch if you have liked a review with another review join
     if (liked) {
       setNumLikes(numLikes - 1);
 
-      // for some reason delete requires a select RLS policy
       const { error } = await supabase
         .from('reviewLikes')
         .delete()
@@ -57,13 +61,13 @@ export default function ReviewComponent({ review, setViewingImages }: Props) {
     setLiked(!liked);
   }
 
+  // Make sure the images exist, for typescript
   function handleImagePress() {
-    // to press on an image there should always be images, so just for ts
     if (review.images) setViewingImages(review.images);
   }
 
+  // Clicking on name / pfp goes to their profile
   async function handleProfileClick() {
-    console.log('Clicked profile');
     const { data, error } = await supabase.auth.getSession();
     if (error) {
       console.error('Error fetching session', error);
@@ -71,9 +75,10 @@ export default function ReviewComponent({ review, setViewingImages }: Props) {
     }
 
     if (data && data.session?.user.id === review.user_id) {
-      // It's their review, go to their profile
+      // If its their review go to their profile
       router.replace('/profile');
     } else {
+      // if its someone else's review go to their profile
       router.push({
         pathname: '/anotherUserProfile',
         params: {
@@ -83,6 +88,7 @@ export default function ReviewComponent({ review, setViewingImages }: Props) {
     }
   }
 
+  // Formatted date of review
   const date = new Date(review.created_at).toLocaleDateString('en-US', {
     month: 'long',
     day: 'numeric',
@@ -101,7 +107,7 @@ export default function ReviewComponent({ review, setViewingImages }: Props) {
         gap: 10,
         position: 'relative',
       }}>
-      {/* Pfp */}
+      {/* Profile info */}
       <Pressable onPress={handleProfileClick}>
         <Image
           style={{
@@ -115,7 +121,6 @@ export default function ReviewComponent({ review, setViewingImages }: Props) {
           }
         />
       </Pressable>
-
       <View style={{ flex: 1, gap: 8, position: 'relative' }}>
         <View
           style={{
@@ -132,6 +137,7 @@ export default function ReviewComponent({ review, setViewingImages }: Props) {
             </Text>
           </View>
 
+          {/* Review content */}
           <View style={{ flexDirection: 'row', gap: 5, flexShrink: 0 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               {[...Array(numStars)].map((_, index) => (
@@ -163,7 +169,6 @@ export default function ReviewComponent({ review, setViewingImages }: Props) {
                 />
               </Pressable>
             ))}
-            {/* Clicking this would hopefully open full view images */}
             {review.images.length > 2 && (
               <Pressable
                 style={{
@@ -193,6 +198,7 @@ export default function ReviewComponent({ review, setViewingImages }: Props) {
           ))}
         </View>
 
+        {/* Like button */}
         <View style={{ flexDirection: 'row', gap: 10 }}>
           <Pressable
             style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}
