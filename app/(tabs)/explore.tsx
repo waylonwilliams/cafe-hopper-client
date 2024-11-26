@@ -21,6 +21,8 @@ import ListCard from '@/components/ListCard';
 import { CafeType } from '@/components/CafePage/CafeTypes';
 import EmojiTag from '@/components/EmojiTag';
 import { cafeTags } from '@/components/CafePage/CafeTypes';
+import { searchCafesFromBackend } from '@/lib/backend';
+import { CafeSearchRequest, CafeSearchResponse } from '@/lib/backend-types';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const mockCafes: CafeType[] = [
@@ -107,8 +109,6 @@ export default function NewExplore() {
   const [emojiTags, setEmojiTags] = useState<string[]>([]); // State to track selected emoji tags
   const [searchIsFocused, setSearchIsFocused] = useState(false);
 
-  const API_URL = `http://${Constants.expoConfig?.hostUri!.split(':').shift()}:3000`;
-
   const handleMarkerPress = (marker: MarkerType) => {
     // Navigate to cafe view and pass marker data as parameters
     console.log('Navigating to cafe', marker.name);
@@ -168,40 +168,27 @@ export default function NewExplore() {
   useEffect(() => {
     const searchCafes = async (query: string) => {
       try {
-        const requestBody = {
-          query: query,
+        const searchRequest: CafeSearchRequest = {
+          query,
           geolocation: {
             lat: mapRegion.latitude,
             lng: mapRegion.longitude,
           },
           openNow: selectedHours === 'Open Now',
-          rating: selectedRating === 'Any' ? 0 : parseFloat(selectedRating) * 2,
+          rating: selectedRating === 'Any' ? undefined : parseFloat(selectedRating),
           tags: emojiTags,
         };
-        const response = await fetch(`${API_URL}/cafes/search`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(requestBody),
-        });
-        if (!response.ok) {
-          throw new Error('Failed to search for cafes');
-        }
-        const data = await response.json();
-        if (!Array.isArray(data)) {
-          console.log('Invalid data format');
-          return;
-        }
 
-        const limitedData = data.slice(0, 15); // Limit to 15 cafes
+        const response: CafeSearchResponse = await searchCafesFromBackend(searchRequest);
+        if (response.error) throw new Error(response.error);
+        const fetchedCafes: CafeType[] = response.cafes;
 
         const cafes = [];
         const markers: MarkerType[] = [];
-        for (const cafe of limitedData) {
+        for (const cafe of fetchedCafes) {
           const newCafe = {
             id: cafe.id,
-            name: cafe.name ? cafe.name : cafe.title ? cafe.title : '', // accounts for both names
+            name: cafe.name ? cafe.name : '',
             address: cafe.address ? cafe.address : '',
             hours: cafe.hours ? cafe.hours : '',
             tags: cafe.tags ? cafe.tags : [],
@@ -216,10 +203,10 @@ export default function NewExplore() {
           cafes.push(newCafe);
 
           markers.push({
-            name: cafe.name ? cafe.name : cafe.title ? cafe.title : '', // accounts for both names
+            name: cafe.name,
             latitude: cafe.latitude,
             longitude: cafe.longitude,
-            rating: cafe.rating ? cafe.rating : 0,
+            rating: cafe.rating ? cafe.rating.toString() : '0',
             category: 'default',
             cafe: newCafe,
           });
@@ -229,8 +216,6 @@ export default function NewExplore() {
         setMarkers(markers);
       } catch (error) {
         console.error('Error searching for cafes:', error);
-      } finally {
-        // Handle cleanup if needed
       }
     };
     if (debouncedQuery) {
@@ -240,7 +225,7 @@ export default function NewExplore() {
       console.log('No search query');
       setSearchedCafes(mockCafes); // Reset cafes if query is empty
     }
-  }, [debouncedQuery, API_URL, mapRegion, selectedHours, selectedRating, emojiTags]);
+  }, [debouncedQuery, mapRegion, selectedHours, selectedRating, emojiTags]);
 
   const userLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();

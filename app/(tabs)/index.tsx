@@ -18,9 +18,8 @@ import * as Location from 'expo-location';
 import { Link, useRouter, useFocusEffect } from 'expo-router';
 import Card from '@/components/Card';
 import FeedComponent from '@/components/FeedPost';
-
-//const API_URL = `http://${Constants.expoConfig?.hostUri!.split(':').shift()}:3000`;
-const API_URL = `http://localhost:3000`;
+import { CafeSearchRequest } from '@/lib/backend-types';
+import { searchCafesFromBackend } from '@/lib/backend';
 
 const { width } = Dimensions.get('window');
 
@@ -296,7 +295,7 @@ export default function Home() {
   const getCafes = async () => {
     if (userRegion) {
       try {
-        const requestBody = {
+        const requestBody: CafeSearchRequest = {
           geolocation: {
             lat: userRegion.latitude,
             lng: userRegion.longitude,
@@ -304,25 +303,14 @@ export default function Home() {
           sortBy: 'distance',
         };
         console.log('Req body: ', requestBody);
-        const response = await fetch(`${API_URL}/cafes/search`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(requestBody),
-        });
+        const response = await searchCafesFromBackend(requestBody);
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error(`Failed to search: ${response.status} - ${errorText}`);
+        if (response.error) {
+          console.error('Error searching cafes: ', response.error);
           return;
         }
 
-        const data = await response.json();
-        if (!Array.isArray(data)) {
-          console.log('Invalid data');
-          return;
-        }
+        const data: CafeType[] = response.cafes;
 
         const limitData = data.slice(0, 6);
         const cafes = [];
