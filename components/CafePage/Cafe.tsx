@@ -32,7 +32,6 @@ export default function Cafe({
   const [togo, setTogo] = useState(false);
   const [showHours, setShowHours] = useState(false);
   const [loadingReviews, setLoadingReviews] = useState(true);
-
   const [totalReviews, setTotalReviews] = useState(0);
   const [averageRating, setAverageRating] = useState(0);
   const [reviewScales, setReviewScales] = useState([0, 0, 0, 0, 0]);
@@ -54,6 +53,7 @@ export default function Cafe({
     loadInitialState();
   }, [cafe.id, userId]);
 
+  // Shortcut to add to liked list
   const handleLike = async () => {
     try {
       const likedId = await getOrCreateList('liked');
@@ -65,12 +65,13 @@ export default function Cafe({
         // Otherwise, add it to the "liked" list
         await addCafeToList(cafe.id, likedId);
       }
-      setLiked(!liked); // Toggle the liked state
+      setLiked(!liked);
     } catch (error) {
       console.error('Error toggling like:', error);
     }
   };
 
+  // Shortcut to add to to-go list
   const handleTogo = async () => {
     try {
       const togoId = await getOrCreateList('to-go');
@@ -82,7 +83,7 @@ export default function Cafe({
         // Otherwise, add it to the "to-go" list
         await addCafeToList(cafe.id, togoId);
       }
-      setTogo(!togo); // Toggle the togo state
+      setTogo(!togo);
     } catch (error) {
       console.error('Error toggling to-go:', error);
     }
@@ -90,15 +91,17 @@ export default function Cafe({
 
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
+  // Parses the hours string from the database
   const today = days[new Date().getDay()];
   const entries = cafe.hours.split('\n');
   const scheduleDict: { [key: string]: string } = {};
   entries.forEach((entry) => {
-    const [day, ...timeParts] = entry.split(':'); // Split on the first colon
-    const time = timeParts.join(':').trim(); // Join the remaining parts and trim
+    const [day, ...timeParts] = entry.split(':');
+    const time = timeParts.join(':').trim();
     scheduleDict[day.trim()] = time;
   });
 
+  // When the reviews are fetched, calculate the total rating and scale and things like that
   useEffect(() => {
     const numReviews = reviews.length;
     setLoadingReviews(true);
@@ -127,10 +130,9 @@ export default function Cafe({
         gap: 10,
         paddingBottom: 50,
       }}>
-      {/* Name of cafe header */}
+      {/* Main cafe info */}
       <Text style={{ fontSize: 36, fontWeight: 500 }}>{cafe.name}</Text>
 
-      {/* First bar, reviews, quick */}
       <View
         style={{
           flexDirection: 'row',
@@ -153,7 +155,6 @@ export default function Cafe({
           </View>
         </Pressable>
 
-        {/* fix this logic */}
         <Pressable onPress={addToList}>
           <View style={{ alignItems: 'center', gap: 2 }}>
             <Ionicons name="add-circle-outline" size={32} color="black" />
@@ -178,7 +179,6 @@ export default function Cafe({
         </Pressable>
       </View>
 
-      {/* Opening time and address */}
       <View style={{ paddingTop: 5, gap: 5 }}>
         {showHours && (
           <View style={{ gap: 4 }}>
@@ -217,6 +217,7 @@ export default function Cafe({
         </View>
       )}
 
+      {/* Reviews */}
       {!loadingReviews &&
         (noReviews ? (
           <View style={{ width: '100%', alignItems: 'center', gap: 4 }}>
@@ -229,7 +230,6 @@ export default function Cafe({
           </View>
         ) : (
           <>
-            {/* Reviews scales here */}
             <View style={{ gap: 10 }}>
               <Text style={{ fontSize: 24, fontWeight: 600, paddingTop: 5 }}>Reviews</Text>
 
@@ -295,10 +295,8 @@ export default function Cafe({
               </View>
             </View>
 
-            {/* Reviews */}
             <Text style={{ paddingTop: 10, fontSize: 18, fontWeight: 600 }}>Popular reviews</Text>
 
-            {/* Should map them */}
             {reviews.map((review, index) => (
               <Review review={review} key={index} setViewingImages={setViewingImages} />
             ))}

@@ -1,8 +1,3 @@
-// update cafe type to include top tags, and include all new database stuff while at it
-// tags should be an empty array by default?
-// images shouldn't be an array, just the top image
-// lets add summary
-
 export type CafeType = {
   id: string;
   created_at: string;
