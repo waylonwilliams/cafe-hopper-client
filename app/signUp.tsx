@@ -76,7 +76,7 @@ const SignUpScreen = () => {
           value={password}
           onChangeText={setPassword}
         />
-        <MaterialCommunityIcons
+        <MaterialCommunityIcons testID='toggle-password-visibility'
           name={showPassword ? 'eye-off' : 'eye'}
           size={20}
           color="#aaa"
@@ -93,7 +93,7 @@ const SignUpScreen = () => {
           value={confPassword}
           onChangeText={setConfPassword}
         />
-        <MaterialCommunityIcons
+        <MaterialCommunityIcons testID='toggle-confirm-password-visibility'
           name={showPassword ? 'eye-off' : 'eye'}
           size={20}
           color="#aaa"
