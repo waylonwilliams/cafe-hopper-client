@@ -86,7 +86,7 @@ const LoginScreen = () => {
           <Image source={require('@/assets/images/arrow.png')} />
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => router.replace('@/app/signUp')}>
+        <TouchableOpacity onPress={() => router.replace('/signUp')}>
           <Text>Already have an account? Sign Up</Text>
         </TouchableOpacity>
       </View>
