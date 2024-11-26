@@ -11,7 +11,7 @@ export default function GetStartedPage() {
   const checkLogin = async () => {
     const { data } = await supabase.auth.getUser(); // use getUser here to refresh on opening app
     if (data.user !== null) {
-      router.replace('/(tabs)');
+      router.replace('/(tabs)'); // If user data exists, navigate to (tabs)
     }
     setChecked(true);
   };

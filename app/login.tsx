@@ -20,6 +20,7 @@ const LoginScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Calls singInWithPassword and navigates to tabs on success
   async function signInWithEmail() {
     // console.log('Email:', email);
     // console.log('Password:', password);
@@ -34,6 +35,7 @@ const LoginScreen = () => {
     setLoading(false);
   }
 
+  // Toggles between secure and actual text
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };

@@ -23,6 +23,7 @@ const SignUpScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Calls signUp() and navigates to tabs on success
   async function signUpWithEmail() {
     if (password === confPassword) {
       if (password) setLoading(true);
