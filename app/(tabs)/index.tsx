@@ -18,7 +18,7 @@ import * as Location from 'expo-location';
 import { Link, useRouter, useFocusEffect } from 'expo-router';
 import Card from '@/components/Card';
 import FeedComponent from '@/components/FeedPost';
-import { CafeSearchRequest } from '@/lib/backend-types';
+import { CafeSearchRequest, CafeSearchResponse } from '@/lib/backend-types';
 import { searchCafesFromBackend } from '@/lib/backend';
 
 const { width } = Dimensions.get('window');
@@ -303,7 +303,7 @@ export default function Home() {
           sortBy: 'distance',
         };
         console.log('Req body: ', requestBody);
-        const response = await searchCafesFromBackend(requestBody);
+        const response: CafeSearchResponse = await searchCafesFromBackend(requestBody);
 
         if (response.error) {
           console.error('Error searching cafes: ', response.error);
