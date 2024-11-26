@@ -257,9 +257,7 @@ export default function Index() {
       </BottomSheet>
 
       {/* Image full view, when you click on a review's image */}
-      {viewingImages !== null && (
-        <ImageFullView images={viewingImages} setImages={setViewingImages} />
-      )}
+      <ImageFullView images={viewingImages} setImages={setViewingImages} />
     </>
   );
 }
