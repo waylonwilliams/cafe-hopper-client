@@ -19,7 +19,6 @@ import { Link, useRouter, useFocusEffect } from 'expo-router';
 import Card from '@/components/Card';
 import FeedComponent from '@/components/FeedPost';
 
-//const API_URL = `http://${Constants.expoConfig?.hostUri!.split(':').shift()}:3000`;
 const API_URL = `http://localhost:3000`;
 
 const { width } = Dimensions.get('window');
@@ -79,7 +78,7 @@ export default function Home() {
   } | null>(null);
   const [loc, setLoc] = useState<string | null>(null);
 
-  //For review carousel
+  // For review carousel
   const [reviews, setReviews] = useState<NewReviewType[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [, setViewingImages] = useState<string[]>([]);
@@ -88,15 +87,15 @@ export default function Home() {
   const [popCafes, setPopCafes] = useState<CafeType[]>(mockCafes);
   const router = useRouter();
 
-  //for user greeting
+  // For user greeting
   const [name, setName] = useState<string>('');
 
-  //for feed posts
+  // For feed posts
   const [feed, setFeed] = useState<NewReviewType[]>([]);
   const [feedUsers, setFeedUsers] = useState<Map<string, string>>(new Map());
   const [feedPfps, setFeedPfps] = useState<Map<string, string>>(new Map());
 
-  // Get Name
+  // Get user name
   useFocusEffect(
     useCallback(() => {
       const fetchName = async () => {
@@ -180,6 +179,7 @@ export default function Home() {
     }
   };
 
+  // Fetch popular reviews for home page
   const fetchReviews = async () => {
     // Fetch date to only display top reviews from this past week
     const pastWeek = new Date();
