@@ -108,6 +108,6 @@ describe('LoginScreen', () => {
     const { getByText } = render(<LoginScreen />);
     fireEvent.press(getByText('Already have an account? Sign Up'));
 
-    expect(router.replace).toHaveBeenCalledWith('@/app/signUp');
+    expect(router.replace).toHaveBeenCalledWith('/signUp');
   });
 });
