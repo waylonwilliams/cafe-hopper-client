@@ -23,6 +23,8 @@ import EmojiTag from '@/components/EmojiTag';
 import { cafeTags } from '@/components/CafePage/CafeTypes';
 import { searchCafesFromBackend } from '@/lib/backend';
 import { CafeSearchRequest, CafeSearchResponse } from '@/lib/backend-types';
+import { Animated } from 'react-native';
+
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const mockCafes: CafeType[] = [
@@ -94,7 +96,7 @@ export default function NewExplore() {
     latitudeDelta: 0.005,
     longitudeDelta: 0.005,
   });
-
+  const [scale, setScale] = useState(1); // Scale state for dynamic resizing
   const mapRef = useRef<MapView>(null); // Reference to the MapView
   const router = useRouter(); // Get the router instance from expo-router
 
@@ -108,6 +110,18 @@ export default function NewExplore() {
   const [selectedRating, setSelectedRating] = useState('Any'); // Track selected rating
   const [emojiTags, setEmojiTags] = useState<string[]>([]); // State to track selected emoji tags
   const [searchIsFocused, setSearchIsFocused] = useState(false);
+
+  const calculateZoomLevel = (latitudeDelta: number) => {
+    // Approximate calculation of zoom level based on latitudeDelta
+    return Math.log2(360 / latitudeDelta);
+  };
+
+  const handleRegionChangeComplete = (region: typeof mapRegion) => {
+    const zoomLevel = calculateZoomLevel(region.latitudeDelta);
+    const newScale = Math.min(Math.max(zoomLevel / 15, 0.5), 1.5); // Normalize scale between 0.5 and 1.5
+    setScale(newScale);
+    setMapRegion(region); // Update the map region state
+  };
 
   const handleMarkerPress = (marker: MarkerType) => {
     // Navigate to cafe view and pass marker data as parameters
@@ -422,6 +436,7 @@ export default function NewExplore() {
             initialRegion={mapRegion}
             region={mapRegion}
             showsUserLocation={true} // Show the default blue dot for user location
+            onRegionChangeComplete={handleRegionChangeComplete} // Trigger on zoom or move
             showsMyLocationButton={true}
             mapType="standard">
             {searchedMarkers.map((marker, index) => {
@@ -434,7 +449,7 @@ export default function NewExplore() {
                   key={index}
                   coordinate={marker}
                   onPress={() => handleMarkerPress(validMarker)}>
-                  <CustomMarker marker={validMarker} />
+                  <CustomMarker marker={validMarker} scale={scale} />
                 </Marker>
               );
             })}
