@@ -187,7 +187,12 @@ export default function Cafe({
 
         <Pressable onPress={handleTogo}>
           <View style={{ alignItems: 'center', gap: 2 }}>
-            <Ionicons name={togo ? 'bookmark' : 'bookmark-outline'} size={30} color="black" />
+            <Ionicons
+              name={togo ? 'bookmark' : 'bookmark-outline'}
+              size={30}
+              color="black"
+              testID={togo ? 'bookmark' : 'bookmark-outline'}
+            />
             <Text style={{ color: '#808080' }}>To-go</Text>
           </View>
         </Pressable>

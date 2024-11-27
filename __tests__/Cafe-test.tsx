@@ -1,6 +1,6 @@
 import React from 'react';
-import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import Cafe from '@/components/CafePage/Cafe'; // Adjust the import path
+import { render, fireEvent, waitFor, act } from '@testing-library/react-native';
+import Cafe from '@/components/CafePage/Cafe';
 import { CafeType, NewReviewType } from '@/components/CafePage/CafeTypes';
 
 jest.mock('@expo/vector-icons/Ionicons', () => 'Ionicons');
@@ -82,12 +82,41 @@ describe('Cafe Component', () => {
     expect(getByText('123 Main St, San Francisco, CA 94105')).toBeTruthy();
   });
 
+  it('toggles the to-go button on click', async () => {
+    const { getByText, getByTestId } = render(
+      <Cafe
+        cafe={cafe}
+        reviews={reviews}
+        logVisit={mockLogVisit}
+        setViewingImages={jest.fn()}
+        userId="user123"
+        addToList={jest.fn()}
+      />,
+    );
+
+    const bookmarkButton = getByText('To-go');
+    // Not marked as to-go at first
+    expect(getByTestId('bookmark-outline')).toBeTruthy();
+
+    // Toggle on
+    fireEvent.press(bookmarkButton);
+    await waitFor(() => {
+      expect(getByTestId('bookmark')).toBeTruthy();
+    });
+
+    // Toggle off
+    fireEvent.press(bookmarkButton);
+    await waitFor(() => {
+      expect(getByTestId('bookmark-outline')).toBeTruthy();
+    });
+  });
+
   it('toggles the like button on click', async () => {
     const { getByText, getByTestId } = render(
       <Cafe
         cafe={cafe}
         reviews={reviews}
-        logVisit={jest.fn()}
+        logVisit={mockLogVisit}
         setViewingImages={jest.fn()}
         userId="user123"
         addToList={jest.fn()}
@@ -111,40 +140,24 @@ describe('Cafe Component', () => {
     });
   });
 
-  // test('toggles to-go state', () => {
-  //   const { getByText, getByLabelText } = render(
-  //     <Cafe
-  //       cafe={cafe}
-  //       reviews={reviews}
-  //       logVisit={mockLogVisit}
-  //       setViewingImages={jest.fn()}
-  //       userId="111"
-  //       addToList={jest.fn()}
-  //     />,
-  //   );
+  test('calls logVisit when "Log a visit" is pressed', async () => {
+    const mckLogVisit = jest.fn();
+    const { getByText } = render(
+      <Cafe
+        cafe={cafe}
+        reviews={reviews}
+        logVisit={mckLogVisit}
+        setViewingImages={jest.fn()}
+        userId="user123"
+        addToList={jest.fn()}
+      />,
+    );
 
-  //   const toGoButton = getByLabelText('To-go');
-  //   fireEvent.press(toGoButton);
-  //   expect(getByText('To-go')).toBeTruthy(); // State toggled
+    await act(async () => {
+      const logVisitButton = getByText('Log a visit');
+      fireEvent.press(logVisitButton);
+    });
 
-  //   fireEvent.press(toGoButton);
-  //   expect(getByText('To-go')).toBeTruthy(); // State toggled back
-  // });
-
-  // test('calls logVisit when "Log a visit" is pressed', () => {
-  //   const { getByText } = render(
-  //     <Cafe
-  //       cafe={cafe}
-  //       reviews={reviews}
-  //       logVisit={mockLogVisit}
-  //       setViewingImages={jest.fn()}
-  //       userId="111"
-  //       addToList={jest.fn()}
-  //     />,
-  //   );
-
-  //   const logVisitButton = getByText('Log a visit');
-  //   fireEvent.press(logVisitButton);
-  //   expect(mockLogVisit).toHaveBeenCalled();
-  // });
+    expect(mckLogVisit).toHaveBeenCalled();
+  });
 });
