@@ -10,6 +10,8 @@ import {
   getOrCreateList,
   removeCafeFromList,
 } from '@/lib/supabase-utils';
+import { supabase } from '@/lib/supabase';
+import { router } from 'expo-router';
 
 interface Props {
   cafe: CafeType;
@@ -41,6 +43,8 @@ export default function Cafe({
   useEffect(() => {
     const loadInitialState = async () => {
       try {
+        const uid = (await supabase.auth.getSession()).data.session?.user.id;
+        if (!uid) return;
         const isLiked = await checkCafeInList(cafe.id, 'liked');
         const isTogo = await checkCafeInList(cafe.id, 'to-go');
         setLiked(isLiked);
@@ -56,6 +60,9 @@ export default function Cafe({
   // Shortcut to add to liked list
   const handleLike = async () => {
     try {
+      const uid = (await supabase.auth.getSession()).data.session?.user.id;
+      if (!uid) router.push('/login');
+
       const likedId = await getOrCreateList('liked');
 
       if (liked) {
@@ -74,6 +81,9 @@ export default function Cafe({
   // Shortcut to add to to-go list
   const handleTogo = async () => {
     try {
+      const uid = (await supabase.auth.getSession()).data.session?.user.id;
+      if (!uid) router.push('/login');
+
       const togoId = await getOrCreateList('to-go');
 
       if (togo) {
@@ -294,6 +304,23 @@ export default function Cafe({
                 </View>
               </View>
             </View>
+
+            {cafe.summary && (
+              <View
+                style={{
+                  width: '100%',
+                  borderWidth: 1,
+                  borderRadius: 10,
+                  padding: 10,
+                  gap: 4,
+                  marginTop: 5,
+                  backgroundColor: '#F5F5F5',
+                }}>
+                <Text style={{ fontSize: 16, fontWeight: 500 }}>People are saying</Text>
+
+                <Text style={{ padding: 3 }}>{cafe.summary}</Text>
+              </View>
+            )}
 
             <Text style={{ paddingTop: 10, fontSize: 18, fontWeight: 600 }}>Popular reviews</Text>
 
