@@ -9,38 +9,38 @@ interface CardProps {
 
 export default function CardComponent({ cafe }: CardProps) {
   const mockImageUrl =
-    'https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/posts/public/mockCafe.jpg';
+    'https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/posts/public/defaultOshima.png';
   const displayRating = cafe.rating / 2;
 
   return (
-      <View style={styles.card}>
-        {/* Cafe Image */}
-        <Image source={{ uri: cafe.image ? cafe.image : mockImageUrl }} style={styles.image} />
+    <View style={styles.card}>
+      {/* Cafe Image */}
+      <Image source={{ uri: cafe.image ? cafe.image : mockImageUrl }} style={styles.image} />
 
-        <View style={styles.content}>
-          {/* Cafe Name */}
-          <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
-            {cafe.name}
-          </Text>
+      <View style={styles.content}>
+        {/* Cafe Name */}
+        <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
+          {cafe.name}
+        </Text>
 
-          {/* Rating */}
-          <View style={styles.ratingContainer}>
-            <Icon name="star" size={11} color="gold"></Icon>
-            <Text style={styles.rating}>{displayRating.toFixed(1)}</Text>
-          </View>
+        {/* Rating */}
+        <View style={styles.ratingContainer}>
+          <Icon name="star" size={11} color="gold"></Icon>
+          <Text style={styles.rating}>{displayRating.toFixed(1)}</Text>
         </View>
-
-        {/* Tags */}
-        {cafe.tags !== null && (
-          <View style={styles.tagContainer}>
-            {cafe.tags.map((tag, index) => (
-              <Text key={index} style={styles.tag}>
-                {tag.split(' ')[0]} {/* Extract only the emoji */}
-              </Text>
-            ))}
-          </View>
-        )}
       </View>
+
+      {/* Tags */}
+      {cafe.tags !== null && (
+        <View style={styles.tagContainer}>
+          {cafe.tags.map((tag, index) => (
+            <Text key={index} style={styles.tag}>
+              {tag.split(' ')[0]} {/* Extract only the emoji */}
+            </Text>
+          ))}
+        </View>
+      )}
+    </View>
   );
 }
 
@@ -52,6 +52,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'black',
     borderRadius: 15,
+    margin: 5,
   },
 
   image: {

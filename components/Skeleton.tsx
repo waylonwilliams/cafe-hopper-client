@@ -7,30 +7,25 @@ type SkeletonProps = {
   borderRadius?: number;
 };
 
-export const Skeleton = ({
-  width,
-  height,
-  borderRadius = 15, 
-}: SkeletonProps) => {
+export const Skeleton = ({ width, height, borderRadius = 15 }: SkeletonProps) => {
   const shimmerVal = useRef(new Animated.Value(0.5)).current;
 
   const startAnimation = useCallback(() => {
     Animated.loop(
-        Animated.sequence([
-          Animated.timing(shimmerVal, {
-            toValue: 1,
-            duration: 1000, 
-            useNativeDriver: true,
-          }),
-          Animated.timing(shimmerVal, {
-            toValue: 0.5,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-        ]),
+      Animated.sequence([
+        Animated.timing(shimmerVal, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+        Animated.timing(shimmerVal, {
+          toValue: 0.5,
+          duration: 1000,
+          useNativeDriver: true,
+        }),
+      ]),
     ).start();
   }, [shimmerVal]);
-
 
   useEffect(() => {
     startAnimation();

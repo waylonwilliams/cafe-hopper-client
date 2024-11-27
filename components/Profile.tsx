@@ -32,108 +32,7 @@ export default function Profile({ uid, setViewingImages }: Props) {
   });
   // store if it is their profile in this state
   const [owner, setOwner] = useState(false);
-
-  {
-    /* Dummy Cafes */
-  }
-  const cafes = [
-    {
-      id: 'alo',
-      created_at: '2021-08-01T00:00:00.000Z',
-      name: "Cafe Oshima's",
-      address: '2/37 Cao Thang, Ward 5, District 3, Ho Chi Minh City, Vietnam',
-      tags: [
-        '🍵 Matcha',
-        '🛜 Free Wifi',
-        '🌱 Vegan',
-        '🌳 Outdoor',
-        '🐶 Pet Friendly',
-        '🏠 Indoor',
-        '🚗 Parking',
-      ],
-      hours: `8:00AM - 10:00PM Monday
-                    8:00AM - 10:00PM Tuesday
-                    8:00AM - 10:00PM Wednesday
-                    8:00AM - 10:00PM Thursday
-                    8:00AM - 10:00PM Friday
-                    8:00AM - 10:00PM Saturday
-                    8:00AM - 10:00PM Sunday`,
-      latitude: 10.7743,
-      longitude: 106.686,
-      image: require('../assets/images/11th-hour.png'),
-      summary: 'A cozy cafe',
-      rating: 9.4,
-      num_reviews: 100,
-    },
-    {
-      id: 'jalo',
-      created_at: '2021-08-01T00:00:00.000Z',
-      name: "Cafe Oshima's",
-      address: '2/37 Cao Thang, Ward 5, District 3, Ho Chi Minh City, Vietnam',
-      tags: [
-        '🍵 Matcha',
-        '🛜 Free Wifi',
-        '🌱 Vegan',
-        '🌳 Outdoor',
-        '🐶 Pet Friendly',
-        '🏠 Indoor',
-        '🚗 Parking',
-      ],
-      hours: `8:00AM - 10:00PM Monday
-                    8:00AM - 10:00PM Tuesday
-                    8:00AM - 10:00PM Wednesday
-                    8:00AM - 10:00PM Thursday
-                    8:00AM - 10:00PM Friday
-                    8:00AM - 10:00PM Saturday
-                    8:00AM - 10:00PM Sunday`,
-      latitude: 10.7743,
-      longitude: 106.686,
-      image: require('../assets/images/11th-hour.png'),
-      summary: 'A cozy cafe',
-      rating: 9.4,
-      num_reviews: 100,
-    },
-    {
-      id: 'bloom',
-      created_at: '2021-09-15T00:00:00.000Z',
-      name: 'Bloom Cafe',
-      address: '123 Flower St, Garden City, NY, USA',
-      tags: ['🌸 Floral', '☕ Coffee', '🍰 Desserts', '📚 Books'],
-      hours: `7:00AM - 8:00PM Monday
-                    7:00AM - 8:00PM Tuesday
-                    7:00AM - 8:00PM Wednesday
-                    7:00AM - 8:00PM Thursday
-                    7:00AM - 8:00PM Friday
-                    8:00AM - 9:00PM Saturday
-                    8:00AM - 9:00PM Sunday`,
-      latitude: 40.7128,
-      longitude: -74.006,
-      image: require('../assets/images/11th-hour.png'),
-      summary: 'A floral-themed cafe',
-      rating: 8.7,
-      num_reviews: 85,
-    },
-    {
-      id: 'java',
-      created_at: '2021-10-20T00:00:00.000Z',
-      name: 'Java House',
-      address: '456 Coffee Ln, Brewtown, CA, USA',
-      tags: ['☕ Coffee', '💻 Work Friendly', '📶 Free Wifi', '🍪 Snacks'],
-      hours: `6:00AM - 6:00PM Monday
-                    6:00AM - 6:00PM Tuesday
-                    6:00AM - 6:00PM Wednesday
-                    6:00AM - 6:00PM Thursday
-                    6:00AM - 6:00PM Friday
-                    7:00AM - 7:00PM Saturday
-                    7:00AM - 7:00PM Sunday`,
-      latitude: 34.0522,
-      longitude: -118.2437,
-      image: require('../assets/images/11th-hour.png'),
-      summary: 'A perfect place for coffee lovers',
-      rating: 9.1,
-      num_reviews: 120,
-    },
-  ] as CafeType[];
+  const cafes = [] as CafeType[];
 
   interface UserList {
     id: string;
@@ -143,6 +42,8 @@ export default function Profile({ uid, setViewingImages }: Props) {
   }
 
   const [userLists, setUserLists] = useState<UserList[]>([]); // State to hold user's lists
+  const [recentLikes, setRecentLikes] = useState<UserList | null>(null);
+  const [favoriteCafes, setFavoriteCafes] = useState<UserList | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -222,6 +123,11 @@ export default function Profile({ uid, setViewingImages }: Props) {
         );
 
         setUserLists(formattedLists);
+        
+        const favorites = formattedLists.find((list) => list.name.toLowerCase() === 'liked');
+        if (favorites) {
+          setFavoriteCafes(favorites);
+        }
       };
 
       fetchProfile();
@@ -310,13 +216,9 @@ export default function Profile({ uid, setViewingImages }: Props) {
         <Text style={styles.listText}>Recent Likes</Text>
         {/* PLACEHOLDER */}
         <View>
-          <FlatList
-            horizontal
-            data={cafes}
-            renderItem={({ item }) => <CardComponent cafe={item} />}
-            keyExtractor={(item) => item.id}
-            style={styles.carousel}
-          />
+          {recentLikes ? (<ProfileList list={recentLikes}/>) : (
+            <Text style={{ color: 'gray', fontSize: 14, paddingTop: 10 }}>No Recent Likes.</Text>
+          )}
         </View>
       </View>
 
@@ -324,13 +226,17 @@ export default function Profile({ uid, setViewingImages }: Props) {
         <Text style={styles.listText}>Favorite Cafes</Text>
         {/* Cafe Carousel */}
         <View>
+        {recentLikes ? (<ProfileList list={recentLikes}/>) : (
+            <Text style={{ color: 'gray', fontSize: 14, paddingTop: 10 }}>No Favorites found.</Text>
+          )}
+          {/*  
           <FlatList
             horizontal
             data={cafes}
             renderItem={({ item }) => <CardComponent cafe={item} />}
             keyExtractor={(item) => item.id}
             style={styles.carousel}
-          />
+          />*/}
         </View>
 
         {/* Lists */}
@@ -413,6 +319,7 @@ const styles = StyleSheet.create({
   },
   carousel: {
     height: 220,
+    margin: 5,
   },
   listContainer: {
     flexDirection: 'row',

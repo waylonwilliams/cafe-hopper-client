@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback, useMemo } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -20,7 +20,8 @@ import Card from '@/components/Card';
 import FeedComponent from '@/components/FeedPost';
 import { CafeSearchRequest, CafeSearchResponse } from '@/lib/backend-types';
 import { searchCafesFromBackend } from '@/lib/backend';
-import { Skeleton } from '@/components/Skeleton'
+import { Skeleton } from '@/components/Skeleton';
+import ImageFullView from '@/components/CafePage/ImageFullView';
 
 const { width } = Dimensions.get('window');
 
@@ -80,7 +81,7 @@ export default function Home() {
   // For review carousel
   const [reviews, setReviews] = useState<NewReviewType[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [, setViewingImages] = useState<string[]>([]);
+  const [viewingImages, setViewingImages] = useState<string[] | null>(null);
 
   // For popular cafe carousel
   const [popCafes, setPopCafes] = useState<CafeType[] | null>(null);
@@ -300,9 +301,11 @@ export default function Home() {
     // Create formatted list of Feed objects
   };
 
-  const getCafes = async () => {
+  // Fetch Popular Cafes
+  const getCafes = useCallback(async () => {
     if (userRegion) {
       try {
+        // Call to backend server to search by distance
         const requestBody: CafeSearchRequest = {
           geolocation: {
             lat: userRegion.latitude,
@@ -346,7 +349,7 @@ export default function Home() {
         console.log('error searching', error);
       }
     }
-  };
+  }, [userRegion]);
 
   useEffect(() => {
     getLoc();
@@ -357,9 +360,10 @@ export default function Home() {
     if (userRegion) {
       getCafes();
     }
-  }, [userRegion]);
+  }, [userRegion, getCafes]);
 
   return (
+    <>
     <SafeAreaView>
       <ScrollView showsVerticalScrollIndicator={false}>
         <View style={styles.container}>
@@ -395,52 +399,51 @@ export default function Home() {
 
           {/* Cafe Carousel */}
           <View>
-            {isLoading? (
+            {/* LOAD SKELETONS AS CAFES FETCH */}
+            {isLoading ? (
               <FlatList
-              data={popCafeSkeletons()} 
-              renderItem={({ item }) => item}
-              keyExtractor={(_, index) => index.toString()}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 10 }}
-            />
-
-            ): (
-
-            <FlatList
-              data={popCafes}
-              keyExtractor={(item) => item.id.toString()}
-              renderItem={({ item }) => {
-                return (
-                  <Pressable style={styles.cafeCard}
-                    onPress={() => {
-                      router.push({
-                        pathname: '/cafe',
-                        params: {
-                          id: item.id,
-                          created_at: item.created_at ? item.created_at : '',
-                          name: item.name,
-                          address: item.address,
-                          hours: item.hours ? item.hours : '',
-                          latitude: item.latitude,
-                          longitude: item.longitude,
-                          tags: item.tags ? item.tags : [],
-                          image: item.image ? item.image : '',
-                          summary: item.summary ? item.summary : '',
-                          rating: item.rating,
-                          num_reviews: item.num_reviews,
-                        },
-                      });
-                    }}>
-                    <Card cafe={item}/>
-                  </Pressable>
-                );
-              }}
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              contentContainerStyle={{ paddingHorizontal: 10 }}
-            />
-          )}
+                data={popCafeSkeletons()}
+                renderItem={({ item }) => item}
+                keyExtractor={(_, index) => index.toString()}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: 10 }}
+              />
+            ) : (
+              <FlatList
+                data={popCafes}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({ item }) => {
+                  return (
+                    <Pressable
+                      onPress={() => {
+                        router.push({
+                          pathname: '/cafe',
+                          params: {
+                            id: item.id,
+                            created_at: item.created_at ? item.created_at : '',
+                            name: item.name,
+                            address: item.address,
+                            hours: item.hours ? item.hours : '',
+                            latitude: item.latitude,
+                            longitude: item.longitude,
+                            tags: item.tags ? item.tags : [],
+                            image: item.image ? item.image : '',
+                            summary: item.summary ? item.summary : '',
+                            rating: item.rating,
+                            num_reviews: item.num_reviews,
+                          },
+                        });
+                      }}>
+                      <Card cafe={item} />
+                    </Pressable>
+                  );
+                }}
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{ paddingHorizontal: 10 }}
+              />
+            )}
           </View>
 
           {/* Popular Reviews */}
@@ -482,8 +485,15 @@ export default function Home() {
             ))}
           </View>
         </View>
+
       </ScrollView>
     </SafeAreaView>
+
+    {/* Image full view */}
+    {viewingImages !== null && (
+      <ImageFullView images={viewingImages} setImages={setViewingImages} />
+    )}
+    </>
   );
 }
 
@@ -548,11 +558,8 @@ const styles = StyleSheet.create({
     height: 230,
     flex: 1,
   },
-  cafeCard: {
-    margin: 5,
-  },
   reviewContainer: {
-    width: width - 70,
+    width: width - 60,
     padding: 5,
   },
 
