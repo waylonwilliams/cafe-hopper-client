@@ -99,13 +99,17 @@ describe('Cafe Component', () => {
     expect(getByTestId('bookmark-outline')).toBeTruthy();
 
     // Toggle on
-    fireEvent.press(bookmarkButton);
+    await act(async () => {
+      fireEvent.press(bookmarkButton);
+    });
     await waitFor(() => {
       expect(getByTestId('bookmark')).toBeTruthy();
     });
 
     // Toggle off
-    fireEvent.press(bookmarkButton);
+    await act(async () => {
+      fireEvent.press(bookmarkButton);
+    });
     await waitFor(() => {
       expect(getByTestId('bookmark-outline')).toBeTruthy();
     });
@@ -128,13 +132,17 @@ describe('Cafe Component', () => {
     expect(getByTestId('heart-outline')).toBeTruthy();
 
     // Toggle on
-    fireEvent.press(likeButton);
+    await act(async () => {
+      fireEvent.press(likeButton);
+    });
     await waitFor(() => {
       expect(getByTestId('heart')).toBeTruthy();
     });
 
     // Toggle off
-    fireEvent.press(likeButton);
+    await act(async () => {
+      fireEvent.press(likeButton);
+    });
     await waitFor(() => {
       expect(getByTestId('heart-outline')).toBeTruthy();
     });
@@ -158,6 +166,24 @@ describe('Cafe Component', () => {
       fireEvent.press(logVisitButton);
     });
 
-    expect(mckLogVisit).toHaveBeenCalled();
+    await waitFor(() => {
+      expect(mckLogVisit).toHaveBeenCalled();
+    });
+  });
+
+  it('Shows average review rating', () => {
+    const { getByText } = render(
+      <Cafe
+        cafe={cafe}
+        reviews={reviews}
+        logVisit={mockLogVisit}
+        setViewingImages={jest.fn()}
+        userId="user123"
+        addToList={jest.fn()}
+      />,
+    );
+
+    expect(getByText('4.5')).toBeTruthy();
+    expect(getByText('1 reviews')).toBeTruthy();
   });
 });
