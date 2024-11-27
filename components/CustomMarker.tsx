@@ -54,7 +54,7 @@ const CustomMarker: React.FC<{ marker: MarkerType; scale: number }> = ({ marker,
 // Styles for different marker categories and tooltip
 const styles = StyleSheet.create({
   wrapper: {
-    flexDirection: 'row', // Arrange icon and text in a row
+    flexDirection: 'column', // Arrange icon and text in a row
     alignItems: 'center', // Align items vertically
   },
   iconBackground: {

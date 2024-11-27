@@ -87,6 +87,7 @@ export default function Explore() {
   };
 
   const handleRegionChangeComplete = (region: typeof mapRegion) => {
+    setMapRegion(region);
     const zoomLevel = calculateZoomLevel(region.latitudeDelta);
     const newScale = Math.min(Math.max(zoomLevel / 15, 0.5), 1.5); // Normalize scale between 0.5 and 1.5
     setScale(newScale);
@@ -505,8 +506,7 @@ export default function Explore() {
             showsUserLocation={true} // Show the default blue dot for user location
             onRegionChangeComplete={handleRegionChangeComplete} // Trigger on zoom or move
             showsMyLocationButton={true}
-            mapType="standard"
-            onRegionChangeComplete={(region) => setMapRegion(region)}>
+            mapType="standard">
             {searchedMarkers.map((marker, index) => {
               const validMarker: MarkerType = {
                 ...marker,
