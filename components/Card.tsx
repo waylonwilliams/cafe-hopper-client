@@ -2,7 +2,6 @@ import React from 'react';
 import { View, Text, Image, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { CafeType } from '@/components/CafePage/CafeTypes';
-//import EmojiTag from '@/components/EmojiTag';
 
 interface CardProps {
   cafe: CafeType;
@@ -14,33 +13,34 @@ export default function CardComponent({ cafe }: CardProps) {
   const displayRating = cafe.rating / 2;
 
   return (
-    <View style={styles.card}>
-      {/*TESTING ONLY, FETCH CAFE IMAGE */}
-      <Image source={{ uri: mockImageUrl }} style={styles.image}></Image>
+      <View style={styles.card}>
+        {/* Cafe Image */}
+        <Image source={{ uri: cafe.image ? cafe.image : mockImageUrl }} style={styles.image} />
 
-      <View style={styles.content}>
-        {/* Cafe Name */}
-        <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
-          {cafe.name}
-        </Text>
-        {/* Rating */}
-        <View style={styles.ratingContainer}>
-          <Icon name="star" size={11} color="gold"></Icon>
-          <Text style={styles.rating}>{displayRating.toFixed(1)}</Text>
+        <View style={styles.content}>
+          {/* Cafe Name */}
+          <Text style={styles.name} numberOfLines={1} ellipsizeMode="tail">
+            {cafe.name}
+          </Text>
+
+          {/* Rating */}
+          <View style={styles.ratingContainer}>
+            <Icon name="star" size={11} color="gold"></Icon>
+            <Text style={styles.rating}>{displayRating.toFixed(1)}</Text>
+          </View>
         </View>
+
+        {/* Tags */}
+        {cafe.tags !== null && (
+          <View style={styles.tagContainer}>
+            {cafe.tags.map((tag, index) => (
+              <Text key={index} style={styles.tag}>
+                {tag.split(' ')[0]} {/* Extract only the emoji */}
+              </Text>
+            ))}
+          </View>
+        )}
       </View>
-
-      {/* Tags */}
-      {cafe.tags !== null && (
-        <View style={styles.tagContainer}>
-          {cafe.tags.map((tag, index) => (
-            <Text key={index} style={styles.tag}>
-              {tag.split(' ')[0]} {/* Extract only the emoji */}
-            </Text>
-          ))}
-        </View>
-      )}
-    </View>
   );
 }
 
@@ -48,7 +48,6 @@ const styles = StyleSheet.create({
   card: {
     width: 140,
     height: 200,
-    margin: 5,
     overflow: 'hidden',
     borderWidth: 1,
     borderColor: 'black',

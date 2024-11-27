@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -20,11 +20,9 @@ import Card from '@/components/Card';
 import FeedComponent from '@/components/FeedPost';
 import { CafeSearchRequest, CafeSearchResponse } from '@/lib/backend-types';
 import { searchCafesFromBackend } from '@/lib/backend';
+import { Skeleton } from '@/components/Skeleton'
 
 const { width } = Dimensions.get('window');
-
-//Dummy Cafes
-const mockCafes: CafeType[] = [];
 
 //Dummy Feed Posts TESTING ONLY
 const mockFeed = [
@@ -72,6 +70,7 @@ const mockFeed = [
 ];
 
 export default function Home() {
+  const [isLoading, setIsLoading] = useState(true);
   const [userRegion, setUserRegion] = useState<{
     latitude: number;
     longitude: number;
@@ -84,7 +83,7 @@ export default function Home() {
   const [, setViewingImages] = useState<string[]>([]);
 
   // For popular cafe carousel
-  const [popCafes, setPopCafes] = useState<CafeType[]>(mockCafes);
+  const [popCafes, setPopCafes] = useState<CafeType[] | null>(null);
   const router = useRouter();
 
   // For user greeting
@@ -94,6 +93,14 @@ export default function Home() {
   const [feed, setFeed] = useState<NewReviewType[]>([]);
   const [feedUsers, setFeedUsers] = useState<Map<string, string>>(new Map());
   const [feedPfps, setFeedPfps] = useState<Map<string, string>>(new Map());
+
+  const popCafeSkeletons = () => {
+    return new Array(6).fill(null).map((_, index) => (
+      <View key={index}>
+        <Skeleton width={140} height={200} borderRadius={15} />
+      </View>
+    ));
+  };
 
   // Get user name
   useFocusEffect(
@@ -183,7 +190,7 @@ export default function Home() {
   const fetchReviews = async () => {
     // Fetch date to only display top reviews from this past week
     const pastWeek = new Date();
-    pastWeek.setDate(pastWeek.getDate() - 9);
+    pastWeek.setDate(pastWeek.getDate() - 7);
 
     // Fetch list of top reviews in database from past week
     const { data, error } = await supabase
@@ -333,7 +340,7 @@ export default function Home() {
         }
 
         setPopCafes(cafes);
-
+        setIsLoading(false);
         console.log('searched successfully');
       } catch (error) {
         console.log('error searching', error);
@@ -360,8 +367,8 @@ export default function Home() {
           <Text style={styles.greeting}>Hello, {name}!</Text>
 
           {/* Header */}
-          <Text style={styles.heading}>Where's your next</Text>
-          <Text style={styles.h2}>cafe adventure?</Text>
+          <Text style={styles.heading}>Where's your next </Text>
+          <Text style={{ color: '#8a8888', fontSize: 24 }}>cafe adventure?</Text>
 
           {/* Search Bar */}
           <Link style={styles.searchWrapper} href={{ pathname: '/(tabs)/explore' }} asChild>
@@ -385,14 +392,27 @@ export default function Home() {
               </Pressable>
             </Link>
           </View>
+
           {/* Cafe Carousel */}
           <View>
+            {isLoading? (
+              <FlatList
+              data={popCafeSkeletons()} 
+              renderItem={({ item }) => item}
+              keyExtractor={(_, index) => index.toString()}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={{ paddingHorizontal: 10 }}
+            />
+
+            ): (
+
             <FlatList
               data={popCafes}
               keyExtractor={(item) => item.id.toString()}
               renderItem={({ item }) => {
                 return (
-                  <Pressable
+                  <Pressable style={styles.cafeCard}
                     onPress={() => {
                       router.push({
                         pathname: '/cafe',
@@ -412,7 +432,7 @@ export default function Home() {
                         },
                       });
                     }}>
-                    <Card cafe={item} />
+                    <Card cafe={item}/>
                   </Pressable>
                 );
               }}
@@ -420,6 +440,7 @@ export default function Home() {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ paddingHorizontal: 10 }}
             />
+          )}
           </View>
 
           {/* Popular Reviews */}
@@ -480,10 +501,6 @@ const styles = StyleSheet.create({
     fontFamily: 'SF-Pro-Display-Semibold',
     fontSize: 24,
   },
-  h2: {
-    color: '#8a8888',
-    fontSize: 24,
-  },
   searchWrapper: {
     marginTop: 15,
     marginBottom: 25,
@@ -531,7 +548,9 @@ const styles = StyleSheet.create({
     height: 230,
     flex: 1,
   },
-
+  cafeCard: {
+    margin: 5,
+  },
   reviewContainer: {
     width: width - 70,
     padding: 5,
