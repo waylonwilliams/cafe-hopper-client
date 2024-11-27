@@ -61,18 +61,20 @@ export default function Cafe({
   const handleLike = async () => {
     try {
       const uid = (await supabase.auth.getSession()).data.session?.user.id;
-      if (!uid) router.push('/login');
-
-      const likedId = await getOrCreateList('liked');
-
-      if (liked) {
-        // If currently liked, remove it from the "liked" list
-        await removeCafeFromList(cafe.id, likedId);
+      if (!uid) {
+        router.push('/login');
       } else {
-        // Otherwise, add it to the "liked" list
-        await addCafeToList(cafe.id, likedId);
+        const likedId = await getOrCreateList('liked');
+
+        if (liked) {
+          // If currently liked, remove it from the "liked" list
+          await removeCafeFromList(cafe.id, likedId);
+        } else {
+          // Otherwise, add it to the "liked" list
+          await addCafeToList(cafe.id, likedId);
+        }
+        setLiked(!liked);
       }
-      setLiked(!liked);
     } catch (error) {
       console.error('Error toggling like:', error);
     }
@@ -82,20 +84,40 @@ export default function Cafe({
   const handleTogo = async () => {
     try {
       const uid = (await supabase.auth.getSession()).data.session?.user.id;
-      if (!uid) router.push('/login');
-
-      const togoId = await getOrCreateList('to-go');
-
-      if (togo) {
-        // If currently marked as to-go, remove it from the "to-go" list
-        await removeCafeFromList(cafe.id, togoId);
+      if (!uid) {
+        router.push('/login');
       } else {
-        // Otherwise, add it to the "to-go" list
-        await addCafeToList(cafe.id, togoId);
+        const togoId = await getOrCreateList('to-go');
+
+        if (togo) {
+          // If currently marked as to-go, remove it from the "to-go" list
+          await removeCafeFromList(cafe.id, togoId);
+        } else {
+          // Otherwise, add it to the "to-go" list
+          await addCafeToList(cafe.id, togoId);
+        }
+        setTogo(!togo);
       }
-      setTogo(!togo);
     } catch (error) {
       console.error('Error toggling to-go:', error);
+    }
+  };
+
+  const handleAddToList = async () => {
+    const uid = (await supabase.auth.getSession()).data.session?.user.id;
+    if (!uid) {
+      router.push('/login');
+    } else {
+      addToList();
+    }
+  };
+
+  const handleLogVisit = async () => {
+    const uid = (await supabase.auth.getSession()).data.session?.user.id;
+    if (!uid) {
+      router.push('/login');
+    } else {
+      logVisit();
     }
   };
 
@@ -165,14 +187,14 @@ export default function Cafe({
           </View>
         </Pressable>
 
-        <Pressable onPress={addToList}>
+        <Pressable onPress={handleAddToList}>
           <View style={{ alignItems: 'center', gap: 2 }}>
             <Ionicons name="add-circle-outline" size={32} color="black" />
             <Text style={{ color: '#808080' }}>Add to List</Text>
           </View>
         </Pressable>
 
-        <Pressable onPress={logVisit}>
+        <Pressable onPress={handleLogVisit}>
           <View
             style={{
               flexDirection: 'row',
@@ -232,7 +254,7 @@ export default function Cafe({
         (noReviews ? (
           <View style={{ width: '100%', alignItems: 'center', gap: 4 }}>
             <Text style={{ color: '#808080' }}>No reviews yet</Text>
-            <Pressable onPress={logVisit}>
+            <Pressable onPress={handleLogVisit}>
               <Text style={{ color: '#808080', fontWeight: 600, textDecorationLine: 'underline' }}>
                 Be the first to log a visit!
               </Text>
