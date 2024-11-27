@@ -23,6 +23,7 @@ const SignUpScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Calls signUp() and navigates to tabs on success
   async function signUpWithEmail() {
     if (password === confPassword) {
       if (password) setLoading(true);
@@ -76,7 +77,7 @@ const SignUpScreen = () => {
           value={password}
           onChangeText={setPassword}
         />
-        <MaterialCommunityIcons
+        <MaterialCommunityIcons testID='toggle-password-visibility'
           name={showPassword ? 'eye-off' : 'eye'}
           size={20}
           color="#aaa"
@@ -93,7 +94,7 @@ const SignUpScreen = () => {
           value={confPassword}
           onChangeText={setConfPassword}
         />
-        <MaterialCommunityIcons
+        <MaterialCommunityIcons testID='toggle-confirm-password-visibility'
           name={showPassword ? 'eye-off' : 'eye'}
           size={20}
           color="#aaa"

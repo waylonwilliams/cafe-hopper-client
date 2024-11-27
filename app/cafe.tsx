@@ -17,9 +17,8 @@ import assertString from '@/components/assertString';
 /**
  * An example of how you can open this page
  * You just need to pass a CafeType object via params
- * <Link
-        // will pass the fetched cafe data like this to prevent multiple fetches
-        href={{
+ * 
+       href={{
           pathname: "/cafe",
           params: {
             id: 1,
@@ -51,21 +50,13 @@ import assertString from '@/components/assertString';
           rating: 9.4,
           num_reviews: 100,
         }}
-        asChild
-      >
-        <Pressable>
-          <Text>Open cafe view</Text>
-        </Pressable>
-      </Link>
  */
 
-/**
- * When you click on a cafe card / pin on map this page will be shown
- * Ideally upgrade this to take in a cafe as a param and render it that way
- */
+// This component will render when you navigate to /cafe
+// It is meant to be reusable across all tabs so that users can click on a cafe from any of them
 export default function Index() {
+  // Parsing arguments to the page
   const cafeObj = useLocalSearchParams();
-  const insets = useSafeAreaInsets();
 
   const cafe = useMemo(() => {
     try {
@@ -85,7 +76,7 @@ export default function Index() {
       } as CafeType;
     } catch (error) {
       console.error('Error parsing cafe parameters:', error);
-      // Return a default cafe object
+      // Return a default cafe object on failure
       return {
         id: '',
         created_at: '',
@@ -103,18 +94,19 @@ export default function Index() {
     }
   }, [cafeObj]);
 
+  const insets = useSafeAreaInsets();
   const [userId, setUserId] = useState<string | null>(null);
   const [loggingVisit, setLoggingVisit] = useState(false);
   const [reviews, setReviews] = useState<NewReviewType[]>([]);
   const [viewingImages, setViewingImages] = useState<string[] | null>(null);
-
   const [addingToList, setAddingToList] = useState(false);
 
-  // idk stuff for the bottom sheet
+  // Using an external bottom sheet component, these are necessary props
   const bottomSheetRef = useRef<BottomSheet>(null);
-  //   const handleSheetChanges = useCallback((index: number) => {}, []);
-  const snapPoints = useMemo(() => ['78%', '89%'], []); // 95% so you can see back button
-  // differnt top handle components for if you are viewing the cafe or if you are logging your visit
+  // 78% on cafe view, 89% on log visit / list view, back button remains visible
+  const snapPoints = useMemo(() => ['78%', '89%'], []);
+  // This is the component that shows up at the top of the sheet, like the drag icon
+  // Show differnet when logging visit vs viewing cafe
   const HandleComponent: React.FC<BottomSheetHandleProps> = (props) => {
     return loggingVisit ? (
       <></>
@@ -132,7 +124,8 @@ export default function Index() {
       </View>
     );
   };
-  // Fetch user ID when component mounts
+
+  // Update user session and store in state
   useEffect(() => {
     const fetchUserId = async () => {
       const {
@@ -145,23 +138,25 @@ export default function Index() {
     fetchUserId();
   }, []);
 
+  // Changes to log visit view and changes bottom sheet height
   function logVisit() {
     setLoggingVisit(true);
     bottomSheetRef.current?.snapToIndex(1);
   }
 
+  // Changes to add to list view and changes bottom sheet height
   function addToList() {
     setAddingToList(true);
     bottomSheetRef.current?.snapToIndex(1);
   }
 
+  // Go back to previous page, when leaving the cafe page
   function goBack() {
     setLoggingVisit(false);
     router.back();
   }
 
-  // fetch reviews assosicated with this cafe on load
-
+  // Fetch reviews for the cafe on load
   useEffect(() => {
     setReviews([]);
     async function fetchReviews() {
@@ -194,7 +189,7 @@ export default function Index() {
           position: 'relative',
           backgroundColor: 'white',
         }}>
-        {/* The actual cafe here */}
+        {/* Top area, image and back button */}
         <View style={{ backgroundColor: '#f0f0f0', height: '100%', width: '100%' }}>
           <Image
             style={{
@@ -212,13 +207,9 @@ export default function Index() {
             onPress={goBack}
             style={{
               position: 'absolute',
-              // IF THE BUTTON PLACEMENT IS OFF
-              // there are changes to safeareaview in new version of expo
-              // if on newest version, use insets.top to be at the top of safe area
-              // else just use 0
-              top: insets.top, // Account for the safe area inset
-              // top: 0,
-              left: 10, // Add some padding
+
+              top: insets.top,
+              left: 10,
               zIndex: 2,
             }}>
             <Ionicons name="chevron-back" size={28} color="white" />
@@ -226,9 +217,9 @@ export default function Index() {
         </View>
       </SafeAreaView>
 
+      {/* Bottom sheet that will host cafe view, logging view, list view */}
       <BottomSheet
         ref={bottomSheetRef}
-        //   onChange={handleSheetChanges}
         index={0}
         snapPoints={snapPoints}
         handleComponent={HandleComponent}>
@@ -250,9 +241,7 @@ export default function Index() {
               setAddingToList={setAddingToList}
               cafe={cafe}
               userId={userId ?? ''}
-              updateCafeView={(listName, selected) => {
-                /* implement the callback function here */
-              }}
+              updateCafeView={(listName, selected) => {}} // Seems unnecessary
             />
           ) : (
             <Cafe
@@ -267,10 +256,8 @@ export default function Index() {
         </BottomSheetView>
       </BottomSheet>
 
-      {/* Image full view */}
-      {viewingImages !== null && (
-        <ImageFullView images={viewingImages} setImages={setViewingImages} />
-      )}
+      {/* Image full view, when you click on a review's image */}
+      <ImageFullView images={viewingImages} setImages={setViewingImages} />
     </>
   );
 }

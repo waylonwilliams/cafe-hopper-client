@@ -7,11 +7,10 @@ import ImageFullView from '@/components/CafePage/ImageFullView';
 import assertString from '@/components/assertString';
 import { Ionicons } from '@expo/vector-icons';
 
-// This page won't be navigated to if they are an admin
-// This is just used when they click on a review and it is not their profile
-// Profile component still has some admin checks
+// Used in review components to navigate to another user's profile
 
 export default function AnotherUserProfile() {
+  // accept user id as a dynamic parameter
   const uidObj = useLocalSearchParams();
   const uid = assertString(uidObj.uid);
 

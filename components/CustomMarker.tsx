@@ -63,8 +63,9 @@ const styles = StyleSheet.create({
   },
   // Container that arranges tooltip and marker name in a row
   markerContainer: {
-    flexDirection: 'row', // Align tooltip and name horizontally
+    flexDirection: 'column', // Align tooltip and name horizontally
     alignItems: 'center',
+    alignSelf: 'flex-start', // Keeps marker to the left
   },
   // Wrapper for tooltip and arrow together
   tooltipWrapper: {
