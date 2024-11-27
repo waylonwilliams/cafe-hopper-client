@@ -12,45 +12,41 @@ export interface MarkerType {
   category?: 'liked' | 'saved' | 'default';
   cafe: CafeType;
 }
+const CustomMarker: React.FC<{ marker: MarkerType; scale: number }> = ({ marker, scale }) => {
+  // Adjust styles based on scale
+  const iconSize = 14 * scale;
+  const textSize = 12 * scale;
+  const containerSize = 25 * scale;
 
-// CustomMarker component
-const CustomMarker: React.FC<{ marker: MarkerType }> = ({ marker }) => {
-  // Determine the icon and background color based on the category
   let IconComponent;
   let iconBackgroundStyle;
 
   switch (marker.category) {
     case 'liked':
-      IconComponent = <FontAwesome name="heart" size={14} color="white" />;
+      IconComponent = <FontAwesome name="heart" size={iconSize} color="white" />;
       iconBackgroundStyle = styles.likedIconBackground;
       break;
     case 'saved':
-      IconComponent = <MaterialIcons name="bookmark" size={16} color="white" />;
+      IconComponent = <MaterialIcons name="bookmark" size={iconSize} color="white" />;
       iconBackgroundStyle = styles.savedIconBackground;
       break;
     default:
-      IconComponent = <FontAwesome name="coffee" size={14} color="white" />;
+      IconComponent = <FontAwesome name="coffee" size={iconSize} color="white" />;
       iconBackgroundStyle = styles.defaultIconBackground;
       break;
   }
 
   return (
-    <View style={styles.wrapper}>
-      <View style={styles.markerContainer}>
-        {/* Tooltip container with arrow */}
-        <View style={styles.tooltipWrapper}>
-          <View style={[styles.tooltipContainer]}>
-            {/* Icon with circular background and Tooltip Text */}
-            <View style={styles.iconAndText}>
-              <View style={[styles.iconBackground, iconBackgroundStyle]}>{IconComponent}</View>
-              <Text style={styles.tooltipText}>{marker.rating}</Text>
-            </View>
-          </View>
-          <View style={styles.tooltipArrow} />
-        </View>
-        {/* Display marker name to the right of the tooltip */}
-        <Text style={styles.markerName}>{marker.name}</Text>
+    <View style={[styles.wrapper, { transform: [{ scale }] }]}>
+      <View
+        style={[
+          styles.iconBackground,
+          iconBackgroundStyle,
+          { width: containerSize, height: containerSize },
+        ]}>
+        {IconComponent}
       </View>
+      <Text style={[styles.markerName, { fontSize: textSize }]}>{marker.name}</Text>
     </View>
   );
 };
@@ -58,54 +54,9 @@ const CustomMarker: React.FC<{ marker: MarkerType }> = ({ marker }) => {
 // Styles for different marker categories and tooltip
 const styles = StyleSheet.create({
   wrapper: {
-    position: 'relative',
-    bottom: 0,
+    flexDirection: 'column', // Arrange icon and text in a row
+    alignItems: 'center', // Align items vertically
   },
-  // Container that arranges tooltip and marker name in a row
-  markerContainer: {
-    flexDirection: 'column', // Align tooltip and name horizontally
-    alignItems: 'center',
-    alignSelf: 'flex-start', // Keeps marker to the left
-  },
-  // Wrapper for tooltip and arrow together
-  tooltipWrapper: {
-    alignItems: 'center', // Ensure arrow stays under tooltip
-  },
-  // Tooltip container with white background and black border
-  tooltipContainer: {
-    backgroundColor: 'white',
-    borderColor: '#9AA0A6', // Black border
-    borderWidth: 1,
-    paddingVertical: 2,
-    paddingHorizontal: 6,
-    paddingRight: 9,
-    borderRadius: 20,
-    zIndex: 0, // Ensure container is above the arrow
-    alignItems: 'center',
-  },
-  tooltipText: {
-    color: 'black', // Black text to contrast with white background
-    fontSize: 16,
-    fontWeight: 'bold',
-    // zIndex: 2,
-    marginLeft: 5, // Space between icon and text
-  },
-  tooltipArrow: {
-    width: 16,
-    height: 16,
-    backgroundColor: 'white', // White background for the arrow
-    borderLeftWidth: 1,
-    borderBottomWidth: 1,
-    borderColor: '#9AA0A6', // Black border for the arrow
-    transform: [{ rotate: '-45deg' }], // Arrow shape
-    zIndex: 1, // Ensure arrow is below the container
-    marginTop: -8, // Adjust to bring the arrow closer to the container
-  },
-  iconAndText: {
-    flexDirection: 'row', // Align icon and text horizontally
-    alignItems: 'center',
-  },
-  // Circular background for icons
   iconBackground: {
     width: 25,
     height: 25,
@@ -113,7 +64,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  // Specific background colors for each category
   likedIconBackground: {
     backgroundColor: 'black',
   },
@@ -123,13 +73,12 @@ const styles = StyleSheet.create({
   defaultIconBackground: {
     backgroundColor: 'black',
   },
-  // Style for the marker name text
   markerName: {
-    marginLeft: 7, // Add space between the tooltip and name
+    marginLeft: 7, // Add space between the icon and text
     fontSize: 14,
     fontWeight: 'bold',
     color: '#7b7b7b',
   },
 });
 
-export default CustomMarker;
+export default React.memo(CustomMarker);
