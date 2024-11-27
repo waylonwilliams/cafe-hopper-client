@@ -12,7 +12,6 @@ import {
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
 import { MaterialIcons } from '@expo/vector-icons';
-import Constants from 'expo-constants';
 import { MarkerType } from '../../components/CustomMarker';
 import CustomMarker from '../../components/CustomMarker';
 import { useRouter } from 'expo-router';
@@ -25,69 +24,7 @@ import { searchCafesFromBackend } from '@/lib/backend';
 import { CafeSearchRequest, CafeSearchResponse } from '@/lib/backend-types';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
-const mockCafes: CafeType[] = [
-  {
-    id: '1',
-    name: "Cafe Oshima's",
-    address: '2/37 Cao Thang, Ward 5, District 3, Ho Chi Minh City, Vietnam',
-    hours: `8:00AM - 10:00PM`,
-    tags: ['🍵 Matcha', '🛜 Free Wifi', '🌱 Vegan', '🌳 Outdoor', '🐶 Pet Friendly'],
-    created_at: '',
-    latitude: 10.7757,
-    longitude: 106.686,
-    rating: 4.5,
-    num_reviews: 10,
-    image:
-      'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12',
-    summary: null,
-  },
-  {
-    id: '2',
-    name: 'Blackbird',
-    address: '123 Brew St., Coffee City, CA',
-    hours: '7:00AM - 9:00PM',
-    tags: ['☕ Excellent coffee', '🪴 Ambiance', '🎶 Good music'],
-    created_at: '',
-    latitude: 10.7757,
-    longitude: 106.686,
-    rating: 4.5,
-    num_reviews: 10,
-    image:
-      'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12',
-    summary: null,
-  },
-  {
-    id: '3',
-    name: 'Blackbird',
-    address: '123 Brew St., Coffee City, CA',
-    hours: '7:00AM - 9:00PM',
-    tags: ['☕ Excellent coffee', '🪴 Ambiance', '🎶 Good music'],
-    created_at: '',
-    latitude: 10.7757,
-    longitude: 106.686,
-    rating: 4.5,
-    num_reviews: 10,
-    image:
-      'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12',
-    summary: null,
-  },
-  {
-    id: '4',
-    name: 'Blackbird',
-    address: '123 Brew St., Coffee City, CA',
-    hours: '7:00AM - 9:00PM',
-    tags: ['☕ Excellent coffee', '🪴 Ambiance', '🎶 Good music'],
-    created_at: '',
-    latitude: 10.7757,
-    longitude: 106.686,
-    rating: 4.5,
-    num_reviews: 10,
-    image:
-      'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12',
-    summary: null,
-  },
-];
-export default function NewExplore() {
+export default function Explore() {
   const [mapRegion, setMapRegion] = useState({
     latitude: 5.603717,
     longitude: -0.186964,
@@ -101,7 +38,7 @@ export default function NewExplore() {
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list'); // State for switching between views
   const [searchQuery, setSearchQuery] = useState(''); // Track search query
   const [debouncedQuery, setDebouncedQuery] = useState('');
-  const [searchedCafes, setSearchedCafes] = useState<CafeType[]>(mockCafes); // Track searched cafes
+  const [searchedCafes, setSearchedCafes] = useState<CafeType[]>([]); // Track searched cafes
   const [searchedMarkers, setMarkers] = useState<MarkerType[]>([]);
   const [isNavigating, setIsNavigating] = useState(false);
   const [selectedHours, setSelectedHours] = useState('Any'); // Track selected hours
@@ -154,14 +91,15 @@ export default function NewExplore() {
   };
 
   useEffect(() => {
+    // Debounce the search query to prevent too many requests
     const handler = setTimeout(() => {
       if (debouncedQuery !== searchQuery) {
         setDebouncedQuery(searchQuery);
       }
-    }, 300); // Adjust debounce delay as needed
+    }, 300);
 
     return () => {
-      clearTimeout(handler); // Cleanup previous timeout
+      clearTimeout(handler);
     };
   }, [searchQuery, debouncedQuery]);
 
@@ -181,7 +119,9 @@ export default function NewExplore() {
 
         const response: CafeSearchResponse = await searchCafesFromBackend(searchRequest);
         if (response.error) throw new Error(response.error);
-        const fetchedCafes: CafeType[] = response.cafes;
+
+        // Get top 15 results, since more rendered components can cause performance issues
+        const fetchedCafes: CafeType[] = response.cafes.slice(0, 15);
 
         const cafes = [];
         const markers: MarkerType[] = [];
@@ -218,13 +158,7 @@ export default function NewExplore() {
         console.error('Error searching for cafes:', error);
       }
     };
-    if (debouncedQuery) {
-      console.log('Searching for:', debouncedQuery);
-      searchCafes(debouncedQuery);
-    } else {
-      console.log('No search query');
-      setSearchedCafes(mockCafes); // Reset cafes if query is empty
-    }
+    searchCafes(debouncedQuery);
   }, [debouncedQuery, mapRegion, selectedHours, selectedRating, emojiTags]);
 
   const userLocation = async () => {
@@ -423,7 +357,8 @@ export default function NewExplore() {
             region={mapRegion}
             showsUserLocation={true} // Show the default blue dot for user location
             showsMyLocationButton={true}
-            mapType="standard">
+            mapType="standard"
+            onRegionChangeComplete={(region) => setMapRegion(region)}>
             {searchedMarkers.map((marker, index) => {
               const validMarker: MarkerType = {
                 ...marker,
@@ -433,6 +368,8 @@ export default function NewExplore() {
                 <Marker
                   key={index}
                   coordinate={marker}
+                  anchor={{ x: 0.5, y: 0.5 }}
+                  calloutAnchor={{ x: 0.5, y: 0.5 }}
                   onPress={() => handleMarkerPress(validMarker)}>
                   <CustomMarker marker={validMarker} />
                 </Marker>
