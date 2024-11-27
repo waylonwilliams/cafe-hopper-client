@@ -26,7 +26,7 @@ export type NewReviewType = {
   likes: number;
   profiles: {
     name: string;
-    pfp: string;
+    pfp: string | null;
   };
   reviewLikes: { id: number }[]; // will only ever use the length of this to get the initial state
 };
