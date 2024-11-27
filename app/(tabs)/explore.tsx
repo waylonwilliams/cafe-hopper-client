@@ -363,7 +363,7 @@ export default function NewExplore() {
 
       {searchIsFocused && (
         <View style={styles.filterDropdown}>
-          <ScrollView>
+          <ScrollView showsVerticalScrollIndicator={false}>
             {/* Hours Section */}
             <View style={styles.filterSection}>
               <Text style={styles.filterSectionTitle}>
