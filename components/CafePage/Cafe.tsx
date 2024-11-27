@@ -10,6 +10,8 @@ import {
   getOrCreateList,
   removeCafeFromList,
 } from '@/lib/supabase-utils';
+import { supabase } from '@/lib/supabase';
+import { router } from 'expo-router';
 
 interface Props {
   cafe: CafeType;
@@ -32,7 +34,6 @@ export default function Cafe({
   const [togo, setTogo] = useState(false);
   const [showHours, setShowHours] = useState(false);
   const [loadingReviews, setLoadingReviews] = useState(true);
-
   const [totalReviews, setTotalReviews] = useState(0);
   const [averageRating, setAverageRating] = useState(0);
   const [reviewScales, setReviewScales] = useState([0, 0, 0, 0, 0]);
@@ -42,6 +43,8 @@ export default function Cafe({
   useEffect(() => {
     const loadInitialState = async () => {
       try {
+        const uid = (await supabase.auth.getSession()).data.session?.user.id;
+        if (!uid) return;
         const isLiked = await checkCafeInList(cafe.id, 'liked');
         const isTogo = await checkCafeInList(cafe.id, 'to-go');
         setLiked(isLiked);
@@ -54,51 +57,83 @@ export default function Cafe({
     loadInitialState();
   }, [cafe.id, userId]);
 
+  // Shortcut to add to liked list
   const handleLike = async () => {
     try {
-      const likedId = await getOrCreateList('liked');
-
-      if (liked) {
-        // If currently liked, remove it from the "liked" list
-        await removeCafeFromList(cafe.id, likedId);
+      const uid = (await supabase.auth.getSession()).data.session?.user.id;
+      if (!uid) {
+        router.push('/login');
       } else {
-        // Otherwise, add it to the "liked" list
-        await addCafeToList(cafe.id, likedId);
+        const likedId = await getOrCreateList('liked');
+
+        if (liked) {
+          // If currently liked, remove it from the "liked" list
+          await removeCafeFromList(cafe.id, likedId);
+        } else {
+          // Otherwise, add it to the "liked" list
+          await addCafeToList(cafe.id, likedId);
+        }
+        setLiked(!liked);
       }
-      setLiked(!liked); // Toggle the liked state
     } catch (error) {
       console.error('Error toggling like:', error);
     }
   };
 
+  // Shortcut to add to to-go list
   const handleTogo = async () => {
     try {
-      const togoId = await getOrCreateList('to-go');
-
-      if (togo) {
-        // If currently marked as to-go, remove it from the "to-go" list
-        await removeCafeFromList(cafe.id, togoId);
+      const uid = (await supabase.auth.getSession()).data.session?.user.id;
+      if (!uid) {
+        router.push('/login');
       } else {
-        // Otherwise, add it to the "to-go" list
-        await addCafeToList(cafe.id, togoId);
+        const togoId = await getOrCreateList('to-go');
+
+        if (togo) {
+          // If currently marked as to-go, remove it from the "to-go" list
+          await removeCafeFromList(cafe.id, togoId);
+        } else {
+          // Otherwise, add it to the "to-go" list
+          await addCafeToList(cafe.id, togoId);
+        }
+        setTogo(!togo);
       }
-      setTogo(!togo); // Toggle the togo state
     } catch (error) {
       console.error('Error toggling to-go:', error);
     }
   };
 
+  const handleAddToList = async () => {
+    const uid = (await supabase.auth.getSession()).data.session?.user.id;
+    if (!uid) {
+      router.push('/login');
+    } else {
+      addToList();
+    }
+  };
+
+  const handleLogVisit = async () => {
+    const uid = (await supabase.auth.getSession()).data.session?.user.id;
+    if (!uid) {
+      router.push('/login');
+    } else {
+      logVisit();
+    }
+  };
+
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
+  // Parses the hours string from the database
   const today = days[new Date().getDay()];
   const entries = cafe.hours.split('\n');
   const scheduleDict: { [key: string]: string } = {};
   entries.forEach((entry) => {
-    const [day, ...timeParts] = entry.split(':'); // Split on the first colon
-    const time = timeParts.join(':').trim(); // Join the remaining parts and trim
+    const [day, ...timeParts] = entry.split(':');
+    const time = timeParts.join(':').trim();
     scheduleDict[day.trim()] = time;
   });
 
+  // When the reviews are fetched, calculate the total rating and scale and things like that
   useEffect(() => {
     const numReviews = reviews.length;
     setLoadingReviews(true);
@@ -127,10 +162,9 @@ export default function Cafe({
         gap: 10,
         paddingBottom: 50,
       }}>
-      {/* Name of cafe header */}
+      {/* Main cafe info */}
       <Text style={{ fontSize: 36, fontWeight: 500 }}>{cafe.name}</Text>
 
-      {/* First bar, reviews, quick */}
       <View
         style={{
           flexDirection: 'row',
@@ -141,27 +175,36 @@ export default function Cafe({
         }}>
         <Pressable onPress={handleLike}>
           <View style={{ alignItems: 'center', gap: 2 }}>
-            <Ionicons name={liked ? 'heart' : 'heart-outline'} size={32} color="black" />
+            <Ionicons
+              name={liked ? 'heart' : 'heart-outline'}
+              size={32}
+              color="black"
+              testID={liked ? 'heart' : 'heart-outline'}
+            />
             <Text style={{ color: '#808080' }}>Like</Text>
           </View>
         </Pressable>
 
         <Pressable onPress={handleTogo}>
           <View style={{ alignItems: 'center', gap: 2 }}>
-            <Ionicons name={togo ? 'bookmark' : 'bookmark-outline'} size={30} color="black" />
+            <Ionicons
+              name={togo ? 'bookmark' : 'bookmark-outline'}
+              size={30}
+              color="black"
+              testID={togo ? 'bookmark' : 'bookmark-outline'}
+            />
             <Text style={{ color: '#808080' }}>To-go</Text>
           </View>
         </Pressable>
 
-        {/* fix this logic */}
-        <Pressable onPress={addToList}>
+        <Pressable onPress={handleAddToList}>
           <View style={{ alignItems: 'center', gap: 2 }}>
             <Ionicons name="add-circle-outline" size={32} color="black" />
             <Text style={{ color: '#808080' }}>Add to List</Text>
           </View>
         </Pressable>
 
-        <Pressable onPress={logVisit}>
+        <Pressable onPress={handleLogVisit}>
           <View
             style={{
               flexDirection: 'row',
@@ -178,7 +221,6 @@ export default function Cafe({
         </Pressable>
       </View>
 
-      {/* Opening time and address */}
       <View style={{ paddingTop: 5, gap: 5 }}>
         {showHours && (
           <View style={{ gap: 4 }}>
@@ -217,11 +259,12 @@ export default function Cafe({
         </View>
       )}
 
+      {/* Reviews */}
       {!loadingReviews &&
         (noReviews ? (
           <View style={{ width: '100%', alignItems: 'center', gap: 4 }}>
             <Text style={{ color: '#808080' }}>No reviews yet</Text>
-            <Pressable onPress={logVisit}>
+            <Pressable onPress={handleLogVisit}>
               <Text style={{ color: '#808080', fontWeight: 600, textDecorationLine: 'underline' }}>
                 Be the first to log a visit!
               </Text>
@@ -229,7 +272,6 @@ export default function Cafe({
           </View>
         ) : (
           <>
-            {/* Reviews scales here */}
             <View style={{ gap: 10 }}>
               <Text style={{ fontSize: 24, fontWeight: 600, paddingTop: 5 }}>Reviews</Text>
 
@@ -295,10 +337,25 @@ export default function Cafe({
               </View>
             </View>
 
-            {/* Reviews */}
+            {cafe.summary && (
+              <View
+                style={{
+                  width: '100%',
+                  borderWidth: 1,
+                  borderRadius: 10,
+                  padding: 10,
+                  gap: 4,
+                  marginTop: 5,
+                  backgroundColor: '#F5F5F5',
+                }}>
+                <Text style={{ fontSize: 16, fontWeight: 500 }}>People are saying</Text>
+
+                <Text style={{ padding: 3 }}>{cafe.summary}</Text>
+              </View>
+            )}
+
             <Text style={{ paddingTop: 10, fontSize: 18, fontWeight: 600 }}>Popular reviews</Text>
 
-            {/* Should map them */}
             {reviews.map((review, index) => (
               <Review review={review} key={index} setViewingImages={setViewingImages} />
             ))}

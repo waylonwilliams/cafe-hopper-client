@@ -9,16 +9,17 @@ interface Props {
 }
 
 /**
- * Render this component at the base page on pages where the user will want to expand images, probably only needed otherwise in index page
+ * Render this component at the base page on pages where the user will want to expand images from reviews or maybe like pfp
  * @param images array of strings representing image urls or null, null when nothing should be showed, array of strings when images should be shown
  * @param setImages function to set images array to null when closed
  */
 export default function ImageFullView({ images, setImages }: Props) {
   const insets = useSafeAreaInsets();
 
+  // Don't render anything when there are no images
+  // You don't need to worry about conditionally rendering this component, it will do it
   if (!images) return null;
 
-  // currently using this for image size, would be better to do something else
   const { width } = Dimensions.get('window');
 
   return (
@@ -28,7 +29,7 @@ export default function ImageFullView({ images, setImages }: Props) {
         height: '100%',
         backgroundColor: 'rgba(50, 50, 50, .85)',
       }}>
-      {/* top bar */}
+      {/* Top bar */}
       <View
         style={{
           width: '100%',
@@ -45,7 +46,7 @@ export default function ImageFullView({ images, setImages }: Props) {
           style={{
             position: 'absolute',
             right: 10,
-            top: 12.5, // 12.5 + 25 + 12.5 is middle of the view bar
+            top: 12.5,
             zIndex: 2,
           }}>
           <Ionicons name="close" size={25} color="white" />
@@ -59,7 +60,7 @@ export default function ImageFullView({ images, setImages }: Props) {
         showsHorizontalScrollIndicator={false}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{
-          marginTop: insets.top, // Not sure if this is ideal
+          marginTop: insets.top,
         }}>
         {images.map((image, index) => (
           <Image
