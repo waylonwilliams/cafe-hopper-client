@@ -68,6 +68,7 @@ export default function Explore() {
   const [selectedRating, setSelectedRating] = useState('Any'); // Track selected rating
   const [emojiTags, setEmojiTags] = useState<string[]>([]); // State to track selected emoji tags
   const [searchIsFocused, setSearchIsFocused] = useState(false);
+  const [locationReady, setLocationReady] = useState(false);
 
   const [selectedDay, setSelectedDay] = useState(''); // Track selected day
   const [selectedTime, setSelectedTime] = useState(''); // Track selected time
@@ -152,6 +153,7 @@ export default function Explore() {
   }, [searchQuery, debouncedQuery]);
 
   useEffect(() => {
+    if (!locationReady) return;
     const searchCafes = async (query: string) => {
       try {
         const searchRequest: CafeSearchRequest = {
@@ -207,7 +209,7 @@ export default function Explore() {
       }
     };
     searchCafes(debouncedQuery);
-  }, [debouncedQuery, mapRegion, selectedHours, selectedRating, emojiTags]);
+  }, [debouncedQuery, mapRegion, selectedHours, selectedRating, emojiTags, locationReady]);
 
   const userLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
@@ -230,6 +232,8 @@ export default function Explore() {
     if (mapRef.current) {
       mapRef.current.animateToRegion(newRegion, 1000);
     }
+
+    setLocationReady(true);
   };
 
   useEffect(() => {
