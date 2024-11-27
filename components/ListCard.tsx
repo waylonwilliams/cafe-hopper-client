@@ -64,9 +64,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#000000',
     marginVertical: 8,
-    // marginHorizontal: 8,
-    width: '100%', // Adjust width here
-    minWidth: '100%', // Adjust width here
+    marginHorizontal: 16,
+    maxWidth: '96%',
+    minWidth: '96%',
     overflow: 'hidden',
     position: 'relative',
   },
