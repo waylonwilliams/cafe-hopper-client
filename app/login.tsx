@@ -20,6 +20,7 @@ const LoginScreen = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  // Calls singInWithPassword and navigates to tabs on success
   async function signInWithEmail() {
     // console.log('Email:', email);
     // console.log('Password:', password);
@@ -34,6 +35,7 @@ const LoginScreen = () => {
     setLoading(false);
   }
 
+  // Toggles between secure and actual text
   const toggleShowPassword = () => {
     setShowPassword(!showPassword);
   };
@@ -84,7 +86,7 @@ const LoginScreen = () => {
           <Image source={require('@/assets/images/arrow.png')} />
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={() => router.replace('@/app/signUp')}>
+        <TouchableOpacity onPress={() => router.replace('/signUp')}>
           <Text>Already have an account? Sign Up</Text>
         </TouchableOpacity>
       </View>

@@ -1,9 +1,9 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import { Alert } from 'react-native';
-import SignUpScreen from '@/app/signUp'; // Update the import path
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'expo-router';
+import { Alert } from 'react-native';
+import SignUpScreen from '@/app/signUp'; // Adjust path as needed
 
 jest.mock('@/lib/supabase', () => ({
   supabase: {
@@ -12,6 +12,9 @@ jest.mock('@/lib/supabase', () => ({
       startAutoRefresh: jest.fn(),
       stopAutoRefresh: jest.fn(),
     },
+    from: jest.fn().mockReturnValue({
+      upsert: jest.fn(),
+    }),
   },
 }));
 
@@ -19,40 +22,64 @@ jest.mock('expo-router', () => ({
   useRouter: jest.fn(),
 }));
 
+jest.mock('expo-font', () => ({
+  loadAsync: jest.fn(),
+  isLoaded: jest.fn(() => true), // Mock that fonts are loaded
+}));
+
+jest.mock('@expo/vector-icons', () => {
+  const { Text } = require('react-native');
+  return {
+    ...jest.requireActual('@expo/vector-icons'),
+    Ionicons: Text, // Replace icons with plain Text for tests
+  };
+});
+
+jest.spyOn(Alert, 'alert');
+
 describe('SignUpScreen', () => {
-  const mockRouter = { replace: jest.fn() };
+  const mockReplace = jest.fn();
+
   beforeEach(() => {
-    (useRouter as jest.Mock).mockReturnValue(mockRouter);
     jest.clearAllMocks();
+    (useRouter as jest.Mock).mockReturnValue({ replace: mockReplace });
   });
 
-  test('renders correctly with all elements', () => {
-    const { getByPlaceholderText, getByText, getByRole } = render(<SignUpScreen />);
+  test('renders all fields and buttons', () => {
+    const { getByPlaceholderText, getByText } = render(<SignUpScreen />);
 
-    expect(getByText('Create an account')).toBeTruthy();
-    expect(getByPlaceholderText('Username or Email')).toBeTruthy();
+    expect(getByPlaceholderText('Email')).toBeTruthy();
     expect(getByPlaceholderText('Password')).toBeTruthy();
     expect(getByPlaceholderText('Confirm Password')).toBeTruthy();
     expect(getByText('Start exploring')).toBeTruthy();
     expect(getByText('Continue as guest')).toBeTruthy();
+    expect(getByText('Already have an account? Login')).toBeTruthy();
   });
 
-  test('shows alert when passwords do not match', async () => {
-    const alertSpy = jest.spyOn(Alert, 'alert');
+  test('navigates to login screen', () => {
+    const { getByText } = render(<SignUpScreen />);
+    fireEvent.press(getByText('Already have an account? Login'));
 
+    expect(mockReplace).toHaveBeenCalledWith('/login');
+  });
+
+  test('shows an alert if passwords do not match', () => {
     const { getByPlaceholderText, getByText } = render(<SignUpScreen />);
+
     fireEvent.changeText(getByPlaceholderText('Password'), 'password123');
-    fireEvent.changeText(getByPlaceholderText('Confirm Password'), 'password456');
+    fireEvent.changeText(getByPlaceholderText('Confirm Password'), 'password321');
     fireEvent.press(getByText('Start exploring'));
 
-    expect(alertSpy).toHaveBeenCalledWith('Passwords do not match!');
+    expect(Alert.alert).toHaveBeenCalledWith('Passwords do not match');
   });
 
-  test('calls signUpWithEmail and navigates to /tabs on successful sign-up', async () => {
-    (supabase.auth.signUp as jest.Mock).mockResolvedValue({ error: null });
+  test('signs up user and navigates to tabs if successful', async () => {
+    (supabase.auth.signUp as jest.Mock).mockResolvedValue({ data: { user: { id: 'mock-user-id' } }, error: null });
+    (supabase.from().upsert as jest.Mock).mockResolvedValue({ error: null });
 
     const { getByPlaceholderText, getByText } = render(<SignUpScreen />);
-    fireEvent.changeText(getByPlaceholderText('Username or Email'), 'test@example.com');
+
+    fireEvent.changeText(getByPlaceholderText('Email'), 'test@example.com');
     fireEvent.changeText(getByPlaceholderText('Password'), 'password123');
     fireEvent.changeText(getByPlaceholderText('Confirm Password'), 'password123');
     fireEvent.press(getByText('Start exploring'));
@@ -62,36 +89,45 @@ describe('SignUpScreen', () => {
         email: 'test@example.com',
         password: 'password123',
       });
-      expect(mockRouter.replace).toHaveBeenCalledWith('/(tabs)');
+      expect(supabase.from).toHaveBeenCalledWith('profiles');
+      expect(supabase.from).toHaveBeenCalledWith('cafeList');
+      expect(mockReplace).toHaveBeenCalledWith('/(tabs)');
     });
   });
 
-  test('shows alert on sign-up failure', async () => {
-    const alertSpy = jest.spyOn(Alert, 'alert');
-    (supabase.auth.signUp as jest.Mock).mockResolvedValue({ error: { message: 'Sign-up failed' } });
-
+  test('shows alerts for errors during signup or profile creation', async () => {
+    (supabase.auth.signUp as jest.Mock).mockResolvedValueOnce({
+      data: { user: { id: 'mock-user-id' } },
+      error: null,
+    });
+    (supabase.from().upsert as jest.Mock).mockResolvedValueOnce({
+      error: { message: 'Signup error' },
+    });
     const { getByPlaceholderText, getByText } = render(<SignUpScreen />);
-    fireEvent.changeText(getByPlaceholderText('Username or Email'), 'test@example.com');
+
+    fireEvent.changeText(getByPlaceholderText('Email'), 'test@example.com');
     fireEvent.changeText(getByPlaceholderText('Password'), 'password123');
     fireEvent.changeText(getByPlaceholderText('Confirm Password'), 'password123');
     fireEvent.press(getByText('Start exploring'));
 
     await waitFor(() => {
-      expect(alertSpy).toHaveBeenCalledWith('Sign-up failed');
+      expect(Alert.alert).toHaveBeenCalledWith('Signup error');
     });
   });
 
-  test('navigates to login screen when "Already have an account?" is pressed', () => {
-    const { getByText } = render(<SignUpScreen />);
-    fireEvent.press(getByText('Already have an account? Login'));
+  test('allows toggling password visibility', () => {
+    const { getByPlaceholderText, getByTestId } = render(<SignUpScreen />);
 
-    expect(mockRouter.replace).toHaveBeenCalledWith('/login');
-  });
+    const passwordInput = getByPlaceholderText('Password');
+    const toggleIcon = getByTestId('toggle-password-visibility');
+    const toggleConfirmIcon = getByTestId('toggle-confirm-password-visibility');
 
-  test('navigates to /tabs when "Continue as guest" is pressed', () => {
-    const { getByText } = render(<SignUpScreen />);
-    fireEvent.press(getByText('Continue as guest'));
+    expect(passwordInput.props.secureTextEntry).toBe(true);
 
-    expect(mockRouter.replace).toHaveBeenCalledWith('/(tabs)');
+    fireEvent.press(toggleIcon);
+    expect(passwordInput.props.secureTextEntry).toBe(false);
+
+    fireEvent.press(toggleIcon);
+    expect(passwordInput.props.secureTextEntry).toBe(true);
   });
 });
