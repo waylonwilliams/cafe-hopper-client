@@ -175,7 +175,12 @@ export default function Cafe({
         }}>
         <Pressable onPress={handleLike}>
           <View style={{ alignItems: 'center', gap: 2 }}>
-            <Ionicons name={liked ? 'heart' : 'heart-outline'} size={32} color="black" />
+            <Ionicons
+              name={liked ? 'heart' : 'heart-outline'}
+              size={32}
+              color="black"
+              testID={liked ? 'heart' : 'heart-outline'}
+            />
             <Text style={{ color: '#808080' }}>Like</Text>
           </View>
         </Pressable>
