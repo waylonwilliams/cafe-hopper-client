@@ -1,5 +1,5 @@
 import Ionicons from '@expo/vector-icons/Ionicons';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { Alert, Pressable, ScrollView, Text, View } from 'react-native';
 import { CafeType } from '@/components/CafePage/CafeTypes';
 import { addCafeToList, removeCafeFromList, checkCafeInList } from '@/lib/supabase-utils';
@@ -19,8 +19,8 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
   >([]);
   const [isNewListVisible, setIsNewListVisible] = useState(false);
 
-  // Define fetchUserLists within AddToList
-  const fetchUserLists = async () => {
+  // Wrap fetchUserLists with useCallback
+  const fetchUserLists = useCallback(async () => {
     try {
       const { data: userLists, error } = await supabase
         .from('cafeList')
@@ -52,7 +52,7 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
     } catch (error) {
       console.error('Error fetching lists:', error);
     }
-  };
+  }, [userId, cafe.id]); // Add dependencies here
 
   useEffect(() => {
     fetchUserLists();
