@@ -1,5 +1,5 @@
 import React from 'react';
-import { Animated, View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import { MaterialIcons, FontAwesome } from '@expo/vector-icons';
 import { CafeType } from './CafePage/CafeTypes'; // Import icon libraries
 
