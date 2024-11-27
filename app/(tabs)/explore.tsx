@@ -23,7 +23,6 @@ import EmojiTag from '@/components/EmojiTag';
 import { cafeTags } from '@/components/CafePage/CafeTypes';
 import { searchCafesFromBackend } from '@/lib/backend';
 import { CafeSearchRequest, CafeSearchResponse } from '@/lib/backend-types';
-import { Animated } from 'react-native';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -96,6 +95,29 @@ export default function NewExplore() {
     latitudeDelta: 0.005,
     longitudeDelta: 0.005,
   });
+
+  const daysOfWeek = [
+    { label: 'Monday', value: 'Monday' },
+    { label: 'Tuesday', value: 'Tuesday' },
+    { label: 'Wednesday', value: 'Wednesday' },
+    { label: 'Thursday', value: 'Thursday' },
+    { label: 'Friday', value: 'Friday' },
+    { label: 'Saturday', value: 'Saturday' },
+    { label: 'Sunday', value: 'Sunday' },
+  ];
+
+  const timesOfDay = [
+    { label: '8:00 AM', value: '08:00' },
+    { label: '9:00 AM', value: '09:00' },
+    { label: '10:00 AM', value: '10:00' },
+    { label: '11:00 AM', value: '11:00' },
+    { label: '12:00 PM', value: '12:00' },
+    { label: '1:00 PM', value: '13:00' },
+    { label: '2:00 PM', value: '14:00' },
+    { label: '3:00 PM', value: '15:00' },
+    { label: '4:00 PM', value: '16:00' },
+  ];
+
   const [scale, setScale] = useState(1); // Scale state for dynamic resizing
   const mapRef = useRef<MapView>(null); // Reference to the MapView
   const router = useRouter(); // Get the router instance from expo-router
@@ -106,10 +128,21 @@ export default function NewExplore() {
   const [searchedCafes, setSearchedCafes] = useState<CafeType[]>(mockCafes); // Track searched cafes
   const [searchedMarkers, setMarkers] = useState<MarkerType[]>([]);
   const [isNavigating, setIsNavigating] = useState(false);
-  const [selectedHours, setSelectedHours] = useState('Any'); // Track selected hours
   const [selectedRating, setSelectedRating] = useState('Any'); // Track selected rating
   const [emojiTags, setEmojiTags] = useState<string[]>([]); // State to track selected emoji tags
   const [searchIsFocused, setSearchIsFocused] = useState(false);
+
+  const [selectedDay, setSelectedDay] = useState(''); // Track selected day
+  const [selectedTime, setSelectedTime] = useState(''); // Track selected time
+  const [selectedHours, setSelectedHours] = useState('Any'); // Track selected hours
+  const [selectedHour, setSelectedHour] = useState<number | null>(null); // Selected hour
+  const [selectedPeriod, setSelectedPeriod] = useState<string>('AM'); // Selected period (AM/PM)
+
+  const handleCustomHourChange = (day: string, time: string) => {
+    setSelectedDay(day);
+    setSelectedTime(time);
+    // Custom logic to handle selected custom hours can go here
+  };
 
   const calculateZoomLevel = (latitudeDelta: number) => {
     // Approximate calculation of zoom level based on latitudeDelta
@@ -359,10 +392,110 @@ export default function NewExplore() {
                     styles.filterButton,
                     selectedHours === 'Custom' ? styles.activeFilterButton : null,
                   ]}
-                  onPress={() => handleHourClick('Custom')}>
+                  onPress={() => setSelectedHours('Custom')}>
                   <Text>Custom</Text>
                 </Pressable>
               </View>
+              {selectedHours === 'Custom' && (
+                <View style={styles.customHourContainer}>
+                  {/* Days of the Week */}
+                  <Text style={styles.customHourLabel}>Select Day:</Text>
+                  <View style={styles.daysRow}>
+                    {daysOfWeek.map((day, index) => (
+                      <Pressable
+                        key={index}
+                        style={[
+                          styles.smallCircleButton,
+                          selectedDay === day.value ? styles.activeSmallCircleButton : null,
+                        ]}
+                        onPress={() => setSelectedDay(day.value)}>
+                        <Text
+                          style={[
+                            styles.smallCircleButtonText,
+                            selectedDay === day.value ? styles.activeSmallCircleButtonText : null,
+                          ]}>
+                          {day.label.slice(0, 3).toUpperCase()}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
+
+                  {/* Times of the Day */}
+                  <Text style={styles.customHourLabel}>Select Time:</Text>
+                  <View style={styles.twoRowContainer}>
+                    {/* First row: Hours 1-6 */}
+                    <View style={styles.hourRow}>
+                      {Array.from({ length: 6 }, (_, i) => i + 1).map((hour) => (
+                        <Pressable
+                          key={hour}
+                          style={[
+                            styles.smallCircleButton,
+                            selectedTime === hour.toString()
+                              ? styles.activeSmallCircleButton
+                              : null,
+                          ]}
+                          onPress={() => setSelectedTime(hour.toString())}>
+                          <Text
+                            style={[
+                              styles.smallCircleButtonText,
+                              selectedTime === hour.toString()
+                                ? styles.activeSmallCircleButtonText
+                                : null,
+                            ]}>
+                            {hour}
+                          </Text>
+                        </Pressable>
+                      ))}
+                    </View>
+
+                    {/* Second row: Hours 7-12 */}
+                    <View style={styles.hourRow}>
+                      {Array.from({ length: 6 }, (_, i) => i + 7).map((hour) => (
+                        <Pressable
+                          key={hour}
+                          style={[
+                            styles.smallCircleButton,
+                            selectedTime === hour.toString()
+                              ? styles.activeSmallCircleButton
+                              : null,
+                          ]}
+                          onPress={() => setSelectedTime(hour.toString())}>
+                          <Text
+                            style={[
+                              styles.smallCircleButtonText,
+                              selectedTime === hour.toString()
+                                ? styles.activeSmallCircleButtonText
+                                : null,
+                            ]}>
+                            {hour}
+                          </Text>
+                        </Pressable>
+                      ))}
+                    </View>
+                  </View>
+
+                  {/* AM/PM Toggle */}
+                  <View style={styles.amPmContainer}>
+                    {['AM', 'PM'].map((period) => (
+                      <Pressable
+                        key={period}
+                        style={[
+                          styles.smallCircleButton,
+                          selectedPeriod === period ? styles.activeSmallCircleButton : null,
+                        ]}
+                        onPress={() => setSelectedPeriod(period)}>
+                        <Text
+                          style={[
+                            styles.smallCircleButtonText,
+                            selectedPeriod === period ? styles.activeSmallCircleButtonText : null,
+                          ]}>
+                          {period}
+                        </Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                </View>
+              )}
             </View>
 
             {/* Ratings Section */}
@@ -617,5 +750,80 @@ const styles = StyleSheet.create({
   },
   filterIcon: {
     marginRight: 5,
+  },
+
+  circleButtonContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-evenly',
+    marginVertical: 5,
+  },
+  circleButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    margin: 5,
+    backgroundColor: '#fff',
+  },
+  activeCircleButton: {
+    backgroundColor: '#c9c9c9',
+    borderColor: '#000',
+  },
+
+  customHourContainer: {
+    marginTop: 20,
+    padding: 10,
+    backgroundColor: '#f9f9f9',
+    borderRadius: 10,
+  },
+  customHourLabel: {
+    fontSize: 16,
+    marginBottom: 5,
+    textAlign: 'center',
+  },
+  daysRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around', // Ensures equal spacing
+    marginTop: 10,
+    marginBottom: 15,
+  },
+
+  twoRowContainer: {
+    marginVertical: 10,
+  },
+  hourRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    marginBottom: 10,
+  },
+  smallCircleButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#ddd',
+    backgroundColor: '#fff',
+  },
+  activeSmallCircleButton: {
+    backgroundColor: '#007AFF',
+    borderColor: '#007AFF',
+  },
+  smallCircleButtonText: {
+    fontSize: 12,
+    color: '#555',
+  },
+  activeSmallCircleButtonText: {
+    color: '#fff',
+  },
+  amPmContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 10,
   },
 });
