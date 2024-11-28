@@ -6,12 +6,20 @@ import { addCafeToList, removeCafeFromList, checkCafeInList } from '@/lib/supaba
 import { supabase } from '@/lib/supabase';
 import NewList from './NewList';
 
+/**
+ * Component for adding a cafe to a user's list.
+ *
+ * Displays the user's lists, allows toggling cafe selection for each list,
+ * and supports creating new lists.
+ */
+
 interface Props {
   setAddingToList: (arg: boolean) => void;
   cafe: CafeType;
   userId: string;
   updateCafeView: (listName: string, selected: boolean) => void; // Callback to update cafe view icons for "liked" and "to-go"
 }
+
 
 export default function AddToList({ setAddingToList, cafe, userId, updateCafeView }: Props) {
   const [lists, setLists] = useState<
@@ -21,10 +29,11 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
   const [loading, setLoading] = useState(true); // State for loading spinner
 
   // Wrap fetchUserLists with useCallback
+  // Fetch the user's lists from the database
   const fetchUserLists = useCallback(async () => {
     try {
-      setLoading(true); // Start spinner
-
+      setLoading(true); //  // Show spinner while fetching data
+      // Fetch lists created by the user from the "cafeList" table
       const { data: userLists, error } = await supabase
         .from('cafeList')
         .select('id, list_name, public')
@@ -32,6 +41,7 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
 
       if (error) throw error;
 
+      // Update lists with their details and whether the cafe is in each list
       const updatedLists = await Promise.all(
         (userLists || []).map(async (list) => {
           const isSelected = await checkCafeInList(cafe.id, list.list_name);
@@ -51,28 +61,32 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
           };
         }),
       );
-      setLists(updatedLists);
+      setLists(updatedLists); // Update the state with fetched and processed lists
     } catch (error) {
       console.error('Error fetching lists:', error);
     } finally {
-      setLoading(false); // Stop spinner
+      setLoading(false); // Hide spinner when done
     }
-  }, [userId, cafe.id]); // Add dependencies here
+  }, [userId, cafe.id]);
 
+  // Fetch the user's lists on component mount or when dependencies change
   useEffect(() => {
     fetchUserLists();
   }, [userId, cafe.id, fetchUserLists]);
 
+  // Callback when a new list is created to refresh the lists
   const handleNewListCreated = () => {
     setIsNewListVisible(false);
     fetchUserLists(); // Refresh the lists when a new one is created
   };
 
+  // Toggle the selection status of a list for the current cafe
   function toggleListSelection(listId: string, listName: string) {
     setLists((prevLists) =>
       prevLists.map((list) => {
         if (list.id === listId) {
           const newSelected = !list.selected;
+          // Update the cafe view for specific lists (e.g., "liked", "to-go")
           if (listName.toLowerCase() === 'liked' || listName.toLowerCase() === 'to-go') {
             updateCafeView(listName, newSelected); // Only update cafe view for "liked" and "to-go"
           }
@@ -83,6 +97,7 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
     );
   }
 
+  // Handle adding/removing the cafe from selected lists
   async function handleAddToList() {
     try {
       for (const list of lists) {
@@ -102,6 +117,7 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
     }
   }
 
+  // Determine the appropriate icon for a list (e.g., "heart" for "liked")
   function getListIcon(listName: string) {
     if (listName.toLowerCase() === 'liked') {
       return 'heart';

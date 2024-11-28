@@ -26,13 +26,14 @@ import { CafeSearchRequest, CafeSearchResponse } from '@/lib/backend-types';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 export default function Explore() {
+  // Map region state for initial and updated location
   const [mapRegion, setMapRegion] = useState({
     latitude: 5.603717,
     longitude: -0.186964,
     latitudeDelta: 0.005,
     longitudeDelta: 0.005,
   });
-
+  // Predefined options for filters
   const daysOfWeek = [
     { label: 'Monday', value: 'Monday' },
     { label: 'Tuesday', value: 'Tuesday' },
@@ -42,19 +43,7 @@ export default function Explore() {
     { label: 'Saturday', value: 'Saturday' },
     { label: 'Sunday', value: 'Sunday' },
   ];
-
-  const timesOfDay = [
-    { label: '8:00 AM', value: '08:00' },
-    { label: '9:00 AM', value: '09:00' },
-    { label: '10:00 AM', value: '10:00' },
-    { label: '11:00 AM', value: '11:00' },
-    { label: '12:00 PM', value: '12:00' },
-    { label: '1:00 PM', value: '13:00' },
-    { label: '2:00 PM', value: '14:00' },
-    { label: '3:00 PM', value: '15:00' },
-    { label: '4:00 PM', value: '16:00' },
-  ];
-
+  // States for various UI and search functionalities
   const [scale, setScale] = useState(1); // Scale state for dynamic resizing
   const mapRef = useRef<MapView>(null); // Reference to the MapView
   const router = useRouter(); // Get the router instance from expo-router
@@ -69,32 +58,27 @@ export default function Explore() {
   const [emojiTags, setEmojiTags] = useState<string[]>([]); // State to track selected emoji tags
   const [searchIsFocused, setSearchIsFocused] = useState(false);
   const [locationReady, setLocationReady] = useState(false);
-
+  // States for filtering based on time
   const [selectedDay, setSelectedDay] = useState(''); // Track selected day
   const [selectedTime, setSelectedTime] = useState(''); // Track selected time
   const [selectedHours, setSelectedHours] = useState('Any'); // Track selected hours
-  const [selectedHour, setSelectedHour] = useState<number | null>(null); // Selected hour
   const [selectedPeriod, setSelectedPeriod] = useState<string>('AM'); // Selected period (AM/PM)
-
-  const handleCustomHourChange = (day: string, time: string) => {
-    setSelectedDay(day);
-    setSelectedTime(time);
-    // Custom logic to handle selected custom hours can go here
-  };
 
   const calculateZoomLevel = (latitudeDelta: number) => {
     // Approximate calculation of zoom level based on latitudeDelta
     return Math.log2(360 / latitudeDelta);
   };
 
+  // Update region and scale dynamically when map region changes
   const handleRegionChangeComplete = (region: typeof mapRegion) => {
     setMapRegion(region);
     const zoomLevel = calculateZoomLevel(region.latitudeDelta);
     const newScale = Math.min(Math.max(zoomLevel / 15, 0.5), 1.5); // Normalize scale between 0.5 and 1.5
     setScale(newScale);
-    setMapRegion(region); // Update the map region state
+    setMapRegion(region);
   };
 
+  // Handle marker press to navigate to cafe details
   const handleMarkerPress = (marker: MarkerType) => {
     // Navigate to cafe view and pass marker data as parameters
     console.log('Navigating to cafe', marker.name);
@@ -103,6 +87,7 @@ export default function Explore() {
     }
   };
 
+  // Navigate to cafe details page
   const navigateToCafe = (cafe: CafeType) => {
     if (isNavigating) {
       return;
@@ -138,9 +123,8 @@ export default function Explore() {
       setIsNavigating(false);
     }
   };
-
+  // Debounce the search query to prevent too many requests
   useEffect(() => {
-    // Debounce the search query to prevent too many requests
     const handler = setTimeout(() => {
       if (debouncedQuery !== searchQuery) {
         setDebouncedQuery(searchQuery);
@@ -152,6 +136,7 @@ export default function Explore() {
     };
   }, [searchQuery, debouncedQuery]);
 
+  // Fetch cafes based on search query and filters
   useEffect(() => {
     if (!locationReady) return;
     const searchCafes = async (query: string) => {
@@ -211,6 +196,7 @@ export default function Explore() {
     searchCafes(debouncedQuery);
   }, [debouncedQuery, mapRegion, selectedHours, selectedRating, emojiTags, locationReady]);
 
+  // Request user location and update the map
   const userLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
@@ -306,7 +292,6 @@ export default function Explore() {
             {/* Hours Section */}
             <View style={styles.filterSection}>
               <Text style={styles.filterSectionTitle}>
-                {/* idk why the icon is floating weird */}
                 <MaterialIcons name="schedule" size={16} /> Hours
               </Text>
               <View style={styles.filterButtonsContainer}>
@@ -692,29 +677,6 @@ const styles = StyleSheet.create({
   filterIcon: {
     marginRight: 5,
   },
-
-  circleButtonContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-evenly',
-    marginVertical: 5,
-  },
-  circleButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    margin: 5,
-    backgroundColor: '#fff',
-  },
-  activeCircleButton: {
-    backgroundColor: '#c9c9c9',
-    borderColor: '#000',
-  },
-
   customHourContainer: {
     marginTop: 20,
     padding: 10,
@@ -732,7 +694,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 15,
   },
-
   twoRowContainer: {
     marginVertical: 10,
   },

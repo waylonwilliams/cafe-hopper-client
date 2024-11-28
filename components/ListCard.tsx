@@ -8,6 +8,7 @@ interface ListCardProps {
 }
 
 const ListCard: React.FC<ListCardProps> = ({ cafe }) => {
+  //array for mock images
   const mockImageUrls = [
     'https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/posts/public/listcardDefault.jpg',
     'https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/posts/public/mockCafe.jpg',
@@ -23,11 +24,14 @@ const ListCard: React.FC<ListCardProps> = ({ cafe }) => {
     const randomIndex = Math.floor(Math.random() * mockImageUrls.length);
     return mockImageUrls[randomIndex];
   };
-
+  // Randomly selected mock image URL
   const mockImageUrl = getRandomImage();
+
+  // Get the current day of the week as string 
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const today = days[new Date().getDay()];
 
+  // Parse the cafe's hours into a dictionary for easy lookup
   const entries = cafe.hours ? cafe.hours.split('\n') : [];
   const scheduleDict: { [key: string]: string } = {};
   entries.forEach((entry) => {
