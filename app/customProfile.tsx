@@ -109,7 +109,6 @@ export default function Index() {
 
         {/* Profile */}
         <View style={styles.pfpContainer}>
-          {/* PLACEHOLDER --  ADD IMAGE UPLOAD*/}
           <Image
             style={styles.pfp}
             source={

@@ -17,7 +17,7 @@ import { supabase } from '@/lib/supabase';
 import * as Location from 'expo-location';
 import { Link, useRouter, useFocusEffect } from 'expo-router';
 import Card from '@/components/Card';
-import FeedComponent from '@/components/FeedPost';
+import FeedComponent, { Feed } from '@/components/FeedPost';
 import { CafeSearchRequest, CafeSearchResponse } from '@/lib/backend-types';
 import { searchCafesFromBackend } from '@/lib/backend';
 import { Skeleton } from '@/components/Skeleton';
@@ -25,53 +25,9 @@ import ImageFullView from '@/components/CafePage/ImageFullView';
 
 const { width } = Dimensions.get('window');
 
-//Dummy Feed Posts TESTING ONLY
-const mockFeed = [
-  {
-    id: 1,
-    name: 'Jane',
-    action: 'reviewed',
-    location: 'Kyoto, Japan',
-    cafe: 'Maccha House',
-    date: 'Oct 6',
-    review: {
-      images: [
-        'https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/posts/public/mockMatcha.jpg',
-      ],
-      tags: ['🍵 Matcha', '🪴 Ambiance'],
-      rating: 7,
-    },
-  },
-  {
-    id: 2,
-    name: 'Nana',
-    action: 'rated',
-    location: 'Santa Cruz, California',
-    cafe: 'Cat and Cloud',
-    date: 'Oct 3',
-    review: {
-      description: 'Amazing coffee, loved the ambiance!',
-      images: [],
-      tags: ['☕ Coffee', '🪴 Ambiance'],
-      rating: 8,
-    },
-  },
-  {
-    id: 1,
-    name: 'John',
-    action: 'revisited',
-    location: 'Seoul, Korea',
-    cafe: 'Dotopda',
-    date: 'Sep 28',
-    review: {
-      tags: ['🎶 Good music'],
-      rating: 10,
-    },
-  },
-];
-
 export default function Home() {
   const [isLoading, setIsLoading] = useState(true);
+  const [feedLoading, setFeedLoading] = useState(true);
   const [userRegion, setUserRegion] = useState<{
     latitude: number;
     longitude: number;
@@ -91,9 +47,11 @@ export default function Home() {
   const [name, setName] = useState<string>('');
 
   // For feed posts
-  const [feed, setFeed] = useState<NewReviewType[]>([]);
+  const [feed, setFeed] = useState<Feed[]>([]);
   const [feedUsers, setFeedUsers] = useState<Map<string, string>>(new Map());
   const [feedPfps, setFeedPfps] = useState<Map<string, string>>(new Map());
+  const [feedCafeNames, setFeedCafeNames] = useState<Map<string, string>>(new Map());
+  const [feedCafeLocs, setFeedCafeLocs] = useState<Map<string, string>>(new Map());
 
   const popCafeSkeletons = () => {
     return new Array(6).fill(null).map((_, index) => (
@@ -226,7 +184,7 @@ export default function Home() {
     const { data: users, error } = await supabase
       .from('profiles')
       .select('user_id, name, pfp')
-      .eq('user_id', userIds);
+      .in('user_id', userIds);
 
     if (error) {
       console.error('Error fetching user details for feed: ', error);
@@ -245,61 +203,92 @@ export default function Home() {
     setFeedPfps(pfpMap);
   };
 
-  const fetchCafeInfo = async (cafeId: string) => {
-    const { data: cafe, error } = await supabase
+  const fetchCafeInfo = async (cafeIds: string[]) => {
+    const { data: cafes, error } = await supabase
       .from('cafes')
-      .select('title, address')
-      .eq('id', cafeId)
-      .single();
+      .select('id, name, address')
+      .in('id', cafeIds);
 
     if (error) {
       console.error('Error fetching cafe details:', error);
       return null;
     }
 
-    if (!cafe) {
-      console.log('No cafe found with the given cafe_id');
+    if (!cafes) {
+      console.log('No cafes found with the given cafe_ids');
       return null;
     }
+
+    const cafeMap = new Map<string, string>();
+    const locMap = new Map<string, string>();
+    cafes.forEach((cafe) => {
+      cafeMap.set(cafe.id, cafe.name);
+
+      // Format location
+      const regex = /(?:,\s*)([^,]+),\s*([A-Za-z]{2})\s*\d+,\s*([^,]+)$/;
+      const match = cafe.address.match(regex);
+      if (match) {
+        const formattedCafe = `${match[1]}, ${match[2]}, ${match[3]}`;
+        locMap.set(cafe.id, formattedCafe);
+      } else {
+        locMap.set(cafe.id, cafe.address);
+      }
+    });
+
+    setFeedCafeNames(cafeMap);
+    setFeedCafeLocs(locMap);
   };
 
-  const fetchFeed = async () => {
+  const fetchFeed = useCallback(async () => {
     // Fetch list of top reviews in database from past week
     const { data, error } = await supabase
       .from('reviews')
       .select('*')
       .order('created_at', { ascending: false })
-      .limit(3);
+      .limit(5);
 
     if (error) {
       console.error('Error fetching reviews: ', error);
       return;
-    } else {
-      //fetch names, pfps
-      const userIds = [...new Set(reviews.map((review) => review.user_id))];
-      if (userIds.length > 0) {
-        await fetchUserInfo(userIds);
-      }
+    }
 
-      const formattedFeed = data.map((item) => ({
+    // Fetch names, pfps, cafes
+    const userIds = [...new Set(data.map((review) => review.user_id))];
+    if (userIds.length > 0) {
+      await fetchUserInfo(userIds);
+    }
+    const cafeIds = [...new Set(data.map((review) => review.cafe_id))];
+    if (cafeIds.length > 0) {
+      await fetchCafeInfo(cafeIds);
+    }
+
+    // Create formatted list of Feed objects
+    const formattedFeed = data.map((item) => {
+      const new_date = new Date(item.created_at);
+      const formattedDate: string = new_date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+      });
+      return {
         id: item.id,
         name: feedUsers.get(item.user_id),
-        pfp: feedPfps.get(item.user_id) ?? null,
+        pfp: feedPfps.get(item.user_id),
         action: item.description ? 'reviewed' : 'rated', // Replace or customize based on your logic
-        cafe: item.cafe_id,
-        location: item.cafe.location,
-        date: item.created_at,
+        cafe: feedCafeNames.get(item.cafe_id),
+        location: feedCafeLocs.get(item.cafe_id),
+        date: formattedDate,
         review: {
           description: item.description,
           images: item.images,
           tags: item.tags,
           rating: item.rating,
         },
-      }));
-    }
+      };
+    });
 
-    // Create formatted list of Feed objects
-  };
+    setFeed(formattedFeed);
+    setFeedLoading(false);
+  }, [feedCafeLocs, feedCafeNames, feedPfps, feedUsers]);
 
   // Fetch Popular Cafes
   const getCafes = useCallback(async () => {
@@ -313,7 +302,6 @@ export default function Home() {
           },
           sortBy: 'distance',
         };
-        console.log('Req body: ', requestBody);
         const response: CafeSearchResponse = await searchCafesFromBackend(requestBody);
 
         if (response.error) {
@@ -344,7 +332,6 @@ export default function Home() {
 
         setPopCafes(cafes);
         setIsLoading(false);
-        console.log('searched successfully');
       } catch (error) {
         console.log('error searching', error);
       }
@@ -354,6 +341,7 @@ export default function Home() {
   useEffect(() => {
     getLoc();
     fetchReviews();
+    fetchFeed();
   }, []);
 
   useEffect(() => {
@@ -364,135 +352,135 @@ export default function Home() {
 
   return (
     <>
-    <SafeAreaView>
-      <ScrollView showsVerticalScrollIndicator={false}>
-        <View style={styles.container}>
-          {/* Greeting */}
-          <Text style={styles.greeting}>Hello, {name}!</Text>
-
-          {/* Header */}
-          <Text style={styles.heading}>Where's your next </Text>
-          <Text style={{ color: '#8a8888', fontSize: 24 }}>cafe adventure?</Text>
-
-          {/* Search Bar */}
-          <Link style={styles.searchWrapper} href={{ pathname: '/(tabs)/explore' }} asChild>
-            <Pressable>
-              <Icon name="search" size={20} color="#8a8888"></Icon>
-              <Text style={styles.search}>Search a cafe, profile, etc.</Text>
-            </Pressable>
-          </Link>
-
-          {/* Popular */}
-          <Text style={styles.popularHeader}>Popular near you</Text>
-          <View style={styles.popInfo}>
-            <TouchableOpacity activeOpacity={0.6} style={styles.locButton} onPress={getLoc}>
-              <Icon name="location-pin" size={15} color="#8a8888"></Icon>
-              <Text style={{ color: '#8a8888' }}>{loc ? loc : 'No location found'}</Text>
-            </TouchableOpacity>
-
-            <Link href={{ pathname: '/(tabs)/explore' }} asChild>
+      <SafeAreaView>
+        <ScrollView showsVerticalScrollIndicator={false}>
+          <View style={styles.container}>
+            {/* Greeting */}
+            <Text style={styles.greeting}>Hello, {name}!</Text>
+            {/* Header */}
+            <Text style={styles.heading}>Where's your next </Text>
+            <Text style={{ color: '#8a8888', fontSize: 24 }}>cafe adventure?</Text>
+            {/* Search Bar */}
+            <Link style={styles.searchWrapper} href={{ pathname: '/(tabs)/explore' }} asChild>
               <Pressable>
-                <Text style={styles.popBrowse}>Browse all</Text>
+                <Icon name="search" size={20} color="#8a8888"></Icon>
+                <Text style={styles.search}>Search a cafe, profile, etc.</Text>
               </Pressable>
             </Link>
-          </View>
+            {/* Popular */}
+            <Text style={styles.popularHeader}>Popular near you</Text>
+            <View style={styles.popInfo}>
+              <TouchableOpacity activeOpacity={0.6} style={styles.locButton} onPress={getLoc}>
+                <Icon name="location-pin" size={15} color="#8a8888"></Icon>
+                <Text style={{ color: '#8a8888' }}>{loc ? loc : 'No location found'}</Text>
+              </TouchableOpacity>
 
-          {/* Cafe Carousel */}
-          <View>
-            {/* LOAD SKELETONS AS CAFES FETCH */}
-            {isLoading ? (
-              <FlatList
-                data={popCafeSkeletons()}
-                renderItem={({ item }) => item}
-                keyExtractor={(_, index) => index.toString()}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingHorizontal: 10 }}
-              />
+              <Link href={{ pathname: '/(tabs)/explore' }} asChild>
+                <Pressable>
+                  <Text style={styles.popBrowse}>Browse all</Text>
+                </Pressable>
+              </Link>
+            </View>
+            {/* Cafe Carousel */}
+            <View>
+              {/* LOAD SKELETONS AS CAFES FETCH */}
+              {isLoading ? (
+                <FlatList
+                  data={popCafeSkeletons()}
+                  renderItem={({ item }) => item}
+                  keyExtractor={(_, index) => index.toString()}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ paddingHorizontal: 10 }}
+                />
+              ) : (
+                <FlatList
+                  data={popCafes}
+                  keyExtractor={(item) => item.id.toString()}
+                  renderItem={({ item }) => {
+                    return (
+                      <Pressable
+                        onPress={() => {
+                          router.push({
+                            pathname: '/cafe',
+                            params: {
+                              id: item.id,
+                              created_at: item.created_at ? item.created_at : '',
+                              name: item.name,
+                              address: item.address,
+                              hours: item.hours ? item.hours : '',
+                              latitude: item.latitude,
+                              longitude: item.longitude,
+                              tags: item.tags ? item.tags : [],
+                              image: item.image ? item.image : '',
+                              summary: item.summary ? item.summary : '',
+                              rating: item.rating,
+                              num_reviews: item.num_reviews,
+                            },
+                          });
+                        }}>
+                        <Card cafe={item} />
+                      </Pressable>
+                    );
+                  }}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={{ paddingHorizontal: 10 }}
+                />
+              )}
+            </View>
+            {/* Popular Reviews */}
+            <View style={styles.reviewContainer}>
+              <Text style={styles.popularHeader}>Popular Reviews this Week</Text>
+            </View>
+            <View style={styles.reviewCarousel}>
+              {/* Left Arrow */}
+              {currentIndex > 0 && (
+                <TouchableOpacity onPress={handlePrevious} style={styles.arrow}>
+                  <Text style={styles.arrowText}>{'<'}</Text>
+                </TouchableOpacity>
+              )}
+
+              {/* Review Content */}
+              {reviews[currentIndex] && (
+                <View style={styles.reviewContainer}>
+                  <Review review={reviews[currentIndex]} setViewingImages={setViewingImages} />
+                </View>
+              )}
+
+              {/* Right Arrow */}
+              {currentIndex < reviews.length - 1 && (
+                <TouchableOpacity onPress={handleNext} style={styles.arrow}>
+                  <Text style={styles.arrowText}>{'>'}</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+            {/* Feed */}
+            <Text style={styles.feedHeader}>New from the community</Text>
+            {feedLoading ? (
+              <Text>Feed loading...</Text>
             ) : (
-              <FlatList
-                data={popCafes}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={({ item }) => {
-                  return (
-                    <Pressable
-                      onPress={() => {
-                        router.push({
-                          pathname: '/cafe',
-                          params: {
-                            id: item.id,
-                            created_at: item.created_at ? item.created_at : '',
-                            name: item.name,
-                            address: item.address,
-                            hours: item.hours ? item.hours : '',
-                            latitude: item.latitude,
-                            longitude: item.longitude,
-                            tags: item.tags ? item.tags : [],
-                            image: item.image ? item.image : '',
-                            summary: item.summary ? item.summary : '',
-                            rating: item.rating,
-                            num_reviews: item.num_reviews,
-                          },
-                        });
-                      }}>
-                      <Card cafe={item} />
-                    </Pressable>
-                  );
-                }}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={{ paddingHorizontal: 10 }}
-              />
-            )}
-          </View>
-
-          {/* Popular Reviews */}
-          <View style={styles.reviewContainer}>
-            <Text style={styles.popularHeader}>Popular Reviews this Week</Text>
-          </View>
-
-          <View style={styles.reviewCarousel}>
-            {/* Left Arrow */}
-            {currentIndex > 0 && (
-              <TouchableOpacity onPress={handlePrevious} style={styles.arrow}>
-                <Text style={styles.arrowText}>{'<'}</Text>
-              </TouchableOpacity>
-            )}
-
-            {/* Review Content */}
-            {reviews[currentIndex] && (
-              <View style={styles.reviewContainer}>
-                <Review review={reviews[currentIndex]} setViewingImages={setViewingImages} />
+              <View>
+                {feed.map((feed, index) => (
+                  <View key={index}>
+                    <FeedComponent feed={feed} />
+                    {index < 4 && <View style={styles.separator} />}
+                  </View>
+                ))}
+                ;
               </View>
             )}
-
-            {/* Right Arrow */}
-            {currentIndex < reviews.length - 1 && (
-              <TouchableOpacity onPress={handleNext} style={styles.arrow}>
-                <Text style={styles.arrowText}>{'>'}</Text>
-              </TouchableOpacity>
-            )}
+            ;
           </View>
+        </ScrollView>
+      </SafeAreaView>
 
-          {/* Feed */}
-          <Text style={styles.feedHeader}>New from friends</Text>
-          <View>
-            {mockFeed.map((feed, index) => (
-              <View key={index}>
-                <FeedComponent feed={feed} />
-                {index < mockFeed.length - 1 && <View style={styles.separator} />}
-              </View>
-            ))}
-          </View>
+      {/* Image full view */}
+      {viewingImages !== null && (
+        <View style={{ position: 'absolute', top: 0, bottom: 0, left: 0, right: 0 }}>
+          <ImageFullView images={viewingImages} setImages={setViewingImages} />
         </View>
-
-      </ScrollView>
-    </SafeAreaView>
-
-    {/* Image full view */}
-    {viewingImages !== null && (
-      <ImageFullView images={viewingImages} setImages={setViewingImages} />
-    )}
+      )}
     </>
   );
 }

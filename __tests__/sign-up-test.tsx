@@ -74,7 +74,10 @@ describe('SignUpScreen', () => {
   });
 
   test('signs up user and navigates to tabs if successful', async () => {
-    (supabase.auth.signUp as jest.Mock).mockResolvedValue({ data: { user: { id: 'mock-user-id' } }, error: null });
+    (supabase.auth.signUp as jest.Mock).mockResolvedValue({
+      data: { user: { id: 'mock-user-id' } },
+      error: null,
+    });
     (supabase.from().upsert as jest.Mock).mockResolvedValue({ error: null });
 
     const { getByPlaceholderText, getByText } = render(<SignUpScreen />);

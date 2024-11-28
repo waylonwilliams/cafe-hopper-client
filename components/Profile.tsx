@@ -32,7 +32,6 @@ export default function Profile({ uid, setViewingImages }: Props) {
   });
   // store if it is their profile in this state
   const [owner, setOwner] = useState(false);
-  const cafes = [] as CafeType[];
 
   interface UserList {
     id: string;
@@ -42,8 +41,8 @@ export default function Profile({ uid, setViewingImages }: Props) {
   }
 
   const [userLists, setUserLists] = useState<UserList[]>([]); // State to hold user's lists
-  const [recentLikes, setRecentLikes] = useState<UserList | null>(null);
-  const [favoriteCafes, setFavoriteCafes] = useState<UserList | null>(null);
+  const [favoriteList, setFavoriteList] = useState<UserList | null>(null);
+  const [favoriteCafes, setFavoriteCafes] = useState<CafeType[]>([]);
 
   useFocusEffect(
     useCallback(() => {
@@ -122,12 +121,55 @@ export default function Profile({ uid, setViewingImages }: Props) {
           }),
         );
 
-        setUserLists(formattedLists);
-        
-        const favorites = formattedLists.find((list) => list.name.toLowerCase() === 'liked');
-        if (favorites) {
-          setFavoriteCafes(favorites);
+        // Fetch favorite cafes
+        const favoritesList = formattedLists.find(
+          (list) => list.name.toLowerCase() === 'favorites',
+        );
+        if (favoritesList) {
+          setFavoriteList(favoritesList);
+
+          const { data, error } = await supabase
+            .from('cafeListEntries')
+            .select(
+              `cafes(*), 
+              user_id`,
+            )
+            .limit(4)
+            .eq('list_id', favoritesList.id);
+
+          if (error) {
+            console.error('Error fetching favorite cafes:', error);
+            return;
+          }
+
+          // Map to CafeType
+          const mappedCafes: CafeType[] =
+            data?.flatMap((entry: { cafes: any }) => {
+              if (entry.cafes) {
+                const cafe = entry.cafes;
+                return {
+                  id: cafe.id,
+                  created_at: cafe.created_at,
+                  name: cafe.name, // Map 'title' to 'name'
+                  hours: cafe.hours,
+                  latitude: cafe.latitude,
+                  longitude: cafe.longitude,
+                  address: cafe.address,
+                  tags: cafe.tags || [], // Default to an empty array if null
+                  image: cafe.image, // Single top image
+                  summary: cafe.summary || null,
+                  rating: cafe.rating, // Convert rating for display
+                  num_reviews: cafe.num_reviews,
+                };
+              }
+              return [];
+            }) || [];
+
+          setFavoriteCafes(mappedCafes);
         }
+
+        // Set list without favorites if it exists (redundant)
+        setUserLists(formattedLists.filter((list) => list.name?.toLowerCase() !== 'favorites'));
       };
 
       fetchProfile();
@@ -211,32 +253,26 @@ export default function Profile({ uid, setViewingImages }: Props) {
         </View>
       </View>
 
-      {/* Recent Likes */}
-      <View style={styles.recent}>
-        <Text style={styles.listText}>Recent Likes</Text>
-        {/* PLACEHOLDER */}
-        <View>
-          {recentLikes ? (<ProfileList list={recentLikes}/>) : (
-            <Text style={{ color: 'gray', fontSize: 14, paddingTop: 10 }}>No Recent Likes.</Text>
-          )}
-        </View>
-      </View>
-
+      {/* Favorites Section */}
       <View style={styles.recent}>
         <Text style={styles.listText}>Favorite Cafes</Text>
         {/* Cafe Carousel */}
         <View>
-        {recentLikes ? (<ProfileList list={recentLikes}/>) : (
-            <Text style={{ color: 'gray', fontSize: 14, paddingTop: 10 }}>No Favorites found.</Text>
+          {favoriteList ? (
+            <View>
+              <FlatList
+                horizontal
+                data={favoriteCafes}
+                renderItem={({ item }) => <CardComponent cafe={item} />}
+                keyExtractor={(item) => item.id}
+                style={styles.carousel}
+              />
+            </View>
+          ) : (
+            <Text style={{ color: 'gray', fontSize: 14, paddingTop: 10 }}>
+              Favorites not set yet!
+            </Text>
           )}
-          {/*  
-          <FlatList
-            horizontal
-            data={cafes}
-            renderItem={({ item }) => <CardComponent cafe={item} />}
-            keyExtractor={(item) => item.id}
-            style={styles.carousel}
-          />*/}
         </View>
 
         {/* Lists */}
@@ -316,10 +352,14 @@ const styles = StyleSheet.create({
   },
   listText: {
     fontSize: 18,
+    marginBottom: 5,
   },
   carousel: {
     height: 220,
     margin: 5,
+  },
+  favoritesContainer: {
+    flexDirection: 'row',
   },
   listContainer: {
     flexDirection: 'row',
