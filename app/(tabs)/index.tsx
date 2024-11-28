@@ -457,20 +457,15 @@ export default function Home() {
             </View>
             {/* Feed */}
             <Text style={styles.feedHeader}>New from the community</Text>
-            {feedLoading ? (
-              <Text>Feed loading...</Text>
-            ) : (
-              <View>
+            <View>
                 {feed.map((feed, index) => (
                   <View key={index}>
                     <FeedComponent feed={feed} />
                     {index < 4 && <View style={styles.separator} />}
                   </View>
                 ))}
-                ;
-              </View>
-            )}
-            ;
+            </View>
+
           </View>
         </ScrollView>
       </SafeAreaView>
