@@ -8,9 +8,23 @@ interface ListCardProps {
 }
 
 const ListCard: React.FC<ListCardProps> = ({ cafe }) => {
-  const mockImageUrl =
-    'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12';
+  const mockImageUrls = [
+    'https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/posts/public/listcardDefault.jpg',
+    'https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/posts/public/mockCafe.jpg',
+    'https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/posts/public/defaultOshima.png',
+    'https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/posts/public/IMG_5259.png',
+    'https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/posts/public/IMG_5270.png?t=2024-11-28T21%3A05%3A17.882Z',
+    'https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/posts/public/IMG_5603.png?t=2024-11-28T21%3A05%3A31.644Z',
+    'https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/posts/public/IMG_5630.png?t=2024-11-28T21%3A05%3A41.686Z',
+  ];
 
+  // Function to randomly select an image
+  const getRandomImage = () => {
+    const randomIndex = Math.floor(Math.random() * mockImageUrls.length);
+    return mockImageUrls[randomIndex];
+  };
+
+  const mockImageUrl = getRandomImage();
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const today = days[new Date().getDay()];
 
