@@ -11,6 +11,7 @@ interface NewListProps {
   onClose: () => void;
   userId: string;
   onListCreated: () => void;
+  testID?: string;
 }
 
 export default function NewList({ visible, onClose, userId, onListCreated }: NewListProps) {
@@ -59,7 +60,7 @@ export default function NewList({ visible, onClose, userId, onListCreated }: New
           {/* Header */}
           <View style={styles.header}>
             <Text style={styles.title}>New List</Text>
-            <Pressable onPress={onClose}>
+            <Pressable onPress={onClose} testID="close-new-list">
               <Ionicons name="close" size={24} color="black" />
             </Pressable>
           </View>

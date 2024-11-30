@@ -20,7 +20,6 @@ interface Props {
   updateCafeView: (listName: string, selected: boolean) => void; // Callback to update cafe view icons for "liked" and "to-go"
 }
 
-
 export default function AddToList({ setAddingToList, cafe, userId, updateCafeView }: Props) {
   const [lists, setLists] = useState<
     { id: string; name: string; selected: boolean; cafeCount: number; visibility: boolean }[]
@@ -139,12 +138,13 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
       <Text style={{ fontWeight: 700, fontSize: 24, marginBottom: 5 }}>Save to List</Text>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#CCCCCC" /> // Spinner while loading
+        <ActivityIndicator size="large" color="#CCCCCC" testID="activity-indicator" />
       ) : (
         <>
           {/* Render New List Button */}
           <Pressable
             onPress={() => setIsNewListVisible(true)}
+            testID="new-list-button"
             style={{
               backgroundColor: '#CCCCCC',
               paddingVertical: 15,
@@ -156,7 +156,6 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
             }}>
             <Text style={{ fontSize: 16, fontWeight: '600', color: 'white' }}>New List</Text>
           </Pressable>
-
           {/* Render available lists */}
           <View style={{ width: '100%', paddingHorizontal: 20 }}>
             {lists.map((list) => (
@@ -186,7 +185,10 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
                     </Text>
                   </View>
                 </View>
-                <Pressable onPress={() => toggleListSelection(list.id, list.name)}>
+                <Pressable
+                  onPress={() => toggleListSelection(list.id, list.name)}
+                  testID={`toggle-list-${list.id}`} // Dynamic testID based on list.id
+                >
                   <Ionicons
                     name={list.selected ? 'checkbox' : 'square-outline'}
                     size={20}
@@ -196,9 +198,9 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
               </View>
             ))}
           </View>
-
           <Pressable
             onPress={handleAddToList}
+            testID="done-button"
             style={{
               flexDirection: 'row',
               alignItems: 'center',
@@ -220,6 +222,7 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
         onClose={() => setIsNewListVisible(false)}
         userId={userId}
         onListCreated={handleNewListCreated}
+        testID="new-list" // Add the testID here
       />
     </ScrollView>
   );
