@@ -46,6 +46,7 @@ const ListCard: React.FC<ListCardProps> = ({ cafe }) => {
         <Image
           source={{ uri: cafe.image ? cafe.image : mockImageUrl }}
           style={{ width: '100%', height: '100%' }}
+          testID="list-card-image" 
         />
       </View>
 

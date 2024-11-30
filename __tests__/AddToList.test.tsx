@@ -110,6 +110,4 @@ describe('AddToList Component', () => {
       expect(queryByTestId('new-list')).toBeTruthy();
     });
   });
-
-
 });
