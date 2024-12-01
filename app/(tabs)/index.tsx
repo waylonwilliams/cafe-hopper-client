@@ -15,7 +15,7 @@ import Review from '@/components/Review';
 import { CafeType, NewReviewType } from '@/components/CafePage/CafeTypes';
 import { supabase } from '@/lib/supabase';
 import * as Location from 'expo-location';
-import { Link, useRouter, useFocusEffect } from 'expo-router';
+import { Link, useFocusEffect } from 'expo-router';
 import Card from '@/components/Card';
 import FeedComponent, { Feed } from '@/components/FeedPost';
 import { CafeSearchRequest, CafeSearchResponse } from '@/lib/backend-types';
@@ -41,7 +41,7 @@ export default function Home() {
 
   // For popular cafe carousel
   const [popCafes, setPopCafes] = useState<CafeType[] | null>(null);
-  const router = useRouter();
+  //const router = useRouter();
 
   // For user greeting
   const [name, setName] = useState<string>('');
@@ -180,7 +180,9 @@ export default function Home() {
   };
 
   // Fetch user details (name, pfp) for feed posts
-  const fetchUserInfo = async (userIds: string[]) => {
+  const fetchUserInfo = async (
+    userIds: string[],
+  ): Promise<{ nameMap: Map<string, string>; pfpMap: Map<string, string> } | null> => {
     const { data: users, error } = await supabase
       .from('profiles')
       .select('user_id, name, pfp')
@@ -188,7 +190,7 @@ export default function Home() {
 
     if (error) {
       console.error('Error fetching user details for feed: ', error);
-      return;
+      return null;
     }
 
     const nameMap = new Map<string, string>();
@@ -199,11 +201,12 @@ export default function Home() {
       pfpMap.set(user.user_id, user.pfp);
     });
 
-    setFeedUsers(nameMap);
-    setFeedPfps(pfpMap);
+    return { nameMap, pfpMap };
   };
 
-  const fetchCafeInfo = async (cafeIds: string[]) => {
+  const fetchCafeInfo = async (
+    cafeIds: string[],
+  ): Promise<{ cafeMap: Map<string, string>; locMap: Map<string, string> } | null> => {
     const { data: cafes, error } = await supabase
       .from('cafes')
       .select('id, name, address')
@@ -235,8 +238,7 @@ export default function Home() {
       }
     });
 
-    setFeedCafeNames(cafeMap);
-    setFeedCafeLocs(locMap);
+    return { cafeMap, locMap };
   };
 
   const fetchFeed = useCallback(async () => {
@@ -253,13 +255,22 @@ export default function Home() {
     }
 
     // Fetch names, pfps, cafes
+
     const userIds = [...new Set(data.map((review) => review.user_id))];
-    if (userIds.length > 0) {
-      await fetchUserInfo(userIds);
-    }
     const cafeIds = [...new Set(data.map((review) => review.cafe_id))];
-    if (cafeIds.length > 0) {
-      await fetchCafeInfo(cafeIds);
+
+    const [userInfo, cafeInfo] = await Promise.all([
+      fetchUserInfo(userIds),
+      fetchCafeInfo(cafeIds),
+    ]);
+
+    if (userInfo) {
+      setFeedUsers(userInfo.nameMap);
+      setFeedPfps(userInfo.pfpMap);
+    }
+    if (cafeInfo) {
+      setFeedCafeNames(cafeInfo.cafeMap);
+      setFeedCafeLocs(cafeInfo.locMap);
     }
 
     // Create formatted list of Feed objects
@@ -341,8 +352,11 @@ export default function Home() {
   useEffect(() => {
     getLoc();
     fetchReviews();
-    fetchFeed();
   }, []);
+
+  useEffect(() => {
+    fetchFeed();
+  }, [feedUsers, feedPfps, feedCafeNames, feedCafeLocs]);
 
   useEffect(() => {
     if (userRegion) {
@@ -397,32 +411,7 @@ export default function Home() {
                 <FlatList
                   data={popCafes}
                   keyExtractor={(item) => item.id.toString()}
-                  renderItem={({ item }) => {
-                    return (
-                      <Pressable
-                        onPress={() => {
-                          router.push({
-                            pathname: '/cafe',
-                            params: {
-                              id: item.id,
-                              created_at: item.created_at ? item.created_at : '',
-                              name: item.name,
-                              address: item.address,
-                              hours: item.hours ? item.hours : '',
-                              latitude: item.latitude,
-                              longitude: item.longitude,
-                              tags: item.tags ? item.tags : [],
-                              image: item.image ? item.image : '',
-                              summary: item.summary ? item.summary : '',
-                              rating: item.rating,
-                              num_reviews: item.num_reviews,
-                            },
-                          });
-                        }}>
-                        <Card cafe={item} />
-                      </Pressable>
-                    );
-                  }}
+                  renderItem={({ item }) => <Card cafe={item} />}
                   horizontal
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={{ paddingHorizontal: 10 }}
@@ -457,15 +446,18 @@ export default function Home() {
             </View>
             {/* Feed */}
             <Text style={styles.feedHeader}>New from the community</Text>
-            <View>
+            {feedLoading ? (
+              <Text>Hello check</Text>
+            ) : (
+              <View>
                 {feed.map((feed, index) => (
                   <View key={index}>
                     <FeedComponent feed={feed} />
                     {index < 4 && <View style={styles.separator} />}
                   </View>
                 ))}
-            </View>
-
+              </View>
+            )}
           </View>
         </ScrollView>
       </SafeAreaView>
