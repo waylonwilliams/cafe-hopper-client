@@ -43,18 +43,6 @@ export default function Explore() {
     { label: 'Sunday', value: 'Sunday' },
   ];
 
-  const timesOfDay = [
-    { label: '8:00 AM', value: '08:00' },
-    { label: '9:00 AM', value: '09:00' },
-    { label: '10:00 AM', value: '10:00' },
-    { label: '11:00 AM', value: '11:00' },
-    { label: '12:00 PM', value: '12:00' },
-    { label: '1:00 PM', value: '13:00' },
-    { label: '2:00 PM', value: '14:00' },
-    { label: '3:00 PM', value: '15:00' },
-    { label: '4:00 PM', value: '16:00' },
-  ];
-
   const [scale, setScale] = useState(1); // Scale state for dynamic resizing
   const mapRef = useRef<MapView>(null); // Reference to the MapView
   const router = useRouter(); // Get the router instance from expo-router
@@ -71,15 +59,14 @@ export default function Explore() {
   const [locationReady, setLocationReady] = useState(false);
 
   const [selectedDay, setSelectedDay] = useState(''); // Track selected day
-  const [selectedTime, setSelectedTime] = useState(''); // Track selected time
   const [selectedHours, setSelectedHours] = useState('Any'); // Track selected hours
-  const [selectedHour, setSelectedHour] = useState<number | null>(null); // Selected hour
+  const [selectedTime, setSelectedTime] = useState<number>(); // Selected hour
   const [selectedPeriod, setSelectedPeriod] = useState<string>('AM'); // Selected period (AM/PM)
 
-  const handleCustomHourChange = (day: string, time: string) => {
-    setSelectedDay(day);
-    setSelectedTime(time);
-    // Custom logic to handle selected custom hours can go here
+  const convertTo24Hour = (hour: number, period: string): string => {
+    const hour24 =
+      period === 'PM' && hour !== 12 ? hour + 12 : period === 'AM' && hour === 12 ? 0 : hour;
+    return hour24.toString().padStart(2, '0') + '00'; // Format as "XXXX" (e.g., "0700")
   };
 
   const calculateZoomLevel = (latitudeDelta: number) => {
@@ -154,8 +141,46 @@ export default function Explore() {
 
   useEffect(() => {
     if (!locationReady) return;
+
+    const handleCustomHourChange = (day?: string, hour?: number, period?: string) => {
+      const dayMap = new Map<string, number>([
+        ['Sunday', 0],
+        ['Monday', 1],
+        ['Tuesday', 2],
+        ['Wednesday', 3],
+        ['Thursday', 4],
+        ['Friday', 5],
+        ['Saturday', 6],
+      ]);
+      const dayValue = day ? dayMap.get(day) : undefined;
+      const timeString = hour !== undefined && period ? convertTo24Hour(hour, period) : undefined;
+
+      // Construct customTime object for Search Request
+      const customTime: {
+        day?: number;
+        time?: string;
+      } = {};
+
+      // Add day and time to customTime object if they exist
+      if (dayValue) {
+        customTime.day = dayValue;
+      }
+
+      if (timeString) {
+        customTime.time = timeString;
+      }
+
+      return customTime;
+    };
+
     const searchCafes = async (query: string) => {
       try {
+        // Build Request Object
+        const customTime =
+          selectedHours === 'Custom'
+            ? handleCustomHourChange(selectedDay, selectedTime, selectedPeriod)
+            : undefined;
+
         const searchRequest: CafeSearchRequest = {
           query,
           geolocation: {
@@ -165,8 +190,10 @@ export default function Explore() {
           openNow: selectedHours === 'Open Now',
           rating: selectedRating === 'Any' ? undefined : parseFloat(selectedRating),
           tags: emojiTags,
+          customTime,
         };
 
+        // Send it over to the backend server
         const response: CafeSearchResponse = await searchCafesFromBackend(searchRequest);
         if (response.error) throw new Error(response.error);
 
@@ -198,10 +225,11 @@ export default function Explore() {
             longitude: cafe.longitude,
             rating: cafe.rating ? cafe.rating.toString() : '0',
             category: 'default',
-            cafe: newCafe,
+            cafe: newCafe, // Attach the cafe data to the marker for navigation
           });
         }
 
+        // Update the states with the fetched cafes and markers
         setSearchedCafes(cafes);
         setMarkers(markers);
       } catch (error) {
@@ -209,7 +237,17 @@ export default function Explore() {
       }
     };
     searchCafes(debouncedQuery);
-  }, [debouncedQuery, mapRegion, selectedHours, selectedRating, emojiTags, locationReady]);
+  }, [
+    debouncedQuery,
+    mapRegion,
+    selectedHours,
+    selectedRating,
+    emojiTags,
+    locationReady,
+    selectedDay,
+    selectedTime,
+    selectedPeriod,
+  ]);
 
   const userLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
@@ -261,6 +299,22 @@ export default function Explore() {
   const handleRatingClick = (option: string) => {
     setSelectedRating(option);
     handleSearch(searchQuery);
+  };
+
+  const handleTimeClick = (hour: number) => {
+    if (selectedTime === hour) {
+      setSelectedTime(undefined);
+      return;
+    }
+    setSelectedTime(hour);
+  };
+
+  const handleDayClick = (day: string) => {
+    if (selectedDay === day) {
+      setSelectedDay('');
+      return;
+    }
+    setSelectedDay(day);
   };
 
   return (
@@ -347,7 +401,7 @@ export default function Explore() {
                           styles.smallCircleButton,
                           selectedDay === day.value ? styles.activeSmallCircleButton : null,
                         ]}
-                        onPress={() => setSelectedDay(day.value)}>
+                        onPress={() => handleDayClick(day.value)}>
                         <Text
                           style={[
                             styles.smallCircleButtonText,
@@ -369,17 +423,13 @@ export default function Explore() {
                           key={hour}
                           style={[
                             styles.smallCircleButton,
-                            selectedTime === hour.toString()
-                              ? styles.activeSmallCircleButton
-                              : null,
+                            selectedTime === hour ? styles.activeSmallCircleButton : null,
                           ]}
-                          onPress={() => setSelectedTime(hour.toString())}>
+                          onPress={() => handleTimeClick(hour)}>
                           <Text
                             style={[
                               styles.smallCircleButtonText,
-                              selectedTime === hour.toString()
-                                ? styles.activeSmallCircleButtonText
-                                : null,
+                              selectedTime === hour ? styles.activeSmallCircleButtonText : null,
                             ]}>
                             {hour}
                           </Text>
@@ -394,17 +444,13 @@ export default function Explore() {
                           key={hour}
                           style={[
                             styles.smallCircleButton,
-                            selectedTime === hour.toString()
-                              ? styles.activeSmallCircleButton
-                              : null,
+                            selectedTime === hour ? styles.activeSmallCircleButton : null,
                           ]}
-                          onPress={() => setSelectedTime(hour.toString())}>
+                          onPress={() => handleTimeClick(hour)}>
                           <Text
                             style={[
                               styles.smallCircleButtonText,
-                              selectedTime === hour.toString()
-                                ? styles.activeSmallCircleButtonText
-                                : null,
+                              selectedTime === hour ? styles.activeSmallCircleButtonText : null,
                             ]}>
                             {hour}
                           </Text>
