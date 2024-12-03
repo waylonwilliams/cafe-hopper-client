@@ -8,6 +8,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '@/lib/supabase';
 import 'react-native-get-random-values'; // needed for uuid
 import { v4 as uuidv4 } from 'uuid';
+import Constants from 'expo-constants';
 
 interface Props {
   setLoggingVisit: (arg: boolean) => void;
@@ -110,7 +111,8 @@ export default function Log({ setLoggingVisit, cafe, reviews, setReviews }: Prop
       // async ping to server to renew cafe data
       // wrapped in a try block so it doens't matter if something goes wrong
       try {
-        fetch(process.env.EXPO_PUBLIC_SERVER_URL + 'cafes/ping', {
+        const API_URL = `http://${Constants.expoConfig?.hostUri!.split(':').shift()}:3000`;
+        fetch(API_URL + 'cafes/ping', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',

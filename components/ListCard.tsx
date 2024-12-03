@@ -53,9 +53,11 @@ const ListCard: React.FC<ListCardProps> = ({ cafe }) => {
       <View style={styles.body}>
         <View style={styles.header}>
           <Text style={styles.name}>{cafe.name}</Text>
-          <View style={styles.ratingContainer}>
-            <Text style={styles.ratingText}>⭐️{cafe.rating || '4.2'}</Text>
-          </View>
+          {cafe.rating !== null && cafe.rating !== 0 && (
+            <View style={styles.ratingContainer}>
+              <Text style={styles.ratingText}>⭐️{Math.round(cafe.rating * 10) / 10}</Text>
+            </View>
+          )}
         </View>
         <Text style={styles.hours}>{scheduleDict[today]}</Text>
         <Text style={styles.location}>{cafe.address}</Text>
