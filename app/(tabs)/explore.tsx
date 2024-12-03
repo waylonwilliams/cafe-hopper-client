@@ -270,6 +270,7 @@ export default function Explore() {
             autoCapitalize="none"
             autoCorrect={false}
             onSubmitEditing={(text) => handleSearch(text.nativeEvent.text)}
+            testID="search-bar"
           />
         </View>
         <View style={styles.buttonContainer}>
@@ -495,6 +496,7 @@ export default function Explore() {
             showsUserLocation={true} // Show the default blue dot for user location
             onRegionChangeComplete={handleRegionChangeComplete} // Trigger on zoom or move
             showsMyLocationButton={true}
+            testID='map-view'
             mapType="standard">
             {searchedMarkers.map((marker, index) => {
               const validMarker: MarkerType = {
