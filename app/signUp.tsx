@@ -25,30 +25,34 @@ const SignUpScreen = () => {
 
   // Calls signUp() and navigates to tabs on success
   async function signUpWithEmail() {
-    if (password === confPassword) {
-      if (password) setLoading(true);
-      const { data, error } = await supabase.auth.signUp({
-        email: email,
-        password: password,
-      });
-      if (error) Alert.alert(error.message);
+    if (email.length > 0 || password.length > 0 || confPassword.length > 0){
+      if (password === confPassword) {
+        if (password) setLoading(true);
+        const { data, error } = await supabase.auth.signUp({
+          email: email,
+          password: password,
+        });
+        if (error) Alert.alert(error.message);
 
-      // create corresponding profile on signup
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .upsert({ user_id: data.user?.id });
-      if (profileError) Alert.alert(profileError.message);
+        // create corresponding profile on signup
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .upsert({ user_id: data.user?.id });
+        if (profileError) Alert.alert(profileError.message);
 
-      // add two default lists to the users account on creation
-      const { error: listError } = await supabase
-        .from('cafeList')
-        .upsert([{ list_name: 'liked' }, { list_name: 'to-go' }]);
-      if (listError) Alert.alert(listError.message);
-      // supabase signup will also log them in, so just send them to tabs
-      if (!error) router.replace('/(tabs)');
-      setLoading(false);
+        // add two default lists to the users account on creation
+        const { error: listError } = await supabase
+          .from('cafeList')
+          .upsert([{ list_name: 'liked' }, { list_name: 'to-go' }]);
+        if (listError) Alert.alert(listError.message);
+        // supabase signup will also log them in, so just send them to tabs
+        if (!error) router.replace('/(tabs)');
+        setLoading(false);
+      } else {
+        Alert.alert('Passwords do not match');
+      }
     } else {
-      Alert.alert('Passwords do not match');
+      Alert.alert('Missing Email or Password')
     }
   }
 
