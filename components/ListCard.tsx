@@ -8,12 +8,30 @@ interface ListCardProps {
 }
 
 const ListCard: React.FC<ListCardProps> = ({ cafe }) => {
-  const mockImageUrl =
-    'https://jghggbaesaohodfsneej.supabase.co/storage/v1/object/public/page_images/public/60d09661-18af-43b5-bcb8-4c5a0b2dbe12';
+  //array for mock images
+  const mockImageUrls = [
+    'https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/posts/public/listcardDefault.jpg',
+    'https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/posts/public/mockCafe.jpg',
+    'https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/posts/public/defaultOshima.png',
+    'https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/posts/public/IMG_5259.png',
+    'https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/posts/public/IMG_5270.png?t=2024-11-28T21%3A05%3A17.882Z',
+    'https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/posts/public/IMG_5603.png?t=2024-11-28T21%3A05%3A31.644Z',
+    'https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/posts/public/IMG_5630.png?t=2024-11-28T21%3A05%3A41.686Z',
+  ];
 
+  // Function to randomly select an image
+  const getRandomImage = () => {
+    const randomIndex = Math.floor(Math.random() * mockImageUrls.length);
+    return mockImageUrls[randomIndex];
+  };
+  // Randomly selected mock image URL
+  const mockImageUrl = getRandomImage();
+
+  // Get the current day of the week as string
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const today = days[new Date().getDay()];
 
+  // Parse the cafe's hours into a dictionary for easy lookup
   const entries = cafe.hours ? cafe.hours.split('\n') : [];
   const scheduleDict: { [key: string]: string } = {};
   entries.forEach((entry) => {
@@ -28,15 +46,18 @@ const ListCard: React.FC<ListCardProps> = ({ cafe }) => {
         <Image
           source={{ uri: cafe.image ? cafe.image : mockImageUrl }}
           style={{ width: '100%', height: '100%' }}
+          testID="list-card-image"
         />
       </View>
 
       <View style={styles.body}>
         <View style={styles.header}>
           <Text style={styles.name}>{cafe.name}</Text>
-          <View style={styles.ratingContainer}>
-            <Text style={styles.ratingText}>⭐️{cafe.rating || '4.2'}</Text>
-          </View>
+          {cafe.rating !== null && cafe.rating !== 0 && (
+            <View style={styles.ratingContainer}>
+              <Text style={styles.ratingText}>⭐️{Math.round(cafe.rating * 10) / 10}</Text>
+            </View>
+          )}
         </View>
         <Text style={styles.hours}>{scheduleDict[today]}</Text>
         <Text style={styles.location}>{cafe.address}</Text>

@@ -6,6 +6,13 @@ import { addCafeToList, removeCafeFromList, checkCafeInList } from '@/lib/supaba
 import { supabase } from '@/lib/supabase';
 import NewList from './NewList';
 
+/**
+ * Component for adding a cafe to a user's list.
+ *
+ * Displays the user's lists, allows toggling cafe selection for each list,
+ * and supports creating new lists.
+ */
+
 interface Props {
   setAddingToList: (arg: boolean) => void;
   cafe: CafeType;
@@ -21,10 +28,11 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
   const [loading, setLoading] = useState(true); // State for loading spinner
 
   // Wrap fetchUserLists with useCallback
+  // Fetch the user's lists from the database
   const fetchUserLists = useCallback(async () => {
     try {
-      setLoading(true); // Start spinner
-
+      setLoading(true); //  // Show spinner while fetching data
+      // Fetch lists created by the user from the "cafeList" table
       const { data: userLists, error } = await supabase
         .from('cafeList')
         .select('id, list_name, public')
@@ -32,6 +40,7 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
 
       if (error) throw error;
 
+      // Update lists with their details and whether the cafe is in each list
       const updatedLists = await Promise.all(
         (userLists || []).map(async (list) => {
           const isSelected = await checkCafeInList(cafe.id, list.list_name);
@@ -51,28 +60,32 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
           };
         }),
       );
-      setLists(updatedLists);
+      setLists(updatedLists); // Update the state with fetched and processed lists
     } catch (error) {
       console.error('Error fetching lists:', error);
     } finally {
-      setLoading(false); // Stop spinner
+      setLoading(false); // Hide spinner when done
     }
-  }, [userId, cafe.id]); // Add dependencies here
+  }, [userId, cafe.id]);
 
+  // Fetch the user's lists on component mount or when dependencies change
   useEffect(() => {
     fetchUserLists();
   }, [userId, cafe.id, fetchUserLists]);
 
+  // Callback when a new list is created to refresh the lists
   const handleNewListCreated = () => {
     setIsNewListVisible(false);
     fetchUserLists(); // Refresh the lists when a new one is created
   };
 
+  // Toggle the selection status of a list for the current cafe
   function toggleListSelection(listId: string, listName: string) {
     setLists((prevLists) =>
       prevLists.map((list) => {
         if (list.id === listId) {
           const newSelected = !list.selected;
+          // Update the cafe view for specific lists (e.g., "liked", "to-go")
           if (listName.toLowerCase() === 'liked' || listName.toLowerCase() === 'to-go') {
             updateCafeView(listName, newSelected); // Only update cafe view for "liked" and "to-go"
           }
@@ -83,6 +96,7 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
     );
   }
 
+  // Handle adding/removing the cafe from selected lists
   async function handleAddToList() {
     try {
       for (const list of lists) {
@@ -102,6 +116,7 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
     }
   }
 
+  // Determine the appropriate icon for a list (e.g., "heart" for "liked")
   function getListIcon(listName: string) {
     if (listName.toLowerCase() === 'liked') {
       return 'heart';
@@ -123,12 +138,13 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
       <Text style={{ fontWeight: 700, fontSize: 24, marginBottom: 5 }}>Save to List</Text>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#CCCCCC" /> // Spinner while loading
+        <ActivityIndicator size="large" color="#CCCCCC" testID="activity-indicator" />
       ) : (
         <>
           {/* Render New List Button */}
           <Pressable
             onPress={() => setIsNewListVisible(true)}
+            testID="new-list-button"
             style={{
               backgroundColor: '#CCCCCC',
               paddingVertical: 15,
@@ -140,7 +156,6 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
             }}>
             <Text style={{ fontSize: 16, fontWeight: '600', color: 'white' }}>New List</Text>
           </Pressable>
-
           {/* Render available lists */}
           <View style={{ width: '100%', paddingHorizontal: 20 }}>
             {lists.map((list) => (
@@ -170,7 +185,10 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
                     </Text>
                   </View>
                 </View>
-                <Pressable onPress={() => toggleListSelection(list.id, list.name)}>
+                <Pressable
+                  onPress={() => toggleListSelection(list.id, list.name)}
+                  testID={`toggle-list-${list.id}`} // Dynamic testID based on list.id
+                >
                   <Ionicons
                     name={list.selected ? 'checkbox' : 'square-outline'}
                     size={20}
@@ -180,9 +198,9 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
               </View>
             ))}
           </View>
-
           <Pressable
             onPress={handleAddToList}
+            testID="done-button"
             style={{
               flexDirection: 'row',
               alignItems: 'center',
@@ -204,6 +222,7 @@ export default function AddToList({ setAddingToList, cafe, userId, updateCafeVie
         onClose={() => setIsNewListVisible(false)}
         userId={userId}
         onListCreated={handleNewListCreated}
+        testID="new-list" // Add the testID here
       />
     </ScrollView>
   );

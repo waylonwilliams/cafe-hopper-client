@@ -26,13 +26,14 @@ import { CafeSearchRequest, CafeSearchResponse } from '@/lib/backend-types';
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 export default function Explore() {
+  // Map region state for initial and updated location
   const [mapRegion, setMapRegion] = useState({
     latitude: 5.603717,
     longitude: -0.186964,
     latitudeDelta: 0.005,
     longitudeDelta: 0.005,
   });
-
+  // Predefined options for filters
   const daysOfWeek = [
     { label: 'Monday', value: 'Monday' },
     { label: 'Tuesday', value: 'Tuesday' },
@@ -42,6 +43,7 @@ export default function Explore() {
     { label: 'Saturday', value: 'Saturday' },
     { label: 'Sunday', value: 'Sunday' },
   ];
+  // States for various UI and search functionalities
 
   const [scale, setScale] = useState(1); // Scale state for dynamic resizing
   const mapRef = useRef<MapView>(null); // Reference to the MapView
@@ -57,7 +59,7 @@ export default function Explore() {
   const [emojiTags, setEmojiTags] = useState<string[]>([]); // State to track selected emoji tags
   const [searchIsFocused, setSearchIsFocused] = useState(false);
   const [locationReady, setLocationReady] = useState(false);
-
+  // States for filtering based on time
   const [selectedDay, setSelectedDay] = useState(''); // Track selected day
   const [selectedHours, setSelectedHours] = useState('Any'); // Track selected hours
   const [selectedTime, setSelectedTime] = useState<number>(); // Selected hour
@@ -74,14 +76,16 @@ export default function Explore() {
     return Math.log2(360 / latitudeDelta);
   };
 
+  // Update region and scale dynamically when map region changes
   const handleRegionChangeComplete = (region: typeof mapRegion) => {
     setMapRegion(region);
     const zoomLevel = calculateZoomLevel(region.latitudeDelta);
     const newScale = Math.min(Math.max(zoomLevel / 15, 0.5), 1.5); // Normalize scale between 0.5 and 1.5
     setScale(newScale);
-    setMapRegion(region); // Update the map region state
+    setMapRegion(region);
   };
 
+  // Handle marker press to navigate to cafe details
   const handleMarkerPress = (marker: MarkerType) => {
     // Navigate to cafe view and pass marker data as parameters
     console.log('Navigating to cafe', marker.name);
@@ -90,6 +94,7 @@ export default function Explore() {
     }
   };
 
+  // Navigate to cafe details page
   const navigateToCafe = (cafe: CafeType) => {
     if (isNavigating) {
       return;
@@ -125,9 +130,8 @@ export default function Explore() {
       setIsNavigating(false);
     }
   };
-
+  // Debounce the search query to prevent too many requests
   useEffect(() => {
-    // Debounce the search query to prevent too many requests
     const handler = setTimeout(() => {
       if (debouncedQuery !== searchQuery) {
         setDebouncedQuery(searchQuery);
@@ -139,6 +143,7 @@ export default function Explore() {
     };
   }, [searchQuery, debouncedQuery]);
 
+  // Fetch cafes based on search query and filters
   useEffect(() => {
     if (!locationReady) return;
 
@@ -249,6 +254,7 @@ export default function Explore() {
     selectedPeriod,
   ]);
 
+  // Request user location and update the map
   const userLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
@@ -338,6 +344,7 @@ export default function Explore() {
             autoCapitalize="none"
             autoCorrect={false}
             onSubmitEditing={(text) => handleSearch(text.nativeEvent.text)}
+            testID="search-bar"
           />
         </View>
         <View style={styles.buttonContainer}>
@@ -360,7 +367,6 @@ export default function Explore() {
             {/* Hours Section */}
             <View style={styles.filterSection}>
               <Text style={styles.filterSectionTitle}>
-                {/* idk why the icon is floating weird */}
                 <MaterialIcons name="schedule" size={16} /> Hours
               </Text>
               <View style={styles.filterButtonsContainer}>
@@ -556,6 +562,7 @@ export default function Explore() {
             showsUserLocation={true} // Show the default blue dot for user location
             onRegionChangeComplete={handleRegionChangeComplete} // Trigger on zoom or move
             showsMyLocationButton={true}
+            testID="map-view"
             mapType="standard">
             {searchedMarkers.map((marker, index) => {
               const validMarker: MarkerType = {
@@ -738,29 +745,6 @@ const styles = StyleSheet.create({
   filterIcon: {
     marginRight: 5,
   },
-
-  circleButtonContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-evenly',
-    marginVertical: 5,
-  },
-  circleButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    margin: 5,
-    backgroundColor: '#fff',
-  },
-  activeCircleButton: {
-    backgroundColor: '#c9c9c9',
-    borderColor: '#000',
-  },
-
   customHourContainer: {
     marginTop: 20,
     padding: 10,
@@ -778,7 +762,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 15,
   },
-
   twoRowContainer: {
     marginVertical: 10,
   },

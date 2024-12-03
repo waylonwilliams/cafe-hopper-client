@@ -12,15 +12,17 @@ export interface MarkerType {
   category?: 'liked' | 'saved' | 'default';
   cafe: CafeType;
 }
+// Component to render a custom map marker with scaling and category-specific styles
 const CustomMarker: React.FC<{ marker: MarkerType; scale: number }> = ({ marker, scale }) => {
-  // Adjust styles based on scale
+  // Dynamically calculate sizes based on the scale
   const iconSize = 14 * scale;
   const textSize = 12 * scale;
   const containerSize = 25 * scale;
 
-  let IconComponent;
-  let iconBackgroundStyle;
+  let IconComponent; // Icon to render (based on the category)
+  let iconBackgroundStyle; // Background styling for the icon
 
+  // Determine icon and background style based on the marker's category
   switch (marker.category) {
     case 'liked':
       IconComponent = <FontAwesome name="heart" size={iconSize} color="white" />;
