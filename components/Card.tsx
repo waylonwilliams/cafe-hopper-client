@@ -36,9 +36,14 @@ export default function CardComponent({ cafe }: CardProps) {
               num_reviews: cafe.num_reviews,
             },
           });
-        }}>
+        }}
+        testID="cafe-pressable">
         {/* Cafe Image */}
-        <Image source={{ uri: cafe.image ? cafe.image : defaultImage }} style={styles.image} />
+        <Image
+          source={{ uri: cafe.image ? cafe.image : defaultImage }}
+          style={styles.image}
+          testID="card-image"
+        />
 
         <View style={styles.content}>
           {/* Cafe Name */}
@@ -47,10 +52,14 @@ export default function CardComponent({ cafe }: CardProps) {
           </Text>
 
           {/* Rating */}
-          <View style={styles.ratingContainer}>
-            <Icon name="star" size={11} color="gold"></Icon>
-            <Text style={styles.rating}>{displayRating.toFixed(1)}</Text>
-          </View>
+          {displayRating !== 0 && (
+            <View style={styles.ratingContainer}>
+              <Icon name="star" size={11} color="gold"></Icon>
+              <Text testID="card-rating" style={styles.rating}>
+                {displayRating.toFixed(1)}
+              </Text>
+            </View>
+          )}
         </View>
 
         {/* Tags */}

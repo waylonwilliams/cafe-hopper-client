@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Image, Text } from 'react-native';
+import { View, StyleSheet, Image, Text, Pressable } from 'react-native';
 import { NewReviewType } from './CafePage/CafeTypes';
 import EmojiTag from './EmojiTag';
 import Ionicons from '@expo/vector-icons/Ionicons';
@@ -18,9 +18,10 @@ export type Feed = {
 
 interface FeedProps {
   feed: Feed;
+  setViewingImages: (arg: string[]) => void;
 }
 
-export default function FeedComponent({ feed }: FeedProps) {
+export default function FeedComponent({ feed, setViewingImages }: FeedProps) {
   const renderStars = (rating: number) => {
     const numStars = Math.floor(rating / 2);
     const halfStar = rating % 2 !== 0;
@@ -34,6 +35,10 @@ export default function FeedComponent({ feed }: FeedProps) {
       </>
     );
   };
+
+  function handleImagePress() {
+    if (feed.review.images) setViewingImages(feed.review.images);
+  }
 
   return (
     <View style={styles.card}>
@@ -71,9 +76,11 @@ export default function FeedComponent({ feed }: FeedProps) {
 
         {/* Images */}
         {feed.review.images && feed.review.images.length > 0 && (
-          <View>
+          <View style={{ flexDirection: 'row' }}>
             {feed.review.images.map((imageUri, index) => (
-              <Image key={index} source={{ uri: imageUri }} style={styles.postImage} />
+              <Pressable key={index} onPress={handleImagePress}>
+                <Image key={index} source={{ uri: imageUri }} style={styles.postImage} />
+              </Pressable>
             ))}
           </View>
         )}
@@ -88,9 +95,11 @@ export default function FeedComponent({ feed }: FeedProps) {
         )}
       </View>
 
-      {/* Date */}
+      {/* Date and location */}
       <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
-        <Text style={styles.location}>{feed.location}</Text>
+        <Text style={styles.location} numberOfLines={1} ellipsizeMode="tail">
+          {feed.location}
+        </Text>
         <Text style={styles.date}>{feed.date}</Text>
       </View>
     </View>
@@ -157,6 +166,7 @@ const styles = StyleSheet.create({
   location: {
     fontSize: 12,
     color: '#999',
+    width: '85%',
   },
 
   ratingBox: {

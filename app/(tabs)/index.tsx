@@ -356,7 +356,7 @@ export default function Home() {
 
   useEffect(() => {
     fetchFeed();
-  }, [feedUsers, feedPfps, feedCafeNames, feedCafeLocs]);
+  }, [feedUsers, feedPfps, feedCafeNames, feedCafeLocs, fetchFeed]);
 
   useEffect(() => {
     if (userRegion) {
@@ -452,7 +452,7 @@ export default function Home() {
               <View>
                 {feed.map((feed, index) => (
                   <View key={index}>
-                    <FeedComponent feed={feed} />
+                    <FeedComponent feed={feed} setViewingImages={setViewingImages} />
                     {index < 4 && <View style={styles.separator} />}
                   </View>
                 ))}

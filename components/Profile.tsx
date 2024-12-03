@@ -218,7 +218,7 @@ export default function Profile({ uid, setViewingImages }: Props) {
             )}
           </View>
 
-          <View style={{ gap: 4 }}>
+          <View>
             {profile.bio !== '' && <Text style={styles.bio}>{profile.bio}</Text>}
             {profile.location !== '' && (
               <View style={{ flexDirection: 'row', gap: 4 }}>
@@ -269,9 +269,11 @@ export default function Profile({ uid, setViewingImages }: Props) {
               />
             </View>
           ) : (
-            <Text style={{ color: 'gray', fontSize: 14, paddingTop: 10 }}>
-              Favorites not set yet!
-            </Text>
+            <View>
+              <Text style={{ color: 'gray', fontSize: 14, paddingTop: 2 }}>
+                Favorites not set yet!
+              </Text>
+            </View>
           )}
         </View>
 
