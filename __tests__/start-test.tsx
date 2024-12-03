@@ -40,7 +40,7 @@ describe('GetStartedPage', () => {
   test('renders the "Get started" page if no user is logged in', async () => {
     (supabase.auth.getUser as jest.Mock).mockResolvedValue({ data: { user: null } });
 
-    const { getByText, getByRole, getByTestId } = render(<GetStartedPage />);
+    const { getByText, getByTestId } = render(<GetStartedPage />);
 
     await waitFor(() => {
       expect(supabase.auth.getUser).toHaveBeenCalled();
