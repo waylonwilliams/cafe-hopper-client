@@ -25,7 +25,6 @@ jest.mock('@/components/CafePage/NewList', () => 'NewList');
 
 describe('AddToList Component', () => {
   const mockSetAddingToList = jest.fn();
-  const mockUpdateCafeView = jest.fn();
 
   const cafe: CafeType = {
     id: '1',

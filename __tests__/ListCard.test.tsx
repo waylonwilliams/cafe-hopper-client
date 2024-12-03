@@ -20,7 +20,7 @@ describe('ListCard Component', () => {
   };
 
   test('renders the ListCard component correctly', () => {
-    const { getByText, getByTestId } = render(<ListCard cafe={mockCafe} />);
+    const { getByText } = render(<ListCard cafe={mockCafe} />);
 
     // Check for the name
     expect(getByText('The Cozy Corner')).toBeTruthy();

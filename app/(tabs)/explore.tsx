@@ -496,7 +496,7 @@ export default function Explore() {
             showsUserLocation={true} // Show the default blue dot for user location
             onRegionChangeComplete={handleRegionChangeComplete} // Trigger on zoom or move
             showsMyLocationButton={true}
-            testID='map-view'
+            testID="map-view"
             mapType="standard">
             {searchedMarkers.map((marker, index) => {
               const validMarker: MarkerType = {

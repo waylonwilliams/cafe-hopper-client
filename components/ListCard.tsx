@@ -27,7 +27,7 @@ const ListCard: React.FC<ListCardProps> = ({ cafe }) => {
   // Randomly selected mock image URL
   const mockImageUrl = getRandomImage();
 
-  // Get the current day of the week as string 
+  // Get the current day of the week as string
   const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
   const today = days[new Date().getDay()];
 
@@ -46,7 +46,7 @@ const ListCard: React.FC<ListCardProps> = ({ cafe }) => {
         <Image
           source={{ uri: cafe.image ? cafe.image : mockImageUrl }}
           style={{ width: '100%', height: '100%' }}
-          testID="list-card-image" 
+          testID="list-card-image"
         />
       </View>
 

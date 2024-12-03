@@ -13,13 +13,11 @@ jest.mock('expo-font', () => ({
 }));
 
 jest.mock('expo-location', () => ({
-  requestForegroundPermissionsAsync: jest.fn(() =>
-    Promise.resolve({ status: 'granted' })
-  ),
+  requestForegroundPermissionsAsync: jest.fn(() => Promise.resolve({ status: 'granted' })),
   getCurrentPositionAsync: jest.fn(() =>
     Promise.resolve({
       coords: { latitude: 37.7749, longitude: -122.4194 },
-    })
+    }),
   ),
   Accuracy: {
     High: 'High',
@@ -31,7 +29,7 @@ jest.mock('expo-location', () => ({
 describe('Explore Screen', () => {
   test('renders the map view correctly', () => {
     const { getByText, getByTestId } = render(<Explore />);
-    
+
     // Switch to 'map' view
     const mapButton = getByText('Map');
     fireEvent.press(mapButton);
@@ -65,22 +63,18 @@ describe('Explore Screen', () => {
     expect(filterTitle).toBeTruthy();
   });
 
- test('updates selected hour filter when clicked', async () => {
-   const { getByPlaceholderText, getByText } = render(<Explore />);
+  test('updates selected hour filter when clicked', async () => {
+    const { getByPlaceholderText, getByText } = render(<Explore />);
 
-   // Focus the search bar to make the dropdown visible
-   const searchBar = getByPlaceholderText('Search a cafe, characteristic, etc.');
-   fireEvent(searchBar, 'focus');
+    // Focus the search bar to make the dropdown visible
+    const searchBar = getByPlaceholderText('Search a cafe, characteristic, etc.');
+    fireEvent(searchBar, 'focus');
 
-   // Wait for the dropdown to render
-   const openNowFilter = await waitFor(() => getByText('Open now'));
-   fireEvent.press(openNowFilter);
+    // Wait for the dropdown to render
+    const openNowFilter = await waitFor(() => getByText('Open now'));
+    fireEvent.press(openNowFilter);
 
-   // Add assertions for filter state updates
-   expect(openNowFilter).toBeTruthy();
- });
-
-
-  
-
+    // Add assertions for filter state updates
+    expect(openNowFilter).toBeTruthy();
+  });
 });
