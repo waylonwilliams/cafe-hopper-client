@@ -42,10 +42,10 @@ describe('LoginScreen', () => {
   test('renders the login screen correctly', () => {
     const { getByPlaceholderText, getByText } = render(<LoginScreen />);
 
-    expect(getByPlaceholderText('Username or Email')).toBeTruthy();
+    expect(getByPlaceholderText('Email')).toBeTruthy();
     expect(getByPlaceholderText('Password')).toBeTruthy();
     expect(getByText('Continue exploring')).toBeTruthy();
-    expect(getByText('Already have an account? Sign Up')).toBeTruthy();
+    expect(getByText("Don't have an account? Sign Up")).toBeTruthy();
   });
 
   test('toggles password visibility', () => {
@@ -69,7 +69,7 @@ describe('LoginScreen', () => {
     (supabase.auth.signInWithPassword as jest.Mock).mockResolvedValue({ error: null });
 
     const { getByPlaceholderText, getByText } = render(<LoginScreen />);
-    fireEvent.changeText(getByPlaceholderText('Username or Email'), 'test@example.com');
+    fireEvent.changeText(getByPlaceholderText('Email'), 'test@example.com');
     fireEvent.changeText(getByPlaceholderText('Password'), 'password123');
 
     fireEvent.press(getByText('Continue exploring'));
@@ -90,7 +90,7 @@ describe('LoginScreen', () => {
     });
 
     const { getByPlaceholderText, getByText } = render(<LoginScreen />);
-    fireEvent.changeText(getByPlaceholderText('Username or Email'), 'test@example.com');
+    fireEvent.changeText(getByPlaceholderText('Email'), 'test@example.com');
     fireEvent.changeText(getByPlaceholderText('Password'), 'wrongpassword');
 
     fireEvent.press(getByText('Continue exploring'));
@@ -106,7 +106,7 @@ describe('LoginScreen', () => {
 
   test('navigates to the sign-up page', () => {
     const { getByText } = render(<LoginScreen />);
-    fireEvent.press(getByText('Already have an account? Sign Up'));
+    fireEvent.press(getByText("Don't have an account? Sign Up"));
 
     expect(router.replace).toHaveBeenCalledWith('/signUp');
   });

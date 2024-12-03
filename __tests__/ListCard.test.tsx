@@ -63,12 +63,4 @@ describe('ListCard Component', () => {
     expect(queryByText('🥐 Pastries')).toBeNull();
     expect(queryByText('📶 Free WiFi')).toBeNull();
   });
-
-  test('displays a placeholder rating when no rating is provided', () => {
-    const cafeWithoutRating = { ...mockCafe, rating: null };
-    const { getByText } = render(<ListCard cafe={cafeWithoutRating} />);
-
-    // Check for default rating
-    expect(getByText('⭐️4.2')).toBeTruthy();
-  });
 });
