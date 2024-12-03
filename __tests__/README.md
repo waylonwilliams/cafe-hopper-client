@@ -36,7 +36,7 @@ If you wish to quit the automated tester, press `q` or `ctrl+c`
 - "shows an alert on login error"
 - "navigates to the sign-up page"
 
-`CafeTest.tsx`: `@/components/CafePage/Cafe` and `@/components/CafePage/CafeTypes`  
+`CafeTest.tsx`: `@/components/CafePage/Cafe` and `@/components/CafePage/CafeTypes`
 
 - "renders cafe details correctly"
 - "toggles the to-go button on click"
@@ -44,7 +44,6 @@ If you wish to quit the automated tester, press `q` or `ctrl+c`
 - "calls logVisit when 'Log a visit' is pressed"
 - "Shows average review rating"
 
-`ReviewTest.tsx`: `@/components/Review` and `@/components/CafePage/CafeTypes`  
+`ReviewTest.tsx`: `@/components/Review` and `@/components/CafePage/CafeTypes`
 
 - "Renders review contents
-
