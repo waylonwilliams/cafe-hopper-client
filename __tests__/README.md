@@ -12,7 +12,7 @@ Test is automated and is re-run everytime any change is made.
 If you wish to restart the test manually, press `enter`  
 If you wish to quit the automated tester, press `q` or `ctrl+c`
 
-## Tests (so far):
+## Tests (as of now):
 
 `start-test.tsx`: `@/app/index.tsx`
 
@@ -35,3 +35,16 @@ If you wish to quit the automated tester, press `q` or `ctrl+c`
 - "calls signInWithEmail and navigates on successful login"
 - "shows an alert on login error"
 - "navigates to the sign-up page"
+
+`CafeTest.tsx`: `@/components/CafePage/Cafe` and `@/components/CafePage/CafeTypes`  
+
+- "renders cafe details correctly"
+- "toggles the to-go button on click"
+- "toggles the like button on click"
+- "calls logVisit when 'Log a visit' is pressed"
+- "Shows average review rating"
+
+`ReviewTest.tsx`: `@/components/Review` and `@/components/CafePage/CafeTypes`  
+
+- "Renders review contents
+
