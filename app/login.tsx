@@ -34,7 +34,7 @@ const LoginScreen = () => {
     if (error) Alert.alert(error.message);
     if (!error) router.replace('/(tabs)');
     } else {
-      Alert.alert('Missing Email or Password')
+      Alert.alert('Missing Email or Password');
     }
     setLoading(false);
   }

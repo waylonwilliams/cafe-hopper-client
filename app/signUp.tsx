@@ -52,7 +52,7 @@ const SignUpScreen = () => {
         Alert.alert('Passwords do not match');
       }
     } else {
-      Alert.alert('Missing Email or Password')
+      Alert.alert('Missing Email or Password');
     }
   }
 
