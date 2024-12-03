@@ -8,6 +8,7 @@ import {
   TextInput,
   Pressable,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
@@ -22,6 +23,7 @@ import EmojiTag from '@/components/EmojiTag';
 import { cafeTags } from '@/components/CafePage/CafeTypes';
 import { searchCafesFromBackend } from '@/lib/backend';
 import { CafeSearchRequest, CafeSearchResponse } from '@/lib/backend-types';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -59,6 +61,7 @@ export default function Explore() {
   const [emojiTags, setEmojiTags] = useState<string[]>([]); // State to track selected emoji tags
   const [searchIsFocused, setSearchIsFocused] = useState(false);
   const [locationReady, setLocationReady] = useState(false);
+  const [isLoading, setIsLoading] = useState(false); // State for loading spinner
   // States for filtering based on time
   const [selectedDay, setSelectedDay] = useState(''); // Track selected day
   const [selectedHours, setSelectedHours] = useState('Any'); // Track selected hours
@@ -146,6 +149,7 @@ export default function Explore() {
   // Fetch cafes based on search query and filters
   useEffect(() => {
     if (!locationReady) return;
+    setIsLoading(true);
 
     const handleCustomHourChange = (day?: string, hour?: number, period?: string) => {
       const dayMap = new Map<string, number>([
@@ -239,6 +243,8 @@ export default function Explore() {
         setMarkers(markers);
       } catch (error) {
         console.error('Error searching for cafes:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
     searchCafes(debouncedQuery);
@@ -335,7 +341,10 @@ export default function Explore() {
             placeholder="Search a cafe, characteristic, etc."
             placeholderTextColor="#888"
             value={searchQuery}
-            onChangeText={(text) => handleSearch(text)}
+            onChangeText={(text) => {
+              handleSearch(text);
+              setIsLoading(true);
+            }}
             // onFocus and onBlur to toggle the filter dropdown whether or not the search bar is open
             // no need to have it press off because the keyboard is in the way anyway
             onFocus={() => setSearchIsFocused(true)}
@@ -584,7 +593,18 @@ export default function Explore() {
         </View>
       ) : (
         <ScrollView contentContainerStyle={styles.listView}>
-          {searchedCafes ? (
+          {isLoading ? (
+            <ActivityIndicator
+              size="large"
+              color="#000000"
+              style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: screenHeight * 0.5,
+              }}
+            />
+          ) : searchedCafes ? (
             searchedCafes.map(
               (
                 cafe, // if no searched cafes, return text saying no cafes found
