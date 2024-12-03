@@ -49,7 +49,7 @@ const LoginScreen = () => {
         <Icon name="user" size={20} color="black" />
         <TextInput
           style={styles.input}
-          placeholder="Username or Email"
+          placeholder="Email"
           placeholderTextColor="black"
           value={email}
           onChangeText={setEmail}
@@ -81,13 +81,19 @@ const LoginScreen = () => {
       </View>
 
       <View style={styles.signupButton}>
+        <TouchableOpacity
+          style={styles.guestbutton}
+          onPress={() => router.replace('/(tabs)')}
+          disabled={loading}>
+          <Text style={styles.guestText}>Continue as guest</Text>
+        </TouchableOpacity>
         <TouchableOpacity style={styles.button} onPress={signInWithEmail} disabled={loading}>
           <Text style={styles.buttonText}>Continue exploring</Text>
           <Image source={require('@/assets/images/arrow.png')} />
         </TouchableOpacity>
 
         <TouchableOpacity onPress={() => router.replace('/signUp')}>
-          <Text>Already have an account? Sign Up</Text>
+          <Text>Don't have an account? Sign Up</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -152,8 +158,14 @@ const styles = StyleSheet.create({
     elevation: 5, // Shadow for Android
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 136.9,
+    marginTop: 0,
     marginBottom: 20,
+  },
+  guestText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+    paddingRight: 10,
   },
   buttonText: {
     color: 'black', // Text color
@@ -166,6 +178,18 @@ const styles = StyleSheet.create({
   },
   google: {
     marginTop: 10,
+  },
+  guestbutton: {
+    margin: 10,
+    backgroundColor: 'black',
+    borderWidth: 1,
+    borderRadius: 32.05, // Half of height for pill shape
+    paddingVertical: 10, // Vertical padding
+    paddingHorizontal: 20, // Horizontal padding
+    elevation: 5, // Shadow for Android
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
   },
 });
 
