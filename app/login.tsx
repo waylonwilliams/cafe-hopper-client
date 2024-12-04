@@ -26,13 +26,13 @@ const LoginScreen = () => {
     // console.log('Password:', password);
     setLoading(true);
     if (email.length > 0 || password.length > 0) {
-    const { error } = await supabase.auth.signInWithPassword({
-      email: email,
-      password: password,
-    });
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email,
+        password: password,
+      });
 
-    if (error) Alert.alert(error.message);
-    if (!error) router.replace('/(tabs)');
+      if (error) Alert.alert(error.message);
+      if (!error) router.replace('/(tabs)');
     } else {
       Alert.alert('Missing Email or Password');
     }

@@ -1,5 +1,5 @@
-import React, { memo } from 'react';
-import { View, Text, Image, StyleSheet, Pressable } from 'react-native';
+import React from 'react';
+import { View, Text, Image, StyleSheet } from 'react-native';
 import { CafeType } from '@/components/CafePage/CafeTypes';
 import EmojiTag from '@/components/EmojiTag';
 
