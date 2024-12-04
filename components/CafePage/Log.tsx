@@ -123,7 +123,7 @@ export default function Log({ setLoggingVisit, cafe, reviews, setReviews }: Prop
       // wrapped in a try block so it doens't matter if something goes wrong
       try {
         const API_URL = `http://${Constants.expoConfig?.hostUri!.split(':').shift()}:3000`;
-        fetch(API_URL + 'cafes/ping', {
+        fetch(API_URL + '/cafes/ping', {
           method: 'PUT',
           headers: {
             'Content-Type': 'application/json',
