@@ -109,7 +109,6 @@ export default function Index() {
 
         {/* Profile */}
         <View style={styles.pfpContainer}>
-          {/* PLACEHOLDER --  ADD IMAGE UPLOAD*/}
           <Image
             style={styles.pfp}
             source={
@@ -156,6 +155,9 @@ export default function Index() {
           />
 
           <Text style={styles.h2}>Favorite Cafes</Text>
+          <Text style={{ fontSize: 12, fontStyle: 'italic' }}>
+            Please create and add to a list named 'favorites' to start!
+          </Text>
           <View style={styles.favorites}>
             {[0, 1, 2].map((index) => (
               <TouchableOpacity

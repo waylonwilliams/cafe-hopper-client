@@ -36,6 +36,13 @@ If you wish to quit the automated tester, press `q` or `ctrl+c`
 - "shows an alert on login error"
 - "navigates to the sign-up page"
 
+`CardTest.tsx`: `@/components/Card.tsx`
+
+- "renders Card Component correctly"
+- "renders default image when cafe image is null"
+- "navigates to cafe on press"
+- "handle no rating"
+
 `CafeTest.tsx`: `@/components/CafePage/Cafe` and `@/components/CafePage/CafeTypes`
 
 - "renders cafe details correctly"

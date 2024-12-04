@@ -1,16 +1,16 @@
 import React from 'react';
-import { View, StyleSheet, Image, Text } from 'react-native';
+import { View, StyleSheet, Image, Text, Pressable } from 'react-native';
 import { NewReviewType } from './CafePage/CafeTypes';
 import EmojiTag from './EmojiTag';
 import Ionicons from '@expo/vector-icons/Ionicons';
 
-type Feed = {
+export type Feed = {
   id: number;
-  name: string;
+  name?: string;
   pfp?: string;
   action: 'rated' | 'reviewed' | string;
-  cafe: string;
-  location: string;
+  cafe?: string;
+  location?: string;
   date: string;
   review: Partial<NewReviewType>;
   user_id?: string;
@@ -18,9 +18,10 @@ type Feed = {
 
 interface FeedProps {
   feed: Feed;
+  setViewingImages: (arg: string[]) => void;
 }
 
-export default function FeedComponent({ feed }: FeedProps) {
+export default function FeedComponent({ feed, setViewingImages }: FeedProps) {
   const renderStars = (rating: number) => {
     const numStars = Math.floor(rating / 2);
     const halfStar = rating % 2 !== 0;
@@ -35,33 +36,34 @@ export default function FeedComponent({ feed }: FeedProps) {
     );
   };
 
+  function handleImagePress() {
+    if (feed.review.images) setViewingImages(feed.review.images);
+  }
+
   return (
     <View style={styles.card}>
       {/* Header */}
       <View style={styles.header}>
-        {/*ADD ACTUAL PFP:
-          <Image source={{ uri: feed.pfp }} style={styles.avatar} />*/}
-        <View style={styles.avatar} />
+        {feed.pfp ? (
+          <Image source={{ uri: feed.pfp }} style={styles.avatar} />
+        ) : (
+          <View style={styles.avatar} />
+        )}
         <View style={styles.headerInfo}>
           <View style={styles.topRow}>
             <View style={styles.actionWrapper}>
               <Text style={styles.userName}>{feed.name}</Text>
-              <Text style={styles.action}>
-                {feed.action} <Text style={styles.placeName}>@ {feed.cafe}</Text>
-              </Text>
+              <Text style={styles.action}>{feed.action}</Text>
             </View>
 
             {/* Rating */}
-            <View style={styles.ratingBox}>
-              {feed.review.rating && (
-                <View style={styles.rating}>{renderStars(feed.review.rating)}</View>
-              )}
-            </View>
+            {feed.review.rating && (
+              <View style={styles.rating}>{renderStars(feed.review.rating)}</View>
+            )}
           </View>
-
-          <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-            <Text style={styles.location}>{feed.location}</Text>
-          </View>
+          <Text style={styles.placeName} numberOfLines={1} ellipsizeMode="tail">
+            {feed.cafe}
+          </Text>
         </View>
       </View>
 
@@ -74,9 +76,11 @@ export default function FeedComponent({ feed }: FeedProps) {
 
         {/* Images */}
         {feed.review.images && feed.review.images.length > 0 && (
-          <View>
+          <View style={{ flexDirection: 'row' }}>
             {feed.review.images.map((imageUri, index) => (
-              <Image key={index} source={{ uri: imageUri }} style={styles.postImage} />
+              <Pressable key={index} onPress={handleImagePress}>
+                <Image key={index} source={{ uri: imageUri }} style={styles.postImage} />
+              </Pressable>
             ))}
           </View>
         )}
@@ -91,8 +95,13 @@ export default function FeedComponent({ feed }: FeedProps) {
         )}
       </View>
 
-      {/* Date */}
-      <Text style={styles.date}>{feed.date}</Text>
+      {/* Date and location */}
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 }}>
+        <Text style={styles.location} numberOfLines={1} ellipsizeMode="tail">
+          {feed.location}
+        </Text>
+        <Text style={styles.date}>{feed.date}</Text>
+      </View>
     </View>
   );
 }
@@ -100,7 +109,6 @@ export default function FeedComponent({ feed }: FeedProps) {
 const styles = StyleSheet.create({
   card: {
     width: '100%',
-    margin: 5,
     padding: 5,
     overflow: 'hidden',
     borderRadius: 15,
@@ -128,10 +136,10 @@ const styles = StyleSheet.create({
   actionWrapper: {
     marginTop: 5,
     flexDirection: 'row',
+    width: '70%',
   },
 
   topRow: {
-    width: '90%',
     flexDirection: 'row',
     justifyContent: 'space-between',
   },
@@ -158,10 +166,13 @@ const styles = StyleSheet.create({
   location: {
     fontSize: 12,
     color: '#999',
+    width: '85%',
   },
 
   ratingBox: {
-    marginTop: 5,
+    flexShrink: 0,
+    position: 'absolute',
+    right: -50,
   },
 
   rating: {
