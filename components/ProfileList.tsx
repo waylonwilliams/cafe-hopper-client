@@ -5,16 +5,17 @@ import { Link } from 'expo-router';
 
 interface ProfileListProps {
   list: {
-    id: string;
-    name: string;
-    cafeCount: number;
-    visibility: boolean; // true for public, false for private
-    description?: string;
+    id: string; // Unique identifier for the list
+    name: string; // Name of the list
+    cafeCount: number; // Number of cafes in the list
+    visibility: boolean; // `true` for public lists, `false` for private lists
+    description?: string; // Optional description of the list
   };
 }
-
+// Component to display a user's profile list with navigational linking
 const ProfileList: React.FC<ProfileListProps> = ({ list }) => {
   return (
+    // `Link` is used to navigate to the list's detailed view
     <Link
       href={{
         pathname: '/listView/[listId]',

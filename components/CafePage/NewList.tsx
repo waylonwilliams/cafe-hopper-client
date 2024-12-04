@@ -2,12 +2,16 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, Pressable, Modal, Alert, StyleSheet } from 'react-native';
 import Ionicons from '@expo/vector-icons/Ionicons';
 import { supabase } from '@/lib/supabase';
+/**
+ * Component for creating a new list.
+ */
 
 interface NewListProps {
   visible: boolean;
   onClose: () => void;
   userId: string;
   onListCreated: () => void;
+  testID?: string;
 }
 
 export default function NewList({ visible, onClose, userId, onListCreated }: NewListProps) {
@@ -15,6 +19,11 @@ export default function NewList({ visible, onClose, userId, onListCreated }: New
   const [description, setDescription] = useState('');
   const [isPublic, setIsPublic] = useState(true);
 
+  /**
+   * Handles the creation of a new list.
+   * Validates the input and inserts the new list into the database.
+   * Displays an alert on success or failure.
+   */
   const handleCreateList = async () => {
     if (!listName) {
       Alert.alert('Please enter a list name.');
@@ -22,6 +31,7 @@ export default function NewList({ visible, onClose, userId, onListCreated }: New
     }
 
     try {
+      // Insert a new list into the 'cafeList' table in Supabase
       const { error } = await supabase
         .from('cafeList')
         .insert([{ user_id: userId, list_name: listName, description, public: isPublic }])
@@ -30,12 +40,14 @@ export default function NewList({ visible, onClose, userId, onListCreated }: New
 
       if (error) throw error;
 
+      // Notify the user of success
       Alert.alert('List created successfully!');
       setListName('');
       setDescription('');
       onListCreated();
       onClose();
     } catch (error) {
+      // Log and alert the user if list creation fails
       console.error('Error creating list:', error);
       Alert.alert('Failed to create list.');
     }
@@ -48,7 +60,7 @@ export default function NewList({ visible, onClose, userId, onListCreated }: New
           {/* Header */}
           <View style={styles.header}>
             <Text style={styles.title}>New List</Text>
-            <Pressable onPress={onClose}>
+            <Pressable onPress={onClose} testID="close-new-list">
               <Ionicons name="close" size={24} color="black" />
             </Pressable>
           </View>

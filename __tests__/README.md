@@ -12,7 +12,7 @@ Test is automated and is re-run everytime any change is made.
 If you wish to restart the test manually, press `enter`  
 If you wish to quit the automated tester, press `q` or `ctrl+c`
 
-## Tests (so far):
+## Tests (as of now):
 
 `start-test.tsx`: `@/app/index.tsx`
 
@@ -42,3 +42,15 @@ If you wish to quit the automated tester, press `q` or `ctrl+c`
 - "renders default image when cafe image is null"
 - "navigates to cafe on press"
 - "handle no rating"
+
+`CafeTest.tsx`: `@/components/CafePage/Cafe` and `@/components/CafePage/CafeTypes`
+
+- "renders cafe details correctly"
+- "toggles the to-go button on click"
+- "toggles the like button on click"
+- "calls logVisit when 'Log a visit' is pressed"
+- "Shows average review rating"
+
+`ReviewTest.tsx`: `@/components/Review` and `@/components/CafePage/CafeTypes`
+
+- "Renders review contents

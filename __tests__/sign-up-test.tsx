@@ -123,7 +123,6 @@ describe('SignUpScreen', () => {
 
     const passwordInput = getByPlaceholderText('Password');
     const toggleIcon = getByTestId('toggle-password-visibility');
-    const toggleConfirmIcon = getByTestId('toggle-confirm-password-visibility');
 
     expect(passwordInput.props.secureTextEntry).toBe(true);
 

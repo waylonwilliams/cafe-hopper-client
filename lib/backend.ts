@@ -1,9 +1,10 @@
 import { CafeSearchRequest, CafeSearchResponse } from './backend-types';
+import Constants from 'expo-constants';
 
 export const searchCafesFromBackend = async (
   request: CafeSearchRequest,
 ): Promise<CafeSearchResponse> => {
-  const API_URL = 'http://localhost:3000';
+  const API_URL = `http://${Constants.expoConfig?.hostUri!.split(':').shift()}:3000`;
   const response = await fetch(`${API_URL}/cafes/search`, {
     method: 'POST',
     headers: {

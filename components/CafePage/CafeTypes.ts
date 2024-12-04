@@ -9,7 +9,7 @@ export type CafeType = {
   tags: string[] | null;
   image: string | null;
   summary: string | null;
-  rating: number; // reviews are on a scale of 1-10 for db, but div 2 for displaying
+  rating: number | null; // reviews are on a scale of 1-10 for db, but div 2 for displaying
   num_reviews: number;
 };
 

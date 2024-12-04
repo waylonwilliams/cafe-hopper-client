@@ -8,6 +8,7 @@ import {
   TextInput,
   Pressable,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import * as Location from 'expo-location';
@@ -22,17 +23,19 @@ import EmojiTag from '@/components/EmojiTag';
 import { cafeTags } from '@/components/CafePage/CafeTypes';
 import { searchCafesFromBackend } from '@/lib/backend';
 import { CafeSearchRequest, CafeSearchResponse } from '@/lib/backend-types';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 export default function Explore() {
+  // Map region state for initial and updated location
   const [mapRegion, setMapRegion] = useState({
     latitude: 5.603717,
     longitude: -0.186964,
     latitudeDelta: 0.005,
     longitudeDelta: 0.005,
   });
-
+  // Predefined options for filters
   const daysOfWeek = [
     { label: 'Monday', value: 'Monday' },
     { label: 'Tuesday', value: 'Tuesday' },
@@ -42,18 +45,7 @@ export default function Explore() {
     { label: 'Saturday', value: 'Saturday' },
     { label: 'Sunday', value: 'Sunday' },
   ];
-
-  const timesOfDay = [
-    { label: '8:00 AM', value: '08:00' },
-    { label: '9:00 AM', value: '09:00' },
-    { label: '10:00 AM', value: '10:00' },
-    { label: '11:00 AM', value: '11:00' },
-    { label: '12:00 PM', value: '12:00' },
-    { label: '1:00 PM', value: '13:00' },
-    { label: '2:00 PM', value: '14:00' },
-    { label: '3:00 PM', value: '15:00' },
-    { label: '4:00 PM', value: '16:00' },
-  ];
+  // States for various UI and search functionalities
 
   const [scale, setScale] = useState(1); // Scale state for dynamic resizing
   const mapRef = useRef<MapView>(null); // Reference to the MapView
@@ -69,17 +61,17 @@ export default function Explore() {
   const [emojiTags, setEmojiTags] = useState<string[]>([]); // State to track selected emoji tags
   const [searchIsFocused, setSearchIsFocused] = useState(false);
   const [locationReady, setLocationReady] = useState(false);
-
+  const [isLoading, setIsLoading] = useState(false); // State for loading spinner
+  // States for filtering based on time
   const [selectedDay, setSelectedDay] = useState(''); // Track selected day
-  const [selectedTime, setSelectedTime] = useState(''); // Track selected time
   const [selectedHours, setSelectedHours] = useState('Any'); // Track selected hours
-  const [selectedHour, setSelectedHour] = useState<number | null>(null); // Selected hour
+  const [selectedTime, setSelectedTime] = useState<number>(); // Selected hour
   const [selectedPeriod, setSelectedPeriod] = useState<string>('AM'); // Selected period (AM/PM)
 
-  const handleCustomHourChange = (day: string, time: string) => {
-    setSelectedDay(day);
-    setSelectedTime(time);
-    // Custom logic to handle selected custom hours can go here
+  const convertTo24Hour = (hour: number, period: string): string => {
+    const hour24 =
+      period === 'PM' && hour !== 12 ? hour + 12 : period === 'AM' && hour === 12 ? 0 : hour;
+    return hour24.toString().padStart(2, '0') + '00'; // Format as "XXXX" (e.g., "0700")
   };
 
   const calculateZoomLevel = (latitudeDelta: number) => {
@@ -87,14 +79,16 @@ export default function Explore() {
     return Math.log2(360 / latitudeDelta);
   };
 
+  // Update region and scale dynamically when map region changes
   const handleRegionChangeComplete = (region: typeof mapRegion) => {
     setMapRegion(region);
     const zoomLevel = calculateZoomLevel(region.latitudeDelta);
     const newScale = Math.min(Math.max(zoomLevel / 15, 0.5), 1.5); // Normalize scale between 0.5 and 1.5
     setScale(newScale);
-    setMapRegion(region); // Update the map region state
+    setMapRegion(region);
   };
 
+  // Handle marker press to navigate to cafe details
   const handleMarkerPress = (marker: MarkerType) => {
     // Navigate to cafe view and pass marker data as parameters
     console.log('Navigating to cafe', marker.name);
@@ -103,6 +97,7 @@ export default function Explore() {
     }
   };
 
+  // Navigate to cafe details page
   const navigateToCafe = (cafe: CafeType) => {
     if (isNavigating) {
       return;
@@ -138,9 +133,8 @@ export default function Explore() {
       setIsNavigating(false);
     }
   };
-
+  // Debounce the search query to prevent too many requests
   useEffect(() => {
-    // Debounce the search query to prevent too many requests
     const handler = setTimeout(() => {
       if (debouncedQuery !== searchQuery) {
         setDebouncedQuery(searchQuery);
@@ -152,10 +146,50 @@ export default function Explore() {
     };
   }, [searchQuery, debouncedQuery]);
 
+  // Fetch cafes based on search query and filters
   useEffect(() => {
     if (!locationReady) return;
+    setIsLoading(true);
+
+    const handleCustomHourChange = (day?: string, hour?: number, period?: string) => {
+      const dayMap = new Map<string, number>([
+        ['Sunday', 0],
+        ['Monday', 1],
+        ['Tuesday', 2],
+        ['Wednesday', 3],
+        ['Thursday', 4],
+        ['Friday', 5],
+        ['Saturday', 6],
+      ]);
+      const dayValue = day ? dayMap.get(day) : undefined;
+      const timeString = hour !== undefined && period ? convertTo24Hour(hour, period) : undefined;
+
+      // Construct customTime object for Search Request
+      const customTime: {
+        day?: number;
+        time?: string;
+      } = {};
+
+      // Add day and time to customTime object if they exist
+      if (dayValue) {
+        customTime.day = dayValue;
+      }
+
+      if (timeString) {
+        customTime.time = timeString;
+      }
+
+      return customTime;
+    };
+
     const searchCafes = async (query: string) => {
       try {
+        // Build Request Object
+        const customTime =
+          selectedHours === 'Custom'
+            ? handleCustomHourChange(selectedDay, selectedTime, selectedPeriod)
+            : undefined;
+
         const searchRequest: CafeSearchRequest = {
           query,
           geolocation: {
@@ -165,8 +199,10 @@ export default function Explore() {
           openNow: selectedHours === 'Open Now',
           rating: selectedRating === 'Any' ? undefined : parseFloat(selectedRating),
           tags: emojiTags,
+          customTime,
         };
 
+        // Send it over to the backend server
         const response: CafeSearchResponse = await searchCafesFromBackend(searchRequest);
         if (response.error) throw new Error(response.error);
 
@@ -198,19 +234,33 @@ export default function Explore() {
             longitude: cafe.longitude,
             rating: cafe.rating ? cafe.rating.toString() : '0',
             category: 'default',
-            cafe: newCafe,
+            cafe: newCafe, // Attach the cafe data to the marker for navigation
           });
         }
 
+        // Update the states with the fetched cafes and markers
         setSearchedCafes(cafes);
         setMarkers(markers);
       } catch (error) {
         console.error('Error searching for cafes:', error);
+      } finally {
+        setIsLoading(false);
       }
     };
     searchCafes(debouncedQuery);
-  }, [debouncedQuery, mapRegion, selectedHours, selectedRating, emojiTags, locationReady]);
+  }, [
+    debouncedQuery,
+    mapRegion,
+    selectedHours,
+    selectedRating,
+    emojiTags,
+    locationReady,
+    selectedDay,
+    selectedTime,
+    selectedPeriod,
+  ]);
 
+  // Request user location and update the map
   const userLocation = async () => {
     let { status } = await Location.requestForegroundPermissionsAsync();
     if (status !== 'granted') {
@@ -263,6 +313,22 @@ export default function Explore() {
     handleSearch(searchQuery);
   };
 
+  const handleTimeClick = (hour: number) => {
+    if (selectedTime === hour) {
+      setSelectedTime(undefined);
+      return;
+    }
+    setSelectedTime(hour);
+  };
+
+  const handleDayClick = (day: string) => {
+    if (selectedDay === day) {
+      setSelectedDay('');
+      return;
+    }
+    setSelectedDay(day);
+  };
+
   return (
     <View>
       {/** Top Search Bar */}
@@ -275,7 +341,10 @@ export default function Explore() {
             placeholder="Search a cafe, characteristic, etc."
             placeholderTextColor="#888"
             value={searchQuery}
-            onChangeText={(text) => handleSearch(text)}
+            onChangeText={(text) => {
+              handleSearch(text);
+              setIsLoading(true);
+            }}
             // onFocus and onBlur to toggle the filter dropdown whether or not the search bar is open
             // no need to have it press off because the keyboard is in the way anyway
             onFocus={() => setSearchIsFocused(true)}
@@ -284,6 +353,7 @@ export default function Explore() {
             autoCapitalize="none"
             autoCorrect={false}
             onSubmitEditing={(text) => handleSearch(text.nativeEvent.text)}
+            testID="search-bar"
           />
         </View>
         <View style={styles.buttonContainer}>
@@ -306,7 +376,6 @@ export default function Explore() {
             {/* Hours Section */}
             <View style={styles.filterSection}>
               <Text style={styles.filterSectionTitle}>
-                {/* idk why the icon is floating weird */}
                 <MaterialIcons name="schedule" size={16} /> Hours
               </Text>
               <View style={styles.filterButtonsContainer}>
@@ -347,7 +416,7 @@ export default function Explore() {
                           styles.smallCircleButton,
                           selectedDay === day.value ? styles.activeSmallCircleButton : null,
                         ]}
-                        onPress={() => setSelectedDay(day.value)}>
+                        onPress={() => handleDayClick(day.value)}>
                         <Text
                           style={[
                             styles.smallCircleButtonText,
@@ -369,17 +438,13 @@ export default function Explore() {
                           key={hour}
                           style={[
                             styles.smallCircleButton,
-                            selectedTime === hour.toString()
-                              ? styles.activeSmallCircleButton
-                              : null,
+                            selectedTime === hour ? styles.activeSmallCircleButton : null,
                           ]}
-                          onPress={() => setSelectedTime(hour.toString())}>
+                          onPress={() => handleTimeClick(hour)}>
                           <Text
                             style={[
                               styles.smallCircleButtonText,
-                              selectedTime === hour.toString()
-                                ? styles.activeSmallCircleButtonText
-                                : null,
+                              selectedTime === hour ? styles.activeSmallCircleButtonText : null,
                             ]}>
                             {hour}
                           </Text>
@@ -394,17 +459,13 @@ export default function Explore() {
                           key={hour}
                           style={[
                             styles.smallCircleButton,
-                            selectedTime === hour.toString()
-                              ? styles.activeSmallCircleButton
-                              : null,
+                            selectedTime === hour ? styles.activeSmallCircleButton : null,
                           ]}
-                          onPress={() => setSelectedTime(hour.toString())}>
+                          onPress={() => handleTimeClick(hour)}>
                           <Text
                             style={[
                               styles.smallCircleButtonText,
-                              selectedTime === hour.toString()
-                                ? styles.activeSmallCircleButtonText
-                                : null,
+                              selectedTime === hour ? styles.activeSmallCircleButtonText : null,
                             ]}>
                             {hour}
                           </Text>
@@ -510,6 +571,7 @@ export default function Explore() {
             showsUserLocation={true} // Show the default blue dot for user location
             onRegionChangeComplete={handleRegionChangeComplete} // Trigger on zoom or move
             showsMyLocationButton={true}
+            testID="map-view"
             mapType="standard">
             {searchedMarkers.map((marker, index) => {
               const validMarker: MarkerType = {
@@ -531,7 +593,18 @@ export default function Explore() {
         </View>
       ) : (
         <ScrollView contentContainerStyle={styles.listView}>
-          {searchedCafes ? (
+          {isLoading ? (
+            <ActivityIndicator
+              size="large"
+              color="#000000"
+              style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+                height: screenHeight * 0.5,
+              }}
+            />
+          ) : searchedCafes ? (
             searchedCafes.map(
               (
                 cafe, // if no searched cafes, return text saying no cafes found
@@ -692,29 +765,6 @@ const styles = StyleSheet.create({
   filterIcon: {
     marginRight: 5,
   },
-
-  circleButtonContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-evenly',
-    marginVertical: 5,
-  },
-  circleButton: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: '#ddd',
-    margin: 5,
-    backgroundColor: '#fff',
-  },
-  activeCircleButton: {
-    backgroundColor: '#c9c9c9',
-    borderColor: '#000',
-  },
-
   customHourContainer: {
     marginTop: 20,
     padding: 10,
@@ -732,7 +782,6 @@ const styles = StyleSheet.create({
     marginTop: 10,
     marginBottom: 15,
   },
-
   twoRowContainer: {
     marginVertical: 10,
   },
