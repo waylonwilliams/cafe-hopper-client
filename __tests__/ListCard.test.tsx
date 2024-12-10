@@ -15,7 +15,7 @@ describe('ListCard Component', () => {
     tags: ['☕ Coffee', '🥐 Pastries', '📶 Free WiFi'],
     image: null,
     summary: 'A cozy cafe with a great selection of coffee and pastries.',
-    rating: 4.5,
+    rating: 8,
     num_reviews: 120,
   };
 
@@ -26,7 +26,7 @@ describe('ListCard Component', () => {
     expect(getByText('The Cozy Corner')).toBeTruthy();
 
     // Check for the rating
-    expect(getByText('⭐️4.5')).toBeTruthy();
+    expect(getByText('⭐️4')).toBeTruthy();
 
     // Check for the address
     expect(getByText('123 Main St, San Francisco, CA 94105')).toBeTruthy();
