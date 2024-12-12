@@ -12,7 +12,7 @@ export default function CardComponent({ cafe }: CardProps) {
   const router = useRouter();
   const defaultImage =
     'https://lirlyghrkygwaesanniz.supabase.co/storage/v1/object/public/posts/public/defaultOshima.png';
-  const displayRating = cafe.rating / 2;
+  const displayRating = cafe.rating ? cafe.rating / 2 : 0;
 
   return (
     <View style={styles.card}>

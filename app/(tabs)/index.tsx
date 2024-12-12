@@ -48,9 +48,9 @@ export default function Home() {
 
   // For feed posts
   const [feed, setFeed] = useState<Feed[]>([]);
-  const [feedUsers, setFeedUsers] = useState<Map<string, string>>(new Map());
-  const [feedPfps, setFeedPfps] = useState<Map<string, string>>(new Map());
-  const [feedCafeNames, setFeedCafeNames] = useState<Map<string, string>>(new Map());
+  // const [feedUsers, setFeedUsers] = useState<Map<string, string>>(new Map());
+  // const [feedPfps, setFeedPfps] = useState<Map<string, string>>(new Map());
+  const [_, setFeedCafeNames] = useState<Map<string, string>>(new Map());
   const [feedCafeLocs, setFeedCafeLocs] = useState<Map<string, string>>(new Map());
 
   const popCafeSkeletons = () => {
@@ -180,29 +180,29 @@ export default function Home() {
   };
 
   // Fetch user details (name, pfp) for feed posts
-  const fetchUserInfo = async (
-    userIds: string[],
-  ): Promise<{ nameMap: Map<string, string>; pfpMap: Map<string, string> } | null> => {
-    const { data: users, error } = await supabase
-      .from('profiles')
-      .select('user_id, name, pfp')
-      .in('user_id', userIds);
+  // const fetchUserInfo = async (
+  //   userIds: string[],
+  // ): Promise<{ nameMap: Map<string, string>; pfpMap: Map<string, string> } | null> => {
+  //   const { data: users, error } = await supabase
+  //     .from('profiles')
+  //     .select('user_id, name, pfp')
+  //     .in('user_id', userIds);
 
-    if (error) {
-      console.error('Error fetching user details for feed: ', error);
-      return null;
-    }
+  //   if (error) {
+  //     console.error('Error fetching user details for feed: ', error);
+  //     return null;
+  //   }
 
-    const nameMap = new Map<string, string>();
-    const pfpMap = new Map<string, string>();
+  //   const nameMap = new Map<string, string>();
+  //   const pfpMap = new Map<string, string>();
 
-    users.forEach((user) => {
-      nameMap.set(user.user_id, user.name);
-      pfpMap.set(user.user_id, user.pfp);
-    });
+  //   users.forEach((user) => {
+  //     nameMap.set(user.user_id, user.name);
+  //     pfpMap.set(user.user_id, user.pfp);
+  //   });
 
-    return { nameMap, pfpMap };
-  };
+  //   return { nameMap, pfpMap };
+  // };
 
   const fetchCafeInfo = async (
     cafeIds: string[],
@@ -245,7 +245,7 @@ export default function Home() {
     // Fetch list of top reviews in database from past week
     const { data, error } = await supabase
       .from('reviews')
-      .select('*')
+      .select('*, profiles(*), cafes(*)')
       .order('created_at', { ascending: false })
       .limit(5);
 
@@ -256,18 +256,19 @@ export default function Home() {
 
     // Fetch names, pfps, cafes
 
-    const userIds = [...new Set(data.map((review) => review.user_id))];
-    const cafeIds = [...new Set(data.map((review) => review.cafe_id))];
+    // const userIds = [...new Set(data.map((review) => review.user_id))];
+    // const cafeIds = [...new Set(data.map((review) => review.cafe_id))];
 
-    const [userInfo, cafeInfo] = await Promise.all([
-      fetchUserInfo(userIds),
-      fetchCafeInfo(cafeIds),
-    ]);
+    // const [userInfo, cafeInfo] = await Promise.all([
+    //   fetchUserInfo(userIds),
+    //   fetchCafeInfo(cafeIds),
+    // ]);
 
-    if (userInfo) {
-      setFeedUsers(userInfo.nameMap);
-      setFeedPfps(userInfo.pfpMap);
-    }
+    // if (userInfo) {
+    //   setFeedUsers(userInfo.nameMap);
+    //   setFeedPfps(userInfo.pfpMap);
+    // }
+    const cafeInfo = await fetchCafeInfo(data.map((review) => review.cafe_id));
     if (cafeInfo) {
       setFeedCafeNames(cafeInfo.cafeMap);
       setFeedCafeLocs(cafeInfo.locMap);
@@ -282,10 +283,10 @@ export default function Home() {
       });
       return {
         id: item.id,
-        name: feedUsers.get(item.user_id),
-        pfp: feedPfps.get(item.user_id),
+        name: item.profiles.name,
+        pfp: item.profiles.pfp,
         action: item.description ? 'reviewed' : 'rated', // Replace or customize based on your logic
-        cafe: feedCafeNames.get(item.cafe_id),
+        cafe: item.cafes.name,
         location: feedCafeLocs.get(item.cafe_id),
         date: formattedDate,
         review: {
@@ -299,7 +300,7 @@ export default function Home() {
 
     setFeed(formattedFeed);
     setFeedLoading(false);
-  }, [feedCafeLocs, feedCafeNames, feedPfps, feedUsers]);
+  }, []);
 
   // Fetch Popular Cafes
   const getCafes = useCallback(async () => {
@@ -356,7 +357,7 @@ export default function Home() {
 
   useEffect(() => {
     fetchFeed();
-  }, [feedUsers, feedPfps, feedCafeNames, feedCafeLocs, fetchFeed]);
+  }, []);
 
   useEffect(() => {
     if (userRegion) {
